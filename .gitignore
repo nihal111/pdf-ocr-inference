@@ -1,6 +1,6 @@
 .venv*/
 __pycache__/
-results/
+/results/
 *.nsys-rep
 *.ncu-rep
 # Raw event recordings stay local; the site exports aggregated profiling data.

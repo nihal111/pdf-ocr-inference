@@ -27,7 +27,7 @@ function toast(text) { const el=document.querySelector('#toast'); el.textContent
 function nav() {
   const route=location.hash || '#/';
   const link=(url,label,icon,guide=false)=>`<a class="nav-link ${guide?'guide':''} ${route===url?'active':''}" href="${url}" ${route===url?'aria-current="page"':''}><span class="nav-icon" aria-hidden="true">${icon}</span>${esc(label)}</a>`;
-  document.querySelector('#navigation').innerHTML=`<div class="nav-label">WORKSPACE</div>${link('#/','Overview','◫')}${link('#/runs','Experiment runs','▤')}${link('#/datasets','PDF dataset','▥')}${link('#/journal','Experiment journal','▧')}<div class="nav-label">NOTES</div>${state.documents.filter(d=>d.kind==='guide').map(d=>link(`#/doc/${d.id}`,d.title,'·',true)).join('')}<div class="nav-label">RESULTS</div>${link('#/output/latest','PDF → Markdown','⇄')}${link('#/embeddings/latest','Embeddings','⠿')}`;
+  document.querySelector('#navigation').innerHTML=`<div class="nav-label">WORKSPACE</div>${link('#/','Overview','◫')}${link('#/runs','Experiment runs','▤')}${link('#/datasets','PDF dataset','▥')}${link('#/journal','Experiment journal','▧')}<div class="nav-label">NOTES</div>${state.documents.filter(d=>d.kind==='guide').map(d=>link(`#/doc/${d.id}`,d.title,'·',true)).join('')}<div class="nav-label">RESULTS</div>${state.documents.filter(d=>d.kind==='result').map(d=>link(`#/doc/${d.id}`,d.title,'◷')).join('')}${link('#/output/latest','PDF → Markdown','⇄')}${link('#/embeddings/latest','Embeddings','⠿')}`;
   if(route.startsWith('#/output/'))document.querySelector('a[href="#/output/latest"]').setAttribute('aria-current','page');
   if(route.startsWith('#/embeddings/'))document.querySelector('a[href="#/embeddings/latest"]').setAttribute('aria-current','page');
 }
@@ -155,7 +155,7 @@ function overview() {
       <div class="overview-card-top"><div><h2 id="overview-journey-title">Where the gains came from</h2><p class="tiny muted">Share of measured time reductions. Explore a lever for the exact tweak.</p></div><label class="overview-metric-picker">Metric <select id="overview-metric" aria-label="Optimization contribution metric"><option value="p50_ms">p50 latency</option><option value="p95_ms">p95 latency</option><option value="pages_per_minute_sequential">Time per page</option></select></label></div>
       <div id="overview-contributions"></div>
     </section>
-    <nav class="overview-resources" aria-label="Pipeline research and results"><a href="#/doc/pages/pipeline">Pipeline documentation →</a><a href="#/doc/pages/lessons-learned">Lessons learned →</a><a href="#/journal">Experiment journal →</a><a href="#/datasets">Frozen PDFs →</a><a href="#/output/latest">PDF → Markdown</a><a href="#/embeddings/latest">Embeddings →</a></nav>
+    <nav class="overview-resources" aria-label="Pipeline research and results"><a href="#/doc/pages/pipeline">Pipeline documentation →</a><a href="#/doc/results/summary">Results summary →</a><a href="#/journal">Experiment journal →</a><a href="#/datasets">Frozen PDFs →</a><a href="#/output/latest">PDF → Markdown</a><a href="#/embeddings/latest">Embeddings →</a></nav>
   </div>`;
   renderContributionChart();
   document.querySelector('#overview-metric').addEventListener('change',event=>renderContributionChart(event.target.value));
@@ -603,7 +603,7 @@ async function documentView(id,token) {
   const links=[]; const run=state.runs.find(r=>r.path===d.run),profile=state.profiles.find(p=>p.path===d.profile);
   if(run)links.push(`<a class="button small" href="#/run/${run.id}">Open experiment run ↗</a>`);
   if(profile)links.push(`<a class="button small" href="#/profile/${profile.id}">Open profile ↗</a>`);
-  content.innerHTML=heading(d.kind==='experiment'?'Experiment journal':'Notes',d.title,d.description)+
+  content.innerHTML=heading(d.kind==='experiment'?'Experiment journal':d.kind==='result'?'Results':'Notes',d.title,d.description)+
     (d.kind==='experiment'?`<div class="doc-meta">${badge(d.status||'planned')}<span>${esc(d.date)}</span>${links.join('')}</div>`:'')+
     `<div class="doc-layout ${d.id==='pages/pipeline'?'pipeline-doc-layout':''}"><article class="prose">${d.id==='pages/pipeline'?pipelineDiagram():''}${d.html}</article><aside class="toc" aria-label="On this page"><p>ON THIS PAGE</p><div id="toc-items"></div></aside></div>`;
   const headings=[...content.querySelectorAll('.prose h2')];
@@ -613,7 +613,7 @@ async function documentView(id,token) {
 }
 function searchView(term) {
   const q=term.toLowerCase();
-  const entries=[...state.documents.map(d=>({...d,url:`#/doc/${d.id}`,category:d.kind==='guide'?'Notes':'Journal'})),...state.runs.map(r=>({title:r.name,description:r.path,url:`#/run/${r.id}`,category:'Run'})),...state.profiles.map(p=>({title:`${p.label} · ${p.pdf?.name}`,description:p.path,url:`#/profile/${p.id}`,category:'Profile'}))].filter(d=>`${d.title} ${d.description}`.toLowerCase().includes(q));
+  const entries=[...state.documents.map(d=>({...d,url:`#/doc/${d.id}`,category:d.kind==='guide'?'Notes':d.kind==='result'?'Results':'Journal'})),...state.runs.map(r=>({title:r.name,description:r.path,url:`#/run/${r.id}`,category:'Run'})),...state.profiles.map(p=>({title:`${p.label} · ${p.pdf?.name}`,description:p.path,url:`#/profile/${p.id}`,category:'Profile'}))].filter(d=>`${d.title} ${d.description}`.toLowerCase().includes(q));
   content.innerHTML=heading('Workspace search',`Results for “${term}”`,`${entries.length} matching pages and recorded artifacts.`)+entries.map(d=>`<a class="resource search-result" href="${d.url}"><div class="eyebrow">${d.category}</div><strong>${esc(d.title)}</strong><p>${esc(d.description)}</p></a>`).join('');
 }
 async function render() {
@@ -623,7 +623,8 @@ async function render() {
   const parts=(location.hash||'#/').slice(2).split('/'), route=parts[0];
   if(route==='profiles'){location.replace('#/runs');return;}
   if(route==='doc'&&['pages/ocr-repetition','pages/paddle-repetition'].includes(parts.slice(1).join('/'))){location.replace('#/doc/pages/debugging');return;}
-  document.querySelector('#breadcrumb').textContent=`Workspace / ${{'':'Overview',runs:'Experiment runs',run:'Experiment run',output:'PDF → Markdown',embeddings:'Embeddings',profiles:'Profiles',profile:'Profile',datasets:'PDF dataset',dataset:'PDF preview',journal:'Experiment journal',doc:'Notes',search:'Search'}[route]||'Page'}`;
+  if(route==='doc'&&parts.slice(1).join('/')==='pages/lessons-learned'){location.replace('#/doc/results/summary');return;}
+  document.querySelector('#breadcrumb').textContent=`Workspace / ${{'':'Overview',runs:'Experiment runs',run:'Experiment run',output:'PDF → Markdown',embeddings:'Embeddings',profiles:'Profiles',profile:'Profile',datasets:'PDF dataset',dataset:'PDF preview',journal:'Experiment journal',doc:parts[1]==='results'?'Results':'Notes',search:'Search'}[route]||'Page'}`;
   try {
     if(route==='')overview();else if(route==='runs')runs();else if(route==='journal')journal();
     else if(route==='datasets')datasetsView();

@@ -133,7 +133,7 @@ class Catalog:
 
     def documents(self) -> list[dict]:
         docs = []
-        for directory, kind in (("pages", "guide"), ("experiments", "experiment")):
+        for directory, kind in (("pages", "guide"), ("experiments", "experiment"), ("results", "result")):
             for path in sorted((self.docs / directory).glob("*.md")):
                 if path.name.startswith("_"):
                     continue

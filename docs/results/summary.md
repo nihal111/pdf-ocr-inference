@@ -1,5 +1,5 @@
 ---
-title: Lessons learned
+title: Summary
 description: Baseline quality problems, profiling findings, useful changes and diminishing returns.
 order: 0
 ---
