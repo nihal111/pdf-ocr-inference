@@ -1,0 +1,32 @@
+{
+  "exported_at": "2026-10-26T17:00:06+00:00",
+  "measurement_status": "Previously accepted measurements; no new GPU timing run.",
+  "sources": {
+    "baseline": {
+      "path": "results/paddleocr_vllm_five_pdf_eval/20261026-081822/vllm_batch_1.json",
+      "sha256": "a88283940e92536be3e2feaba66a96123605789719f4e95114732d8b748d32a5",
+      "module": "document_pipeline.adapter",
+      "source_revision": "4d56ea6-dirty",
+      "configuration": {
+        "module": "document_pipeline.adapter",
+        "warmup_per_case": 1,
+        "repeats_per_case": 5,
+        "minimum_cosine": 0.99,
+        "timeout_seconds": 1800.0
+      }
+    },
+    "optimized": {
+      "path": "results/paddleocr_vllm_six_request_tiles/20261026-150343/server_8_draft4_control.json",
+      "sha256": "6314a448e4fea25c5918fc70a04f5f9fd6d37162ed85a18a891a5ac923cd9574",
+      "module": "document_pipeline.adapter",
+      "source_revision": "bf120cf-dirty",
+      "configuration": {
+        "module": "document_pipeline.adapter",
+        "warmup_per_case": 1,
+        "repeats_per_case": 5,
+        "minimum_cosine": 0.99,
+        "timeout_seconds": 1800.0
+      }
+    }
+  }
+}

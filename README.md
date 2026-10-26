@@ -91,6 +91,12 @@ The active OCR stage is **[PaddleOCR-VL-1.6](https://huggingface.co/PaddlePaddle
 
 The evaluator calls `document_pipeline.adapter.embed_pdf(path)`. OCR bytes and chunk structure must match the reference exactly, and embedding cosine must be at least 0.99. The current evaluation uses five frozen PDFs (20 pages) and **one warm-up plus five measured calls per PDF**, sequentially. The evaluator pools the 25 measured full-PDF calls for p50/p95 and reports sequential pages/minute. Accepted speedups require matching hardware, dataset, references and settings. Results are never cached between calls.
 
+`embed_pdf` returns full-document `ocr_text` and a non-empty, ordered `chunks` list.
+Each chunk has a unique string `id` and a non-empty plain Python list of finite
+floats in `embedding`; all vectors have the same length. Missing files raise
+`FileNotFoundError`, and malformed PDFs raise `ValueError`. These input errors
+leave the pipeline ready for another call. See the [Python interface](docs/pages/pipeline.md#python-interface).
+
 Paddle layout/parser runs in `.venv-paddle`, recognizer servers in `.venv-vllm`, and the parent/embedder in `.venv`. Keep these environments separate because their CUDA-library packages share filenames.
 
 ```bash

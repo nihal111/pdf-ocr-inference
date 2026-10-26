@@ -125,3 +125,80 @@ def test_worker_cleanup_survives_broker_close_error():
     with pytest.raises(RuntimeError, match="broker close failed"):
         pool.close()
     assert events == ["stop", "terminated", "connection closed"]
+
+
+@pytest.mark.parametrize("schedule", ["round_robin", "dynamic"])
+@pytest.mark.parametrize("kind,error_type", [
+    ("ValueError", ValueError), ("FileNotFoundError", FileNotFoundError),
+])
+def test_bad_pdf_drains_requests_and_pool_handles_next_pdf(schedule, kind, error_type):
+    queues = [[], []]
+    sent = [[], []]
+    pool = PageParallelOcr.__new__(PageParallelOcr)
+    pool.cfg = SimpleNamespace(page_schedule=schedule)
+    pool._profile_next = None
+    pool.close = lambda: pytest.fail("A PDF input error must not close the worker pool")
+    bad_call = [True]
+
+    def send(worker, request):
+        sent[worker].append(request)
+        pages = request["pages_1_based"]
+        if bad_call[0] and worker == 0:
+            response = {"pages_1_based": pages, "input_error": {"type": kind, "message": "bad PDF"}}
+        else:
+            response = {
+                "pages_1_based": pages, "texts": [f"page {image}" for image in request["images"]],
+                "stats": {"gen_tokens": len(pages), "visual_tokens": len(pages)},
+                "elapsed_s": 0.1, "peak_allocated_bytes": 100, "peak_reserved_bytes": 200,
+            }
+        queues[worker].append(response)
+
+    pool.connections = [SimpleNamespace(send=lambda request, w=w: send(w, request)) for w in range(2)]
+    pool._receive = lambda worker: queues[worker].pop(0)
+    pool._ready_worker = lambda pending: min(pending)
+    with pytest.raises(error_type, match="bad PDF"):
+        pool.ocr(list(range(5)))
+    assert queues == [[], []], "Responses from the failed call must not leak into the next PDF"
+    if schedule == "dynamic":
+        assert sum(map(len, sent)) == 2, "Stop admitting pages after an input error"
+    bad_call[0] = False
+    assert pool.ocr(list(range(3))) == ["page 0", "page 1", "page 2"]
+    assert queues == [[], []]
+
+
+def test_worker_reports_bad_pdf_then_processes_valid_request(monkeypatch, tmp_path):
+    import sys
+    from pathlib import Path
+    from document_pipeline import page_parallel as module
+    from document_pipeline import paddleocr_backend
+
+    calls = []
+    ocr = SimpleNamespace(
+        parameter_bytes=0, stats={"gen_tokens": 1, "visual_tokens": 1},
+        ocr=lambda images: calls.append(len(images)) or ["complete text"] * len(images))
+    cuda = SimpleNamespace(
+        get_device_name=lambda worker: "test device",
+        reset_max_memory_allocated=lambda worker: None,
+        reset_max_memory_reserved=lambda worker: None,
+        max_memory_allocated=lambda worker: 0, max_memory_reserved=lambda worker: 0)
+    monkeypatch.setitem(sys.modules, "paddle", SimpleNamespace(device=SimpleNamespace(cuda=cuda)))
+    monkeypatch.setattr(paddleocr_backend, "PaddleOcr", lambda cfg, device: ocr)
+    monkeypatch.setattr(module, "_parent_lifetime", lambda parent: None)
+    monkeypatch.delenv("DOCUMENT_PIPELINE_RENDER_PIXEL_CHECK", raising=False)
+    invalid = tmp_path / "broken.pdf"
+    invalid.write_bytes(b"%PDF-1.4\nbroken document\n%%EOF\n")
+    valid = Path(__file__).resolve().parents[1] / "eval/fixtures/synthetic.pdf"
+    requests = iter([
+        {"pdf": {"path": str(invalid), "dpi": 72}, "pages_1_based": [1]},
+        {"pdf": {"path": str(tmp_path / "missing.pdf"), "dpi": 72}, "pages_1_based": [1]},
+        {"pdf": {"path": str(valid), "dpi": 72}, "pages_1_based": [1]}, None,
+    ])
+    responses, closed = [], []
+    connection = SimpleNamespace(recv=lambda: next(requests), send=responses.append,
+                                 close=lambda: closed.append(True))
+    module._worker_main(connection, SimpleNamespace(backend="paddleocr"), 0, 123)
+    assert responses[0]["ready"]
+    assert responses[1]["input_error"]["type"] == "ValueError"
+    assert responses[2]["input_error"]["type"] == "FileNotFoundError"
+    assert responses[3]["texts"] == ["complete text"]
+    assert calls == [1] and closed == [True]

@@ -12,6 +12,7 @@ cache would turn the benchmark into a cache-hit measurement.
 from __future__ import annotations
 
 import json
+import math
 import os
 import time
 from contextlib import contextmanager
@@ -24,6 +25,26 @@ from document_pipeline.ocr import make_ocr, render_pages
 
 def join_pages(pages: list[str]) -> str:
     return "\n\n".join(p.strip() for p in pages) + "\n"
+
+
+def result_dict(text: str, texts: list[str], vectors: list[list[float]]) -> dict:
+    """Enforce the public result contract without altering embedding values."""
+    if not isinstance(texts, list) or not texts or any(not isinstance(t, str) for t in texts):
+        raise RuntimeError("Chunker must return a non-empty list of strings")
+    if type(vectors) is not list or len(vectors) != len(texts):
+        raise RuntimeError("Embedder must return one vector per chunk in document order")
+    dimension = None
+    for index, vector in enumerate(vectors):
+        if type(vector) is not list or not vector:
+            raise RuntimeError(f"Chunk {index} embedding must be a non-empty plain Python list")
+        if dimension is None:
+            dimension = len(vector)
+        if len(vector) != dimension:
+            raise RuntimeError(f"Chunk {index} embedding has an inconsistent dimension")
+        if any(type(value) is not float or not math.isfinite(value) for value in vector):
+            raise RuntimeError(f"Chunk {index} embedding must contain finite Python floats")
+    return {"ocr_text": text,
+            "chunks": [{"id": f"chunk-{i:03d}", "embedding": v} for i, v in enumerate(vectors)]}
 
 
 class Pipeline:
@@ -85,9 +106,22 @@ class Pipeline:
                 images = PdfPageSource.open(path, self.cfg.render.dpi)
             else:
                 images = render_pages(path, self.cfg.render.dpi)
-        with self._stage(timings, "render + OCR" if worker_render else "ocr", windows):
-            page_texts = self.ocr.ocr(images)
-            text = join_pages(page_texts)
+        try:
+            with self._stage(timings, "render + OCR" if worker_render else "ocr", windows):
+                page_texts = self.ocr.ocr(images)
+                if (not isinstance(page_texts, list) or len(page_texts) != len(images)
+                        or any(not isinstance(page, str) for page in page_texts)):
+                    raise RuntimeError("OCR must return text for every page in document order")
+                text = join_pages(page_texts)
+                try:
+                    text.encode("utf-8")
+                except UnicodeEncodeError as exc:
+                    raise RuntimeError("OCR text must be valid UTF-8") from exc
+        finally:
+            if not worker_render:
+                for image in images:
+                    if hasattr(image, "close"):
+                        image.close()
         # Optional quality-review artifacts; ordinary benchmark calls leave this
         # unset. The text returned to the evaluator has no extra page markers.
         review = os.environ.get("DOCUMENT_PIPELINE_PAGE_REVIEW")
@@ -104,6 +138,7 @@ class Pipeline:
             texts = self.chunker.chunk(text)
         with self._stage(timings, "embed", windows):
             vectors = self.embedder.embed(texts)
+            result = result_dict(text, texts, vectors)
         total = time.perf_counter() - t0
         if self.trace_path:
             with open(self.trace_path, "a") as f:
@@ -112,5 +147,4 @@ class Pipeline:
                                     "stage_windows": windows,
                                     "ocr_stats": getattr(self.ocr, "stats", {}),
                                     "embed_stats": getattr(self.embedder, "stats", {})}) + "\n")
-        return {"ocr_text": text,
-                "chunks": [{"id": f"chunk-{i:03d}", "embedding": v} for i, v in enumerate(vectors)]}
+        return result

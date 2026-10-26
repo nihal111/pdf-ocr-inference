@@ -59,6 +59,38 @@ the reported suite runtime.
 
 These checks test agreement with the baseline. Reviewing the PDF alongside its transcription is still necessary to assess OCR accuracy.
 
+## Python interface
+
+The evaluator imports `embed_pdf` from `document_pipeline.adapter` and calls it
+with a PDF path:
+
+```python
+def embed_pdf(path: str) -> dict:
+    ...
+
+# Example result; actual vectors have the embedding model's dimension.
+{
+    "ocr_text": "Hello world\n",
+    "chunks": [
+        {"id": "chunk-000", "embedding": [0.12, -0.03, 0.98]}
+    ],
+}
+```
+
+`ocr_text` contains the OCR text of every page in document order. `chunks` is
+non-empty and follows that same order. Each chunk has a unique, non-empty string
+ID and a non-empty plain Python list of finite floats. Every vector has the same
+length. A blank document still produces one chunk.
+
+Missing files raise `FileNotFoundError`. Malformed PDFs, including truncated files
+without an EOF marker and documents with no pages, raise `ValueError`. Callers can
+catch these exceptions and process another PDF using the same pipeline. Both
+rendering placements use the same input checks; page workers report input errors
+and drain outstanding requests before the next document.
+
+Incomplete OCR or invalid embedding output raises `RuntimeError` instead of
+returning a partial or invalid result.
+
 ## Further details
 
 - [Baseline settings and evaluation rules](#/doc/pages/baseline)

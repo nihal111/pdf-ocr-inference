@@ -12,4 +12,9 @@ atexit.register(_pipeline.close)
 
 
 def embed_pdf(path: str) -> dict:
+    """Return full OCR text and ordered chunks with finite Python float vectors.
+
+    Missing paths raise FileNotFoundError; malformed PDFs raise ValueError.
+    Input errors are recoverable: callers may catch them and process another PDF.
+    """
     return _pipeline(path)

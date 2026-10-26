@@ -10,12 +10,17 @@ from document_pipeline.embedders import _dtype, resolve_device
 
 
 def render_pages(path: str, dpi: int):
-    import pypdfium2 as pdfium
-    doc = pdfium.PdfDocument(path)
+    from document_pipeline.pdf_input import open_pdf, render_page
+    images = []
     try:
-        return [page.render(scale=dpi / 72).to_pil().convert("RGB") for page in doc]
-    finally:
-        doc.close()
+        with open_pdf(path) as document:
+            for index in range(len(document)):
+                images.append(render_page(document, index, dpi))
+        return images
+    except BaseException:
+        for image in images:
+            image.close()
+        raise
 
 
 def _processor(cfg):

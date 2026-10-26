@@ -3,6 +3,8 @@ from dataclasses import dataclass
 from contextlib import contextmanager
 from pathlib import Path
 
+from document_pipeline.pdf_input import open_pdf, render_page
+
 
 @dataclass(frozen=True)
 class PdfPageSource:
@@ -12,9 +14,8 @@ class PdfPageSource:
 
     @classmethod
     def open(cls, path, dpi):
-        import pypdfium2 as pdfium
-        path = str(Path(path).resolve())
-        with pdfium.PdfDocument(path) as document:
+        path = str(Path(path).expanduser().resolve())
+        with open_pdf(path) as document:
             return cls(path, dpi, len(document))
 
     def __len__(self):
@@ -36,26 +37,17 @@ def request_images(request):
         return request["images"]
     if "images" in request:
         raise ValueError("A page request must contain either PDF metadata or images")
-    import pypdfium2 as pdfium
     indices = request["pages_1_based"]
     if (any(type(page) is not int or page < 1 for page in indices)
             or len(indices) != len(set(indices))):
         raise ValueError("Invalid source page indices")
     images = []
     try:
-        with pdfium.PdfDocument(request["pdf"]["path"]) as document:
+        with open_pdf(request["pdf"]["path"]) as document:
             if any(page > len(document) for page in indices):
                 raise ValueError("Requested page exceeds the PDF page count")
             for index in indices:
-                page = document[index - 1]
-                try:
-                    bitmap = page.render(scale=request["pdf"]["dpi"] / 72)
-                    try:
-                        images.append(bitmap.to_pil().convert("RGB"))
-                    finally:
-                        bitmap.close()
-                finally:
-                    page.close()
+                images.append(render_page(document, index - 1, request["pdf"]["dpi"]))
         return images
     except BaseException:
         for image in images:

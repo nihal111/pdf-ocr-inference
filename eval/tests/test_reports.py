@@ -68,6 +68,46 @@ class ReportTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'five measured repeats'):
             compare(report, report)
 
+    def test_compare_requires_matching_hardware_dataset_and_settings(self):
+        baseline = self.report()
+        for field, replacement in [
+            ('hardware_id', 'different'), ('gpu_model', 'different'), ('gpu_count', 2),
+            ('driver_version', 'different'), ('concurrency', 2),
+        ]:
+            with self.subTest(environment=field):
+                optimized = copy.deepcopy(baseline)
+                optimized['environment'][field] = replacement
+                with self.assertRaisesRegex(ValueError, 'Environments differ'):
+                    compare(baseline, optimized)
+                optimized['environment'][field] = ''
+                with self.assertRaisesRegex(ValueError, 'is missing'):
+                    compare(baseline, optimized)
+        optimized = copy.deepcopy(baseline)
+        optimized['dataset_sha256'] = 'different'
+        with self.assertRaisesRegex(ValueError, 'different PDFs or reference outputs'):
+            compare(baseline, optimized)
+        for field, value in [('warmup_per_case', 2), ('repeats_per_case', 6),
+                             ('minimum_cosine', .995)]:
+            with self.subTest(setting=field):
+                optimized = copy.deepcopy(baseline)
+                optimized['configuration'][field] = value
+                with self.assertRaisesRegex(ValueError, 'Settings differ'):
+                    compare(baseline, optimized)
+
+    def test_compare_requires_sequential_calls_warmup_and_cosine_threshold(self):
+        report = self.report()
+        report['environment']['concurrency'] = 2
+        with self.assertRaisesRegex(ValueError, 'concurrency 1'):
+            compare(report, report)
+        report = self.report()
+        report['configuration']['warmup_per_case'] = 0
+        with self.assertRaisesRegex(ValueError, 'one warm-up'):
+            compare(report, report)
+        report = self.report()
+        report['configuration']['minimum_cosine'] = .98
+        with self.assertRaisesRegex(ValueError, 'at least 0.99'):
+            compare(report, report)
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import atexit
 import ctypes
+from contextlib import ExitStack
 import json
 import multiprocessing as mp
 import os
@@ -65,7 +66,18 @@ def _worker_main(connection, cfg, worker, parent_pid):
             started = time.perf_counter()
             reset_peaks()
             render_started = time.time()
-            with request_image_scope(request) as images:
+            with ExitStack() as resources:
+                try:
+                    images = resources.enter_context(request_image_scope(request))
+                except (FileNotFoundError, ValueError) as exc:
+                    connection.send({
+                        "input_error": {
+                            "type": "FileNotFoundError" if isinstance(exc, FileNotFoundError) else "ValueError",
+                            "message": str(exc),
+                        },
+                        "pages_1_based": request["pages_1_based"],
+                    })
+                    continue
                 render_finished = time.time()
                 render_s = time.perf_counter() - started if "pdf" in request else 0
                 render_stats = {"render_s": render_s,
@@ -235,6 +247,14 @@ class PageParallelOcr:
     def profile_next_call(self, directory, max_ocr_forwards):
         self._profile_next = {"directory": str(directory), "max_ocr_forwards": max_ocr_forwards}
 
+    @staticmethod
+    def _input_error(response):
+        error = response["input_error"]
+        classes = {"FileNotFoundError": FileNotFoundError, "ValueError": ValueError}
+        if error.get("type") not in classes or not isinstance(error.get("message"), str):
+            raise RuntimeError("GPU page worker returned an invalid input error")
+        return classes[error["type"]](error["message"])
+
     def ocr(self, images):
         admission = getattr(self, "_region_admission", None)
         before = admission.snapshot() if admission else None
@@ -265,6 +285,7 @@ class PageParallelOcr:
         assignments = [list(range(worker, len(images), len(self.connections)))
                        for worker in range(len(self.connections))]
         texts = [None] * len(images)
+        input_error = None
         stats = {"pages": len(images), "gen_tokens": 0, "visual_tokens": 0,
                  "gpu_workers": len(self.connections),
                  "active_workers": [i for i, pages in enumerate(assignments) if pages],
@@ -278,8 +299,12 @@ class PageParallelOcr:
                     stats["workers"].append({"worker": worker, "pages_1_based": [], "elapsed_s": 0})
                     continue
                 response = self._receive(worker)
-                if (response["pages_1_based"] != [i + 1 for i in pages]
-                        or len(response["texts"]) != len(pages)
+                if response["pages_1_based"] != [i + 1 for i in pages]:
+                    raise RuntimeError(f"GPU page worker {worker} returned inconsistent pages.")
+                if "input_error" in response:
+                    input_error = input_error or self._input_error(response)
+                    continue
+                if (len(response["texts"]) != len(pages)
                         or any(not isinstance(text, str) for text in response["texts"])):
                     raise RuntimeError(f"GPU page worker {worker} returned inconsistent pages.")
                 for index, text in zip(pages, response["texts"]):
@@ -292,10 +317,14 @@ class PageParallelOcr:
                                          "peak_reserved_bytes": response["peak_reserved_bytes"],
                                          **response["stats"]})
             self.stats = stats
-            return texts
         except BaseException:
             self.close()
             raise
+        # Every submitted request has been drained, so a bad PDF leaves the
+        # workers and their pipes ready for the next document.
+        if input_error:
+            raise input_error
+        return texts
 
     def _ready_worker(self, pending, timeout=1800):
         from multiprocessing.connection import wait
@@ -312,6 +341,7 @@ class PageParallelOcr:
     def _ocr_dynamic(self, images):
         """Dispatch the next source page to whichever layout worker finishes first."""
         texts, pending, next_page = [None] * len(images), {}, 0
+        input_error = None
         workers = [{"worker": w, "pages_1_based": [], "pages": 0, "elapsed_s": 0,
                     "gen_tokens": 0, "visual_tokens": 0, "batches": [], "page_blocks": [],
                     "render_s": 0, "rendered_pages_1_based": [], "render_windows": [],
@@ -331,7 +361,12 @@ class PageParallelOcr:
                 worker = self._ready_worker(pending)
                 page = pending.pop(worker)
                 response = self._receive(worker)
-                if (response["pages_1_based"] != [page + 1] or len(response["texts"]) != 1
+                if response["pages_1_based"] != [page + 1]:
+                    raise RuntimeError(f"GPU page worker {worker} returned inconsistent pages.")
+                if "input_error" in response:
+                    input_error = input_error or self._input_error(response)
+                    continue
+                if (len(response["texts"]) != 1
                         or not isinstance(response["texts"][0], str)):
                     raise RuntimeError(f"GPU page worker {worker} returned inconsistent pages.")
                 texts[page] = response["texts"][0]
@@ -357,7 +392,7 @@ class PageParallelOcr:
                 for key, value in local.items():
                     if key not in accumulated:
                         accumulated[key] = value
-                if next_page < len(images):
+                if next_page < len(images) and input_error is None:
                     send(worker)
             self.stats = {
                 "pages": len(images), "gpu_workers": len(workers), "page_schedule": "dynamic",
@@ -365,10 +400,12 @@ class PageParallelOcr:
                 "workers": workers,
                 **{key: sum(w[key] for w in workers) for key in ("gen_tokens", "visual_tokens")},
             }
-            return texts
         except BaseException:
             self.close()
             raise
+        if input_error:
+            raise input_error
+        return texts
 
     def close(self):
         if self._closed:
