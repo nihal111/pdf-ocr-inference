@@ -101,8 +101,7 @@ Rendering/OCR now accounts for **97.1% of measured time** across the dataset.
 Eliminating embedding entirely would improve throughput by at most **2.5%**;
 eliminating preparation and chunking yields at most **0.5%**. These are conditional
 bounds, not measured speedups.
+[Calculation details](#/doc/pages/theoretical-limits).
 
-The next useful investigation is a complete Census/W-9 profile: those PDFs
-account for 76.2% of processing time. Measure queue delay, prefill, tokens advanced
-per verification step and achieved bandwidth before another tuning sweep.
-[Remaining headroom and calculation details](#/doc/pages/theoretical-limits).
+The final configuration passed the frozen-reference checks and delivered a
+**6.77× p50 speedup** on the five-PDF benchmark, using the same four L4 GPUs.
