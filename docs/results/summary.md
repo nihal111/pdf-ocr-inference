@@ -66,16 +66,29 @@ an AMD EPYC 7R13 CPU, 96 logical CPUs and 363 GiB RAM.
 
 ## Changes that paid off
 
-Region batching, a 64-region window, dynamic pages and available-GPU dispatch
-reduced idle time. Eight concurrent requests per recognizer beat four. Four-token
-n-gram speculation improved tail latency; fixed 32-row decoder tiles reduced
-wasted matrix work.
+Each row compares a retained change with its recorded control, in experiment
+order. **Positive percentages mean faster**, using eval's `(speedup − 1) × 100`
+for each metric. These incremental gains are not additive.
 
-BF16, compilation and four-GPU embedding reduced a stage that had reached about
-36% of NACA latency. Rendering inside OCR workers avoided image transfers through
-the parent, adding a modest 3.4% p50 speedup against its fresh control.
-[Embedding study](#/doc/experiments/010-embedding-and-scheduling) ·
-[Rendering study](#/doc/experiments/025-render-placement).
+| Change | p50 gain | p95 gain | Pages/min gain |
+| --- | ---: | ---: | ---: |
+| [OCR regions per GPU: 1 → 4](#/run/d8a8a05ea1b9bc9e9268/vllm_batch_4) | **+57.9%** | +13.0% | +29.1% |
+| [Share regions across all GPUs instead of page-assigned GPUs](#/run/d8a8a05ea1b9bc9e9268/vllm_batch_4_all_gpus) | **+77.3%** | +5.0% | +26.3% |
+| [Embedding: FP32 → BF16; chunk batch 32 → 16](#/run/2414bf81cf27a32c8c2b/embed_bf16_b16) | +28.6% | +7.4% | +12.4% |
+| [Region submission window: 16 → 64](#/run/1c2845682cf96081e45c/region_window_64) | +10.0% | +0.2% | +4.5% |
+| [Assign each page to the next free worker](#/run/9333355f0563a600b5d8/combined_scheduling) | −4.2% | +5.5% | +6.3% |
+| [Server admission: 4 → 8 requests per GPU](#/run/e618414568a8c437d78a/server_8_dynamic) | +20.4% | +4.1% | +5.7% |
+| [Compile embedding inference](#/run/09dd48268f7b40e92830/server_8_compiled_embeddings) | +5.0% | +1.6% | +2.1% |
+| [Verify four n-gram draft tokens per decoder step](#/run/654d9b217549709275f8/server_8_ngram_gpu_4) | +3.0% | **+59.5%** | **+33.5%** |
+| [Dispatch regions when a GPU has capacity](#/run/7a9c93660221ff8d0318/available_gpu_8) | +4.1% | −1.8% | +1.0% |
+| [Use fixed 32-row decoder matrix tiles](#/run/81ce12032be0a1d87ff4/decoder_tiles_fixed32) | +13.7% | +22.0% | +18.4% |
+| [Embedding replicas: 1 → 4 GPUs](#/run/901be5b3884c7556a3dd/embedding_four_gpus) | +7.0% | +3.4% | +3.9% |
+| [Render inside OCR workers, avoiding parent image transfers](#/run/40e811453ad54f72d35a/render_in_page_workers) | +3.4% | +0.2% | +0.9% |
+
+Region batching and sharing produced the largest p50 gains. Speculative decoding
+produced the largest tail-latency and throughput gains. Dynamic page assignment
+initially traded a slower p50 for better p95 and throughput; raising admission to
+eight then improved all three metrics.
 
 ## Hurdles and diminishing returns
 

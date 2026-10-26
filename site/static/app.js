@@ -606,6 +606,12 @@ async function documentView(id,token) {
   content.innerHTML=heading(d.kind==='experiment'?'Experiment journal':d.kind==='result'?'Results':'Notes',d.title,d.description)+
     (d.kind==='experiment'?`<div class="doc-meta">${badge(d.status||'planned')}<span>${esc(d.date)}</span>${links.join('')}</div>`:'')+
     `<div class="doc-layout ${d.id==='pages/pipeline'?'pipeline-doc-layout':''}"><article class="prose">${d.id==='pages/pipeline'?pipelineDiagram():''}${d.html}</article><aside class="toc" aria-label="On this page"><p>ON THIS PAGE</p><div id="toc-items"></div></aside></div>`;
+  content.querySelectorAll('.prose table').forEach((table,index)=>{
+    const wrapper=document.createElement('div');
+    wrapper.className='table-wrap';wrapper.tabIndex=0;
+    wrapper.setAttribute('role','region');wrapper.setAttribute('aria-label',`${d.title} · Table ${index+1}`);
+    table.before(wrapper);wrapper.append(table);
+  });
   const headings=[...content.querySelectorAll('.prose h2')];
   headings.forEach((h,i)=>h.id=`section-${i}`);
   document.querySelector('#toc-items').innerHTML=headings.map(h=>`<button type="button" data-scroll="${h.id}">${esc(h.textContent)}</button>`).join('');
