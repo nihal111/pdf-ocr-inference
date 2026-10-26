@@ -1,0 +1,21 @@
+[project]
+name = "inference-lab"
+version = "0.1.0"
+description = "Profiling and optimization lab on top of nano-vllm"
+requires-python = ">=3.10,<3.13"   # nano-vllm's range
+dependencies = ["numpy", "xxhash", "pyyaml", "transformers>=4.51"]  # transformers: nano-vllm config imports it
+
+[project.optional-dependencies]
+# GPU box only. flash-attn is installed separately by scripts/setup_gpu.sh (it builds against torch).
+gpu = ["torch>=2.4", "triton>=3.0", "safetensors", "tqdm"]
+# PDF parent/embedder dependencies. Native PaddleOCR workers use the separate .venv-paddle environment.
+pdf = ["torch", "torchvision", "transformers>=4.57", "sentence-transformers>=5", "pypdfium2", "pillow"]
+dev = ["pytest"]
+docs = ["markdown-it-py>=3"]
+
+[tool.uv]
+package = false
+
+[tool.pytest.ini_options]
+testpaths = ["tests", "eval/tests"]
+pythonpath = ["."]

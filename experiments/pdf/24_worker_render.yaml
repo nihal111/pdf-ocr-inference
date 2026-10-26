@@ -1,0 +1,71 @@
+module: document_pipeline.adapter
+manifest: data/public-v3/manifest.json
+root: data/public-v3
+warmup: 1
+repeats: 5
+timeout: 1800
+hardware_note: "4 NVIDIA L4 GPUs \xB7 22.5 GiB GPU memory each \xB7 72 W per GPU \xB7\
+  \ AMD EPYC 7R13, 96 logical CPUs \xB7 363 GiB RAM"
+baseline: vllm_batch_1
+baseline_report: results/paddleocr_vllm_five_pdf_eval/20261026-081822/vllm_batch_1.json
+name: paddleocr_vllm_worker_render
+title: "PaddleOCR-VL-1.6 \xB7 vLLM \xB7 Rendering in OCR page workers"
+base:
+  pipeline:
+    render:
+      dpi: 150
+      placement: parent
+    ocr:
+      backend: paddleocr
+      model: ~/huggingface/PaddleOCR-VL-1.6
+      max_new_tokens: 8192
+      require_eos: true
+      device: auto
+      dtype: bfloat16
+      page_batch_size: 1
+      attn_implementation: sdpa
+      gpu_workers: 4
+      min_pixels: null
+      max_pixels: null
+      gpu_memory_utilization: 0.4
+      max_model_len: 16384
+      enforce_eager: false
+      paddle_python: /local/home/nhsng/inference-lab/.venv-paddle/bin/python
+      paddle_pipeline_version: v1.6
+      paddle_layout_model: ~/huggingface/PP-DocLayoutV3
+      paddle_region_batch_size: 4
+      paddle_rec_backend: vllm-server
+      paddle_region_dispatch: all_gpus
+      paddle_table_max_pixels: 2822400
+      paddle_region_submission_size: 64
+      page_schedule: dynamic
+      paddle_region_admission: available
+      paddle_region_admission_slots_per_gpu: 8
+    chunk:
+      tokenizer: ~/huggingface/Qwen3-Embedding-0.6B
+      max_tokens: 512
+    embed:
+      backend: sentence_transformers
+      model: ~/huggingface/Qwen3-Embedding-0.6B
+      device: cuda:0
+      dtype: bfloat16
+      batch_size: 16
+      max_batch_tokens: 16384
+      max_length: 8192
+      compile_dynamic: true
+      gpu_workers: 4
+  env:
+    CUDA_MODULE_LOADING: EAGER
+    CUDA_VISIBLE_DEVICES: GPU-ad391ba2-170d-001e-3298-63640703ba94,GPU-ccc76d7e-fcc9-4930-19c9-7aecc935da5e,GPU-ba5751ba-2e74-f2d9-0206-08470044a0e6,GPU-9dbde1ef-5e16-94e5-5884-0ae606188e09
+    HF_HUB_OFFLINE: '1'
+    TRANSFORMERS_OFFLINE: '1'
+    PADDLE_PDX_DISABLE_MODEL_SOURCE_CHECK: 'True'
+    VLLM_USE_FLASHINFER_SAMPLER: '0'
+    VLLM_BATCH_INVARIANT: '1'
+    DOCUMENT_PIPELINE_PADDLE_DECODE_TILES: '32'
+variants:
+  render_parent_control: {}
+  render_in_page_workers:
+    pipeline:
+      render:
+        placement: page_workers

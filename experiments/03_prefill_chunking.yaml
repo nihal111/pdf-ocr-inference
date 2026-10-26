@@ -1,0 +1,11 @@
+# Prefill token budget per step. Small budgets = shorter prefill steps (less decode stall,
+# better TPOT/ITL) but more steps; large budgets = better prefill efficiency, worse tail latency.
+# nano-vllm runs prefill and decode in separate steps, so watch itl_s.p99 on the online workloads.
+name: 03_prefill_chunking
+model: ~/huggingface/Qwen3-0.6B
+repeats: 2
+workloads: [online_poisson, online_bursty, prefill_heavy]
+base:
+  engine: {max_model_len: 4096}
+grid:
+  engine.max_num_batched_tokens: [1024, 2048, 4096, 8192, 16384]

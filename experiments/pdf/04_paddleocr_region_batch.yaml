@@ -1,0 +1,57 @@
+# Invalidated: native PaddleX 3.7.2 caps this model at region batch size 1.
+# Retained as the attempted configuration; the backend now rejects an overridden size.
+# Fixed four GPUs and reviewed references; one warm-up plus one timed call per PDF.
+name: paddleocr_region_batch_4
+module: document_pipeline.adapter
+manifest: data/public-v3/manifest-smallest.json
+root: data/public-v3
+warmup: 1
+repeats: 1
+timeout: 1800
+base:
+  pipeline:
+    render:
+      dpi: 150
+    ocr:
+      backend: paddleocr
+      model: ~/huggingface/PaddleOCR-VL-1.6
+      max_new_tokens: 8192
+      require_eos: true
+      device: auto
+      dtype: bfloat16
+      page_batch_size: 1
+      attn_implementation: sdpa
+      gpu_workers: 4
+      min_pixels: null
+      max_pixels: null
+      gpu_memory_utilization: 0.55
+      max_model_len: 8192
+      enforce_eager: false
+      paddle_python: /local/home/nhsng/inference-lab/.venv-paddle/bin/python
+      paddle_pipeline_version: v1.6
+      paddle_layout_model: ~/huggingface/PP-DocLayoutV3
+      paddle_region_batch_size: 1
+    chunk:
+      tokenizer: ~/huggingface/Qwen3-Embedding-0.6B
+      max_tokens: 512
+    embed:
+      backend: sentence_transformers
+      model: ~/huggingface/Qwen3-Embedding-0.6B
+      device: cuda:0
+      dtype: float32
+      batch_size: 32
+      max_batch_tokens: 16384
+      max_length: 8192
+  env:
+    CUDA_MODULE_LOADING: EAGER
+    CUDA_VISIBLE_DEVICES: GPU-ad391ba2-170d-001e-3298-63640703ba94,GPU-ccc76d7e-fcc9-4930-19c9-7aecc935da5e,GPU-ba5751ba-2e74-f2d9-0206-08470044a0e6,GPU-9dbde1ef-5e16-94e5-5884-0ae606188e09
+    HF_HUB_OFFLINE: '1'
+    TRANSFORMERS_OFFLINE: '1'
+    PADDLE_PDX_DISABLE_MODEL_SOURCE_CHECK: 'True'
+variants:
+  baseline: {}
+  region_batch_4:
+    pipeline:
+      ocr:
+        paddle_region_batch_size: 4
+title: "PaddleOCR-VL-1.6 \xB7 Region batch 4"

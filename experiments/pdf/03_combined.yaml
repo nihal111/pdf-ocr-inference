@@ -1,0 +1,13 @@
+# Stack the winners from 01 and 02 (edit after looking at their tables).
+name: pdf_03_combined
+manifest: data/sample/manifest.json
+root: data/sample
+warmup: 1
+repeats: 5
+timeout: 1800
+variants:
+  baseline: {}
+  combined:
+    pipeline:
+      ocr: {backend: vllm, page_batch_size: 8}
+      embed: {backend: nanovllm, dtype: bfloat16}

@@ -1,0 +1,12 @@
+# Embedding stage. Lower precision and nano-vllm must stay within cosine >= 0.99 of the fp32 reference.
+name: pdf_02_embed
+manifest: data/sample/manifest.json
+root: data/sample
+warmup: 1
+repeats: 5
+timeout: 1800
+variants:
+  baseline: {}
+  st_bf16:      {pipeline: {embed: {dtype: bfloat16}}}
+  st_bf16_b128: {pipeline: {embed: {dtype: bfloat16, batch_size: 128}}}
+  nano_bf16:    {pipeline: {embed: {backend: nanovllm, dtype: bfloat16}}}   # CUDA + flash-attn

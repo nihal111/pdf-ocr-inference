@@ -1,0 +1,156 @@
+{
+  "sources": [
+    {
+      "id": "attention-paper",
+      "title": "Attention Is All You Need",
+      "source_page": "https://arxiv.org/abs/1706.03762",
+      "url": "https://arxiv.org/pdf/1706.03762",
+      "category": "Research paper: mathematics, figures, technical text",
+      "expected_sha256": "bdfaa68d8984f0dc02beaca527b76f207d99b666d31d1da728ee0728182df697",
+      "expected_pages": 15,
+      "selected_pages_1_based": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ]
+    },
+    {
+      "id": "naca-seaplanes",
+      "title": "The estimation of maximum load capacity of seaplanes and flying boats",
+      "source_page": "https://ntrs.nasa.gov/citations/19930091528",
+      "url": "https://ntrs.nasa.gov/api/citations/19930091528/downloads/19930091528.pdf",
+      "category": "Historical printed scan: multi-column text, equations and graphs",
+      "expected_sha256": "f2d06b097f1ad3abcd758a8b808254628ff902498d180ee3e2a3b932553ad9c7",
+      "expected_pages": 3,
+      "selected_pages_1_based": [
+        1,
+        2,
+        3
+      ]
+    },
+    {
+      "id": "census-income",
+      "title": "Income in the United States: 2023",
+      "source_page": "https://www.census.gov/library/publications/2024/demo/p60-282.html",
+      "url": "https://www2.census.gov/library/publications/2024/demo/p60-282.pdf",
+      "category": "Statistical report: multi-column text and tables",
+      "expected_sha256": "e6cf145cb10b5d037f5e77fa199d2e558bfe24f76273f385e9767c2eabba1cbf",
+      "expected_pages": 59,
+      "selected_pages_1_based": [
+        7,
+        8,
+        12,
+        13,
+        22
+      ]
+    },
+    {
+      "id": "usgs-earthquakes",
+      "title": "The USGS Earthquake Hazards Program in NEHRP: Investing in a Safer Future",
+      "source_page": "https://pubs.usgs.gov/fs/2003/fs017-03/",
+      "url": "https://pubs.usgs.gov/fs/2003/fs017-03/fs017-03.pdf",
+      "category": "Fact sheet: maps, photographs, captions and multi-column text",
+      "expected_sha256": "56612a2c6bfce6519770289e15f060a253070190db8fe6c895f807674b97721d",
+      "expected_pages": 6,
+      "selected_pages_1_based": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ]
+    },
+    {
+      "id": "irs-w9",
+      "title": "Form W-9",
+      "source_page": "https://www.irs.gov/forms-pubs/about-form-w-9",
+      "url": "https://www.irs.gov/pub/irs-pdf/fw9.pdf",
+      "category": "Blank form: fields, checkboxes, table-like layout",
+      "expected_sha256": "2d420cbb4123dcf1fb82595b2359cfbb5d81f00b9df9d359fcc7af361d093f53",
+      "expected_pages": 6,
+      "selected_pages_1_based": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ]
+    },
+    {
+      "id": "resnet-paper",
+      "title": "Deep Residual Learning for Image Recognition",
+      "source_page": "https://arxiv.org/abs/1512.03385",
+      "url": "https://arxiv.org/pdf/1512.03385",
+      "category": "Research paper: two-column text, equations, plots and tables",
+      "expected_sha256": "1e0651b6810ecba34a3dbc5b5b0209226f889004607c1f203540a48d64e5a93a",
+      "expected_pages": 12,
+      "selected_pages_1_based": [
+        1,
+        3,
+        4,
+        5,
+        6
+      ]
+    },
+    {
+      "id": "us-constitution",
+      "title": "The Constitution of the United States",
+      "source_page": "https://constitutioncenter.org/the-constitution",
+      "url": "https://constitutioncenter.org/media/files/constitution.pdf",
+      "category": "Legal text: articles, sections and amendments",
+      "expected_sha256": "adb6d272b6e3d5773ca470d0d53c5ce62396c35fd98469ccc1401da42099d6ef",
+      "expected_pages": 19,
+      "selected_pages_1_based": [
+        2,
+        3,
+        7,
+        10,
+        14
+      ]
+    },
+    {
+      "id": "nist-ai-rmf",
+      "title": "Artificial Intelligence Risk Management Framework (AI RMF 1.0)",
+      "source_page": "https://www.nist.gov/itl/ai-risk-management-framework",
+      "url": "https://nvlpubs.nist.gov/nistpubs/ai/NIST.AI.100-1.pdf",
+      "category": "Technical framework: long-form prose, diagrams, tables and appendices",
+      "expected_sha256": "7576edb531d9848825814ee88e28b1795d3a84b435b4b797d3670eafdc4a89f1",
+      "expected_pages": 48,
+      "selected_pages_1_based": [
+        6,
+        10,
+        16,
+        25,
+        27
+      ]
+    },
+    {
+      "id": "earthquake-checklist-en",
+      "title": "Earthquake Preparedness Checklist \u2014 English",
+      "source_page": "https://www.redcross.org/get-help/how-to-prepare-for-emergencies/types-of-emergencies/earthquake.html",
+      "url": "https://www.redcross.org/content/dam/redcross/get-help/pdfs/earthquake/EN_Earthquake-Preparedness-Checklist.pdf",
+      "category": "Public safety checklist: columns, illustrations and short instructions",
+      "expected_sha256": "94d971783f310284fb98380a1b741323c26309ca44e53447f94c00c201fb6e1c",
+      "expected_pages": 2,
+      "selected_pages_1_based": [
+        1,
+        2
+      ]
+    },
+    {
+      "id": "earthquake-checklist-es",
+      "title": "Earthquake Preparedness Checklist \u2014 Spanish",
+      "source_page": "https://www.redcross.org/get-help/how-to-prepare-for-emergencies/types-of-emergencies/earthquake.html",
+      "url": "https://www.redcross.org/content/dam/redcross/get-help/pdfs/earthquake/ES_Earthquake-Preparedness-Checklist-0323.pdf",
+      "category": "Spanish public safety checklist: accented text, columns and illustrations",
+      "expected_sha256": "013d3daa473a9c89af8a62a3b3008857364d75bdee95d88e2621407af8a02a70",
+      "expected_pages": 2,
+      "selected_pages_1_based": [
+        1,
+        2
+      ]
+    }
+  ]
+}

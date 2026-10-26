@@ -1,0 +1,11 @@
+# Baseline only. Run with --capture first to write the references this baseline is checked against.
+#   python -m lab.pdf_sweep experiments/pdf/00_baseline.yaml --capture
+# References depend on the machine and software stack: capture on the box you benchmark on.
+name: pdf_00_baseline
+manifest: data/sample/manifest.json   # swap for your own data (python -m lab.pdf_manifest <dir>)
+root: data/sample
+warmup: 1
+repeats: 5
+timeout: 1800
+variants:
+  baseline: {}

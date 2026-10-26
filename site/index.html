@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#f6f7f9">
+  <meta name="referrer" content="no-referrer">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'">
+  <title>PDF OCR inference</title>
+  <link rel="icon" href="./static/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./static/style.css">
+  <script src="./static/app.js" defer></script>
+</head>
+<body>
+  <a class="skip" href="#content">Skip to content</a>
+  <aside class="sidebar">
+    <a class="brand" href="#/">
+      <img src="./static/favicon.svg" alt="" width="34" height="34">
+      <span>PDF OCR inference</span>
+    </a>
+    <label class="search"><span>⌕</span><input id="search" type="search" placeholder="Find a page or run…" aria-label="Find a page or run"></label>
+    <nav id="navigation" aria-label="Main navigation"></nav>
+  </aside>
+  <div class="workspace">
+    <header class="topbar"><div id="breadcrumb">Workspace / Overview</div>
+    </header>
+    <main id="content" tabindex="-1"><div class="loading">Loading results…</div></main>
+    <footer><span>PDF OCR inference</span><span id="updated">Loading results</span></footer>
+  </div>
+  <div id="toast" role="status" aria-live="polite"></div>
+</body>
+</html>

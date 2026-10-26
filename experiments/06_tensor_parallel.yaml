@@ -1,0 +1,14 @@
+# L4s talk over PCIe (no NVLink): TP all-reduces are expensive. Does TP=2 help the 8B
+# (twice the KV cache, half the weights per GPU) or hurt it?
+name: 06_tensor_parallel
+model: ~/huggingface/Qwen3-8B
+repeats: 2
+workloads: [offline_mixed, decode_heavy]
+base:
+  engine: {max_model_len: 4096, gpu_memory_utilization: 0.95}
+variants:
+  baseline: {engine: {tensor_parallel_size: 1}}
+  tp2: {engine: {tensor_parallel_size: 2}}
+  tp2_no_p2p:
+    engine: {tensor_parallel_size: 2}
+    env: {NCCL_P2P_DISABLE: "1"}

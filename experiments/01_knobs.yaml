@@ -1,0 +1,23 @@
+# Ablate the optimizations nano-vllm already has, one at a time, to learn what each is worth.
+# Each variant runs in a fresh process.
+name: 01_knobs
+model: ~/huggingface/Qwen3-0.6B
+repeats: 3
+workloads: [offline_mixed, decode_heavy, prefill_heavy]
+base:
+  engine: {max_model_len: 4096, gpu_memory_utilization: 0.9}
+variants:
+  baseline: {}
+  no_cudagraph:                     # every decode step launches ~10 kernels/layer from Python
+    engine: {enforce_eager: true}
+  no_torch_compile:                 # RMSNorm / RoPE / SiluAndMul / sampler fall back to eager ops
+    env: {TORCH_COMPILE_DISABLE: "1"}
+  no_cudagraph_no_compile:
+    engine: {enforce_eager: true}
+    env: {TORCH_COMPILE_DISABLE: "1"}
+  no_prefix_cache:                  # should be ~free on random prompts; see 04 for where it matters
+    engine: {enable_prefix_caching: false}
+  small_kv_cache:                   # forces preemption + recompute
+    engine: {gpu_memory_utilization: 0.3}
+  block_512:
+    engine: {kvcache_block_size: 512}

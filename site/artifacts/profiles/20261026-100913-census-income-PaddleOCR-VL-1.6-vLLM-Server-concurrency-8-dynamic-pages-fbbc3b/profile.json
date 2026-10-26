@@ -1,0 +1,3194 @@
+{
+  "schema_version": 1,
+  "kind": "document-profile",
+  "status": "complete",
+  "created_at": "2026-10-26T10:09:13.062692+00:00",
+  "label": "PaddleOCR-VL-1.6 \u00b7 vLLM \u00b7 Server concurrency 8, dynamic pages",
+  "pdf": {
+    "name": "census-income.pdf",
+    "sha256": "46fe6b6a2da76706a3963e72eb630469e989f0651bfe81f89d9ed0c42d8f8dba"
+  },
+  "config": {
+    "render": {
+      "dpi": 150
+    },
+    "ocr": {
+      "backend": "paddleocr",
+      "model": "~/huggingface/PaddleOCR-VL-1.6",
+      "prompt": null,
+      "max_new_tokens": 8192,
+      "require_eos": true,
+      "repetition_penalty": 1.0,
+      "paddle_python": "/local/home/nhsng/inference-lab/.venv-paddle/bin/python",
+      "paddle_pipeline_version": "v1.6",
+      "paddle_layout_model": "~/huggingface/PP-DocLayoutV3",
+      "paddle_region_batch_size": 4,
+      "paddle_region_dispatch": "all_gpus",
+      "paddle_region_submission_size": 64,
+      "paddle_table_max_pixels": 2822400,
+      "paddle_rec_backend": "vllm-server",
+      "paddle_server_base_port": 8800,
+      "paddle_server_python": "/local/home/nhsng/inference-lab/.venv-vllm/bin/python",
+      "device": "auto",
+      "dtype": "bfloat16",
+      "page_batch_size": 1,
+      "attn_implementation": "sdpa",
+      "gpu_workers": 4,
+      "page_schedule": "dynamic",
+      "min_pixels": null,
+      "max_pixels": null,
+      "gpu_memory_utilization": 0.4,
+      "max_model_len": 16384,
+      "enforce_eager": false
+    },
+    "chunk": {
+      "tokenizer": "~/huggingface/Qwen3-Embedding-0.6B",
+      "max_tokens": 512
+    },
+    "embed": {
+      "backend": "sentence_transformers",
+      "model": "~/huggingface/Qwen3-Embedding-0.6B",
+      "device": "cuda:0",
+      "dtype": "bfloat16",
+      "batch_size": 16,
+      "max_batch_tokens": 16384,
+      "max_length": 8192
+    }
+  },
+  "environment": {
+    "hardware_id": "dev-dsk-nhsng-2a-0fa0ffcf.us-west-2.amazon.com-ac63b8f951eb",
+    "gpu_model": "NVIDIA L4",
+    "gpu_count": 4,
+    "gpu_uuids": "GPU-ad391ba2-170d-001e-3298-63640703ba94,GPU-ccc76d7e-fcc9-4930-19c9-7aecc935da5e,GPU-ba5751ba-2e74-f2d9-0206-08470044a0e6,GPU-9dbde1ef-5e16-94e5-5884-0ae606188e09",
+    "driver_version": "595.91.07",
+    "cuda_runtime": "13.0",
+    "python_version": "3.12.14",
+    "engine": "ocr=paddleocr/vllm-server:PaddleOCR-VL-1.6 | embed=sentence_transformers",
+    "precision": "ocr=bfloat16 embed=bfloat16",
+    "ocr_gpu_workers": 4,
+    "batch_size": "ocr_pages=1 embed=16",
+    "ocr_region_batch_size": 4,
+    "concurrency": 1,
+    "source_revision": "bf120cf-dirty",
+    "source_files_sha256": {
+      "document_pipeline/__init__.py": "2ee760aaf7ff5d9330181c47618c39612d0de17ed7fd2dd8689afdc95dbbd5bb",
+      "document_pipeline/adapter.py": "75a0384df8a8a9e8542031e73bf8424c816d7b3e6291c2a2e1b1e6e8716f4f83",
+      "document_pipeline/chunker.py": "e7f6d3d9115e858d99d6f9d68efdf44f34e564a321de6c57dd17f6f909e4f701",
+      "document_pipeline/config.py": "693753d604dd97074f32d9ed14ac516e2303c3069f6a6d1e826354685e772470",
+      "document_pipeline/embedders.py": "05ee03f78f26b0bc1bfbbddee7af5f34317065d795e4fe13d542b702deda9353",
+      "document_pipeline/ocr.py": "36f2ea31d4965b807e6fea912f281b466441245c12add159a48b1fff0bbc2098",
+      "document_pipeline/paddle_server.py": "472bc945397227e082d310a5aad86197a65db258785eac111f20ca1cb7e7ad9e",
+      "document_pipeline/paddle_worker.py": "448186b2c0c0204cefd1e47ad4687f135660f91c6aee29b1f474a6669a013974",
+      "document_pipeline/paddleocr_backend.py": "2d8611d8b76436e690692a1e2efc04def87e586dce6d495c65675aa0fc03325c",
+      "document_pipeline/page_parallel.py": "401c3c2f5b36854db67e7effd6b70ca6b298a03525014239aedab011e1c024ee",
+      "document_pipeline/pipeline.py": "59079b4522fee28b2a150bc649074e5d45ca6d2d168bc033846f8323e49083fb",
+      "engine/nanovllm/__init__.py": "262f1e92e8bc1d843ab406be5d4e5ff97a1a9029e1935b0c0376f75b4a354ceb",
+      "engine/nanovllm/config.py": "9c89b8e18f0427f108679789f98f116d8a4e539116e893e1727f8ea8aeb9e34e",
+      "engine/nanovllm/engine/block_manager.py": "8901ec928f8e10e56d16bd657108f2ba5914ffaa6c3e738ef38e7e671117e77f",
+      "engine/nanovllm/engine/llm_engine.py": "c8132cd9f5e66faeea51d0ed6a64d7f4fd8ec5a5823dc2505c2aee51ba049aa1",
+      "engine/nanovllm/engine/model_runner.py": "2373c9daad7de3956905c9a0ec9d6b2e0a8d355a209162de8570507c5f419fd7",
+      "engine/nanovllm/engine/scheduler.py": "b8204b2d7f9293ccea1eb161fca64018be87410ed9fba355eea496a5852ec632",
+      "engine/nanovllm/engine/sequence.py": "d5bb5c522d22554b5c36de745150ec8b601827ee0388058404dcceef1ae8290d",
+      "engine/nanovllm/layers/activation.py": "9dca7e6fae963ecb9d9d582b539d1c18e47825e103dac8c04058d6def8924c64",
+      "engine/nanovllm/layers/attention.py": "00c2f52cd428bc2f82ff90ef8cbc96b0959a225daaeb035e9e0eaf63a85bfbba",
+      "engine/nanovllm/layers/embed_head.py": "e823fbd0a1eb9d64a90e93ade7d32f32235f0039bafc97d367d92a8ee06b3d0f",
+      "engine/nanovllm/layers/layernorm.py": "a661fc4eeef736f29308c736da7d91cbc9d896d662c990a3f887dc6f6c8d7169",
+      "engine/nanovllm/layers/linear.py": "9fe0d9917e15603d4af435591ba8b4c5f45b253ee1a825607061ca73d50470cf",
+      "engine/nanovllm/layers/rotary_embedding.py": "82b59b6a5d32e3465c4c9207e690a7e9b5c38219357f1920fa05ff81f7ae3836",
+      "engine/nanovllm/layers/sampler.py": "63a342a4ec02e846d5872d2906dc25ef5af1b7d66b85a63a6a88668f23543050",
+      "engine/nanovllm/llm.py": "ffe74fe7f64ba5169471a17596757b8d8f309e75f4db7040ac41b84db2e38179",
+      "engine/nanovllm/models/qwen3.py": "6156b3477117094f657a6f609df3c051393a23cce1405af6b88dafddb49acd29",
+      "engine/nanovllm/sampling_params.py": "1e5146d1a06f5230ab049df1ea24814a1d73ba52c3ad22af04bd0f1c6293e0c0",
+      "engine/nanovllm/utils/context.py": "83a608397c38cf22216dabba9e73b41cf985cf64c7a7f35c5c14e223fcd09959",
+      "engine/nanovllm/utils/loader.py": "29d4b6c38a8356ad31f8858b1a14e893d7703cd3d5e32f86b0dc9ab3fb866e99",
+      "engine/paddle_vllm_plugin/paddle_native_precision/__init__.py": "ba9345a488247c22e7902b564deed15347eab2e27e0421852d4ea0f7338d68e0",
+      "engine/paddle_vllm_plugin/paddle_native_precision/model.py": "a7f04ea764ee4196fffbd1a501314090bfac39282fb880509715f79f94ee95a5",
+      "lab/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "lab/bench.py": "fdc090dd842c7468e0d2f76e4ab84840a13b9d758030436a521006e6f5661d20",
+      "lab/compare.py": "a1d19a5fa1ebefb31146250fdc3ce11c4c941586c2c9f2ade5333644cc897e44",
+      "lab/embedding_preview.py": "34514fb5adb5b304eecb42c4e227f1546570e4adad1dbd390fc0cc7c9ebe931e",
+      "lab/engine.py": "3da4b2cea949a168f6a10f64d6bde4622711fcb16f053b1387e831c00159e1f1",
+      "lab/gpu_telemetry.py": "10177afa8af3296fc7ac72fd4a1f079be8626c039505fba242010bf08ff34093",
+      "lab/note.py": "c2185e96df0d6cad1fad5f00b7bd7769c3494376471023447200c6e7b16cbe95",
+      "lab/output_preview.py": "18a6e9439bba64f44b047380c19652a5af4932350cbde51527b4047e13e8d658",
+      "lab/paddle_servers.py": "9b28ac702588c6b0fc0f507898747497536f52bb8d5923c83e9304feea7ff9d4",
+      "lab/pdf_after_baseline.py": "80f5d96845998a918d4b1a3ad8b095a44753a726c53466bded65dc69fae861fd",
+      "lab/pdf_counters.py": "45e7eb7c7d75f215a1dbfe418cf167684fda6bfd957feca64180fc5506b07785",
+      "lab/pdf_env.py": "117509ceeefa82acd17891311344f3201147032043910c703c9ee16a420d07a9",
+      "lab/pdf_manifest.py": "dc0d2a1fa5f82fbb287e9dd8410ce985bafc0cf7575224fc314c3a692f37f24f",
+      "lab/pdf_prof.py": "fc5dfb5f1d9a9848f0e236498970829565b8eb2a12d18eb02f331d384cf016c2",
+      "lab/pdf_sweep.py": "dcc5eb1da286dbecbce3f05802b06a2557bb82c4a981aee71606664b562a8210",
+      "lab/prof.py": "c8ed41df5cb4ebba7c5ab7bced228a3afe8dd6ff80403a1dbaf64df3186813e3",
+      "lab/run.py": "56e9907ae77a99c8201d868d8c71a78c62cbdbb6b88dd589015e12ee8f43469d",
+      "lab/site.py": "022e9b65e1789bb7f4c722375fafa59008ee436e541f9e317d07d26dff694037",
+      "lab/site_data.py": "3d9d8188049663127db555bcff735c752c87c0ffbdf97922c0897fbcbd2bf4d0",
+      "lab/sweep.py": "3af571b6ca2d4846e2523af344b8da8aa9f50bd072c0020a9870a53b25a362df",
+      "lab/theoretical_limits.py": "0f4ed7b76db9929ac07e6a1c64894db3fd44d033c494df9aeb1d4a2024924dd4",
+      "lab/vllm_profile.py": "0f5ebe8eaae7193352d4f064b2ea4e6f22feb2732f1d371ee4c396529967006c",
+      "lab/workloads.py": "71c228899d5d95a9133bdeed64c5554a8de8d499aa768f5aaa098d8a76c32850"
+    },
+    "package_versions": {
+      "torch": "2.14.1",
+      "torchvision": "0.29.1",
+      "transformers": "5.20.2",
+      "sentence-transformers": "6.2.0",
+      "pypdfium2": "5.14.0",
+      "pillow": "13.0.0",
+      "numpy": "2.5.4",
+      "accelerate": "1.15.0"
+    },
+    "ocr_worker_environment": {
+      "python_version": "3.12.14",
+      "package_versions": {
+        "paddleocr": "3.7.0",
+        "paddlex": "3.7.2",
+        "paddlepaddle-gpu": "3.2.1",
+        "nvidia-cuda-runtime-cu12": "12.6.77"
+      },
+      "python": "/local/home/nhsng/inference-lab/.venv-paddle/bin/python",
+      "engine": "PaddleOCR/PaddleX layout + vLLM server recognition",
+      "recognizer_server_environment": {
+        "python_version": "3.12.14",
+        "package_versions": {
+          "vllm": "0.32.0",
+          "torch": "2.13.0",
+          "transformers": "5.19.0",
+          "inference-lab-paddle-native-precision": "0.1.0"
+        },
+        "python": "/local/home/nhsng/inference-lab/.venv-vllm/bin/python",
+        "VLLM_USE_FLASHINFER_SAMPLER": "0",
+        "VLLM_PLUGINS": "paddle_native_precision",
+        "VLLM_BATCH_INVARIANT": "1",
+        "precision_policy": {
+          "visual": "float32",
+          "mlp_AR": "float32",
+          "language_model": "bfloat16"
+        }
+      }
+    },
+    "cuda_module_loading": "EAGER",
+    "model_revisions": "PaddleOCR-VL-1.6@c5630abae1d940eafe0697512a0325494b02ab42,Qwen3-Embedding-0.6B@97b0c614be4d77ee51c0cef4e5f07c00f9eb65b3,PP-DocLayoutV3@241f8bdfc77a7c7bee915a5057aaee58c235a8d3",
+    "power_settings": "72.00W/2040MHz;72.00W/2040MHz;72.00W/2040MHz;72.00W/2040MHz",
+    "cache_state": "warm models (loaded at import), >=1 warm-up call per PDF, no result cache",
+    "other_gpu_activity": "util 0% mem 8566MiB;util 0% mem 8566MiB;util 0% mem 8566MiB;util 0% mem 8566MiB (at start)"
+  },
+  "warmup": 1,
+  "calls": 3,
+  "mode": "vllm",
+  "baseline_run": "paddleocr_vllm_server_concurrency_8/20261026-094354",
+  "variant": "server_8_dynamic",
+  "summary": {
+    "calls": 3,
+    "median_total_ms": 25737.23422596231,
+    "mean_total_ms": 25737.97366267536,
+    "stages": [
+      {
+        "name": "render",
+        "median_ms": 49.51908998191357,
+        "mean_ms": 52.734988974407315,
+        "share": 0.002048917667939121
+      },
+      {
+        "name": "ocr",
+        "median_ms": 24597.29102498386,
+        "mean_ms": 24608.294101354357,
+        "share": 0.9561084498676273
+      },
+      {
+        "name": "chunk",
+        "median_ms": 45.88066798169166,
+        "mean_ms": 45.825377999184035,
+        "share": 0.0017804578790768981
+      },
+      {
+        "name": "embed",
+        "median_ms": 1033.5245439782739,
+        "mean_ms": 1031.0646890041728,
+        "share": 0.04006005688394188
+      }
+    ],
+    "dominant_stage": "ocr",
+    "pages": 5,
+    "chunks": 42,
+    "generated_tok_s": 266.2110576628493
+  },
+  "command": "/local/home/nhsng/inference-lab/.venv/bin/python -m lab.pdf_prof /local/home/nhsng/inference-lab/data/public-v3/pdfs/census-income.pdf --config /local/home/nhsng/inference-lab/results/paddleocr_vllm_server_concurrency_8/20261026-094354/server_8_dynamic.pipeline.json --reference /local/home/nhsng/inference-lab/data/public-v3/refs-vllm-batch1-five/census-income.json --warmup 1 --calls 3 --torch-ocr-forwards 32 --label 'PaddleOCR-VL-1.6 \u00b7 vLLM \u00b7 Server concurrency 8, dynamic pages' --variant server_8_dynamic --baseline-run paddleocr_vllm_server_concurrency_8/20261026-094354",
+  "notes": [
+    "Stage measurements exclude warm-up and the additional profiler call.",
+    "Stage shares use mean stage wall time / mean total wall time.",
+    "Profiling is diagnostic; use eval/compare.py for official speedups."
+  ],
+  "init_s": 15.710811941884458,
+  "vllm_telemetry": {
+    "workers": [
+      {
+        "worker": 0,
+        "samples": 731,
+        "maximum_running_requests": 8.0
+      },
+      {
+        "worker": 1,
+        "samples": 732,
+        "maximum_running_requests": 8.0
+      },
+      {
+        "worker": 2,
+        "samples": 731,
+        "maximum_running_requests": 8.0
+      },
+      {
+        "worker": 3,
+        "samples": 730,
+        "maximum_running_requests": 8.0
+      }
+    ],
+    "errors": [],
+    "interval_ms": 100,
+    "notes": [
+      "Running requests are scheduler occupancy, not GPU compute utilization.",
+      "Raw Prometheus snapshots include cumulative token counters and iteration histograms."
+    ]
+  },
+  "ocr_stats": [
+    {
+      "pages": 5,
+      "gpu_workers": 4,
+      "page_schedule": "dynamic",
+      "active_workers": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "workers": [
+        {
+          "worker": 0,
+          "pages_1_based": [
+            1
+          ],
+          "pages": 1,
+          "elapsed_s": 3.559013524092734,
+          "gen_tokens": 1105,
+          "visual_tokens": 0,
+          "batches": [
+            {
+              "first_local_page": 1,
+              "regions": 18,
+              "generated_lengths": [
+                13,
+                3,
+                46,
+                221,
+                102,
+                67,
+                3,
+                79,
+                116,
+                43,
+                63,
+                55,
+                81,
+                13,
+                38,
+                140,
+                7,
+                15
+              ],
+              "ended_with_eos": [
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                true
+              ],
+              "finish_reasons": [
+                "stop",
+                "stop",
+                "stop",
+                "stop",
+                "stop",
+                "stop",
+                "stop",
+                "stop",
+                "stop",
+                "stop",
+                "stop",
+                "stop",
+                "stop",
+                "stop",
+                "stop",
+                "stop",
+                "stop",
+                "stop"
+              ],
+              "elapsed_s": 3.475622437079437,
+              "input_tokens": [
+                205,
+                173,
+                163,
+                313,
+                205,
+                178,
+                157,
+                163,
+                193,
+                175,
+                163,
+                163,
+                178,
+                168,
+                175,
+                169,
+                178,
+                189
+              ],
+              "transport": "lossless PNG",
+              "recognizer_gpus": [
+                0,
+                1,
+                2,
+                3,
+                0,
+                1,
+                2,
+                3,
+                0,
+                1,
+                2,
+                3,
+                0,
+                1,
+                2,
+                3,
+                0,
+                1
+              ]
+            }
+          ],
+          "page_blocks": [
+            {
+              "local_page": 1,
+              "blocks": [
+                {
+                  "label": "doc_title",
+                  "characters": 33
+                },
+                {
+                  "label": "paragraph_title",
+                  "characters": 12
+                },
+                {
+                  "label": "text",
+                  "characters": 232
+                },
+                {
+                  "label": "text",
+                  "characters": 798
+                },
+                {
+                  "label": "text",
+                  "characters": 518
+                },
+                {
+                  "label": "text",
+                  "characters": 291
+                },
+                {
+                  "label": "paragraph_title",
+                  "characters": 10
+                },
+                {
+                  "label": "text",
+                  "characters": 245
+                },
+                {
+                  "label": "text",
+                  "characters": 429
+                },
+                {
+                  "label": "text",
+                  "characters": 0
+                },
+                {
+                  "label": "text",
+                  "characters": 158
+                },
+                {
+                  "label": "text",
+                  "characters": 212
+                },
+                {
+                  "label": "text",
+                  "characters": 205
+                },
+                {
+                  "label": "text",
+                  "characters": 260
+                },
+                {
+                  "label": "paragraph_title",
+                  "characters": 44
+                },
+                {
+                  "label": "text",
+                  "characters": 198
+                },
+                {
+                  "label": "footnote",
+                  "characters": 667
+                },
+                {
+                  "label": "footer",
+                  "characters": 18
+                },
+                {
+                  "label": "footer",
+                  "characters": 35
+                }
+              ]
+            }
+          ],
+          "peak_allocated_bytes": 346036224,
+          "peak_reserved_bytes": 465131520,
+          "backend": "paddleocr",
+          "region_batch_size": 4,
+          "region_dispatch": "all_gpus",
+          "submission_batch_size": 64,
+          "recognition_backend": "vllm-server",
+          "decoding": "greedy"
+        },
+        {
+          "worker": 1,
+          "pages_1_based": [
+            2,
+            5
+          ],
+          "pages": 2,
+          "elapsed_s": 24.578077445039526,
+          "gen_tokens": 3651,
+          "visual_tokens": 0,
+          "batches": [
+            {
+              "first_local_page": 1,
+              "regions": 6,
+              "generated_lengths": [
+                20,
+                7,
+                38,
+                149,
+                14,
+                7
+              ],
+              "ended_with_eos": [
+                true,
+                true,
+                true,
+                true,
+                true,
+                true
+              ],
+              "finish_reasons": [
+                "stop",
+                "stop",
+                "stop",
+                "stop",
+                "stop",
+                "stop"
+              ],
+              "elapsed_s": 1.3474916690029204,
+              "input_tokens": [
+                197,
+                175,
+                223,
+                165,
+                193,
+                178
+              ],
+              "transport": "lossless PNG",
+              "recognizer_gpus": [
+                1,
+                2,
+                3,
+                0,
+                1,
+                2
+              ]
+            },
+            {
+              "first_local_page": 2,
+              "regions": 6,
+              "generated_lengths": [
+                135,
+                6,
+                3252,
+                3,
+                13,
+                7
+              ],
+              "ended_with_eos": [
+                true,
+                true,
+                true,
+                true,
+                true,
+                true
+              ],
+              "finish_reasons": [
+                "stop",
+                "stop",
+                "stop",
+                "stop",
+                "stop",
+                "stop"
+              ],
+              "elapsed_s": 23.037498836987652,
+              "input_tokens": [
+                160,
+                169,
+                1613,
+                169,
+                193,
+                178
+              ],
+              "transport": "lossless PNG",
+              "recognizer_gpus": [
+                1,
+                2,
+                3,
+                0,
+                1,
+                2
+              ]
+            }
+          ],
+          "page_blocks": [
+            {
+              "local_page": 1,
+              "blocks": [
+                {
+                  "label": "figure_title",
+                  "characters": 80
+                },
+                {
+                  "label": "chart",
+                  "characters": 0
+                },
+                {
+                  "label": "vision_footnote",
+                  "characters": 42
+                },
+                {
+                  "label": "vision_footnote",
+                  "characters": 105
+                },
+                {
+                  "label": "vision_footnote",
+                  "characters": 622
+                },
+                {
+                  "label": "footer",
+                  "characters": 35
+                },
+                {
+                  "label": "footer",
+                  "characters": 18
+                }
+              ]
+            },
+            {
+              "local_page": 2,
+              "blocks": [
+                {
+                  "label": "figure_title",
+                  "characters": 405
+                },
+                {
+                  "label": "figure_title",
+                  "characters": 10
+                },
+                {
+                  "label": "table",
+                  "characters": 8758
+                },
+                {
+                  "label": "number",
+                  "characters": 2
+                },
+                {
+                  "label": "footer",
+                  "characters": 32
+                },
+                {
+                  "label": "footer",
+                  "characters": 18
+                }
+              ]
+            }
+          ],
+          "peak_allocated_bytes": 346036224,
+          "peak_reserved_bytes": 464869376,
+          "backend": "paddleocr",
+          "region_batch_size": 4,
+          "region_dispatch": "all_gpus",
+          "submission_batch_size": 64,
+          "recognition_backend": "vllm-server",
+          "decoding": "greedy"
+        },
+        {
+          "worker": 2,
+          "pages_1_based": [
+            3
+          ],
+          "pages": 1,
+          "elapsed_s": 5.62856587395072,
+          "gen_tokens": 750,
+          "visual_tokens": 0,
+          "batches": [
+            {
+              "first_local_page": 1,
+              "regions": 7,
+              "generated_lengths": [
+                27,
+                555,
+                10,
+                100,
+                37,
+                14,
+                7
+              ],
+              "ended_with_eos": [
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                true
+              ],
+              "finish_reasons": [
+                "stop",
+                "stop",
+                "stop",
+                "stop",
+                "stop",
+                "stop",
+                "stop"
+              ],
+              "elapsed_s": 5.554869869956747,
+              "input_tokens": [
+                165,
+                1028,
+                201,
+                181,
+                167,
+                193,
+                173
+              ],
+              "transport": "lossless PNG",
+              "recognizer_gpus": [
+                2,
+                3,
+                0,
+                1,
+                2,
+                3,
+                0
+              ]
+            }
+          ],
+          "page_blocks": [
+            {
+              "local_page": 1,
+              "blocks": [
+                {
+                  "label": "figure_title",
+                  "characters": 108
+                },
+                {
+                  "label": "table",
+                  "characters": 2091
+                },
+                {
+                  "label": "chart",
+                  "characters": 0
+                },
+                {
+                  "label": "vision_footnote",
+                  "characters": 44
+                },
+                {
+                  "label": "text",
+                  "characters": 446
+                },
+                {
+                  "label": "text",
+                  "characters": 119
+                },
+                {
+                  "label": "footer",
+                  "characters": 35
+                },
+                {
+                  "label": "footer",
+                  "characters": 18
+                }
+              ]
+            }
+          ],
+          "peak_allocated_bytes": 346036224,
+          "peak_reserved_bytes": 465131520,
+          "backend": "paddleocr",
+          "region_batch_size": 4,
+          "region_dispatch": "all_gpus",
+          "submission_batch_size": 64,
+          "recognition_backend": "vllm-server",
+          "decoding": "greedy"
+        },
+        {
+          "worker": 3,
+          "pages_1_based": [
+            4
+          ],
+          "pages": 1,
+          "elapsed_s": 3.6310792949516326,
+          "gen_tokens": 1045,
+          "visual_tokens": 0,
+          "batches": [
+            {
+              "first_local_page": 1,
+              "regions": 9,
+              "generated_lengths": [
+                235,
+                193,
+                184,
+                18,
+                155,
+                38,
+                200,
+                7,
+                15
+              ],
+              "ended_with_eos": [
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                true
+              ],
+              "finish_reasons": [
+                "stop",
+                "stop",
+                "stop",
+                "stop",
+                "stop",
+                "stop",
+                "stop",
+                "stop",
+                "stop"
+              ],
+              "elapsed_s": 3.555607713991776,
+              "input_tokens": [
+                277,
+                313,
+                217,
+                163,
+                301,
+                173,
+                289,
+                178,
+                197
+              ],
+              "transport": "lossless PNG",
+              "recognizer_gpus": [
+                3,
+                0,
+                1,
+                2,
+                3,
+                0,
+                1,
+                2,
+                3
+              ]
+            }
+          ],
+          "page_blocks": [
+            {
+              "local_page": 1,
+              "blocks": [
+                {
+                  "label": "text",
+                  "characters": 776
+                },
+                {
+                  "label": "text",
+                  "characters": 837
+                },
+                {
+                  "label": "text",
+                  "characters": 0
+                },
+                {
+                  "label": "text",
+                  "characters": 568
+                },
+                {
+                  "label": "paragraph_title",
+                  "characters": 48
+                },
+                {
+                  "label": "text",
+                  "characters": 758
+                },
+                {
+                  "label": "text",
+                  "characters": 0
+                },
+                {
+                  "label": "text",
+                  "characters": 206
+                },
+                {
+                  "label": "text",
+                  "characters": 782
+                },
+                {
+                  "label": "footer",
+                  "characters": 18
+                },
+                {
+                  "label": "footer",
+                  "characters": 35
+                }
+              ]
+            }
+          ],
+          "peak_allocated_bytes": 346036224,
+          "peak_reserved_bytes": 465131520,
+          "backend": "paddleocr",
+          "region_batch_size": 4,
+          "region_dispatch": "all_gpus",
+          "submission_batch_size": 64,
+          "recognition_backend": "vllm-server",
+          "decoding": "greedy"
+        }
+      ],
+      "gen_tokens": 6551,
+      "visual_tokens": 0
+    },
+    {
+      "pages": 5,
+      "gpu_workers": 4,
+      "page_schedule": "dynamic",
+      "active_workers": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "workers": [
+        {
+          "worker": 0,
+          "pages_1_based": [
+            1
+          ],
+          "pages": 1,
+          "elapsed_s": 3.644075931981206,
+          "gen_tokens": 1105,
+          "visual_tokens": 0,
+          "batches": [
+            {
+              "first_local_page": 1,
+              "regions": 18,
+              "generated_lengths": [
+                13,
+                3,
+                46,
+                221,
+                102,
+                67,
+                3,
+                79,
+                116,
+                43,
+                63,
+                55,
+                81,
+                13,
+                38,
+                140,
+                7,
+                15
+              ],
+              "ended_with_eos": [
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                true
+              ],
+              "finish_reasons": [
+                "stop",
+                "stop",
+                "stop",
+                "stop",
+                "stop",
+                "stop",
+                "stop",
+                "stop",
+                "stop",
+                "stop",
+                "stop",
+                "stop",
+                "stop",
+                "stop",
+                "stop",
+                "stop",
+                "stop",
+                "stop"
+              ],
+              "elapsed_s": 3.565294341999106,
+              "input_tokens": [
+                205,
+                173,
+                163,
+                313,
+                205,
+                178,
+                157,
+                163,
+                193,
+                175,
+                163,
+                163,
+                178,
+                168,
+                175,
+                169,
+                178,
+                189
+              ],
+              "transport": "lossless PNG",
+              "recognizer_gpus": [
+                0,
+                1,
+                2,
+                3,
+                0,
+                1,
+                2,
+                3,
+                0,
+                1,
+                2,
+                3,
+                0,
+                1,
+                2,
+                3,
+                0,
+                1
+              ]
+            }
+          ],
+          "page_blocks": [
+            {
+              "local_page": 1,
+              "blocks": [
+                {
+                  "label": "doc_title",
+                  "characters": 33
+                },
+                {
+                  "label": "paragraph_title",
+                  "characters": 12
+                },
+                {
+                  "label": "text",
+                  "characters": 232
+                },
+                {
+                  "label": "text",
+                  "characters": 798
+                },
+                {
+                  "label": "text",
+                  "characters": 518
+                },
+                {
+                  "label": "text",
+                  "characters": 291
+                },
+                {
+                  "label": "paragraph_title",
+                  "characters": 10
+                },
+                {
+                  "label": "text",
+                  "characters": 245
+                },
+                {
+                  "label": "text",
+                  "characters": 429
+                },
+                {
+                  "label": "text",
+                  "characters": 0
+                },
+                {
+                  "label": "text",
+                  "characters": 158
+                },
+                {
+                  "label": "text",
+                  "characters": 212
+                },
+                {
+                  "label": "text",
+                  "characters": 205
+                },
+                {
+                  "label": "text",
+                  "characters": 260
+                },
+                {
+                  "label": "paragraph_title",
+                  "characters": 44
+                },
+                {
+                  "label": "text",
+                  "characters": 198
+                },
+                {
+                  "label": "footnote",
+                  "characters": 667
+                },
+                {
+                  "label": "footer",
+                  "characters": 18
+                },
+                {
+                  "label": "footer",
+                  "characters": 35
+                }
+              ]
+            }
+          ],
+          "peak_allocated_bytes": 346036224,
+          "peak_reserved_bytes": 465131520,
+          "backend": "paddleocr",
+          "region_batch_size": 4,
+          "region_dispatch": "all_gpus",
+          "submission_batch_size": 64,
+          "recognition_backend": "vllm-server",
+          "decoding": "greedy"
+        },
+        {
+          "worker": 1,
+          "pages_1_based": [
+            2,
+            5
+          ],
+          "pages": 2,
+          "elapsed_s": 24.54880368092563,
+          "gen_tokens": 3651,
+          "visual_tokens": 0,
+          "batches": [
+            {
+              "first_local_page": 1,
+              "regions": 6,
+              "generated_lengths": [
+                20,
+                7,
+                38,
+                149,
+                14,
+                7
+              ],
+              "ended_with_eos": [
+                true,
+                true,
+                true,
+                true,
+                true,
+                true
+              ],
+              "finish_reasons": [
+                "stop",
+                "stop",
+                "stop",
+                "stop",
+                "stop",
+                "stop"
+              ],
+              "elapsed_s": 1.3363623128971085,
+              "input_tokens": [
+                197,
+                175,
+                223,
+                165,
+                193,
+                178
+              ],
+              "transport": "lossless PNG",
+              "recognizer_gpus": [
+                1,
+                2,
+                3,
+                0,
+                1,
+                2
+              ]
+            },
+            {
+              "first_local_page": 2,
+              "regions": 6,
+              "generated_lengths": [
+                135,
+                6,
+                3252,
+                3,
+                13,
+                7
+              ],
+              "ended_with_eos": [
+                true,
+                true,
+                true,
+                true,
+                true,
+                true
+              ],
+              "finish_reasons": [
+                "stop",
+                "stop",
+                "stop",
+                "stop",
+                "stop",
+                "stop"
+              ],
+              "elapsed_s": 23.022314139991067,
+              "input_tokens": [
+                160,
+                169,
+                1613,
+                169,
+                193,
+                178
+              ],
+              "transport": "lossless PNG",
+              "recognizer_gpus": [
+                1,
+                2,
+                3,
+                0,
+                1,
+                2
+              ]
+            }
+          ],
+          "page_blocks": [
+            {
+              "local_page": 1,
+              "blocks": [
+                {
+                  "label": "figure_title",
+                  "characters": 80
+                },
+                {
+                  "label": "chart",
+                  "characters": 0
+                },
+                {
+                  "label": "vision_footnote",
+                  "characters": 42
+                },
+                {
+                  "label": "vision_footnote",
+                  "characters": 105
+                },
+                {
+                  "label": "vision_footnote",
+                  "characters": 622
+                },
+                {
+                  "label": "footer",
+                  "characters": 35
+                },
+                {
+                  "label": "footer",
+                  "characters": 18
+                }
+              ]
+            },
+            {
+              "local_page": 2,
+              "blocks": [
+                {
+                  "label": "figure_title",
+                  "characters": 405
+                },
+                {
+                  "label": "figure_title",
+                  "characters": 10
+                },
+                {
+                  "label": "table",
+                  "characters": 8758
+                },
+                {
+                  "label": "number",
+                  "characters": 2
+                },
+                {
+                  "label": "footer",
+                  "characters": 32
+                },
+                {
+                  "label": "footer",
+                  "characters": 18
+                }
+              ]
+            }
+          ],
+          "peak_allocated_bytes": 346036224,
+          "peak_reserved_bytes": 464869376,
+          "backend": "paddleocr",
+          "region_batch_size": 4,
+          "region_dispatch": "all_gpus",
+          "submission_batch_size": 64,
+          "recognition_backend": "vllm-server",
+          "decoding": "greedy"
+        },
+        {
+          "worker": 2,
+          "pages_1_based": [
+            3
+          ],
+          "pages": 1,
+          "elapsed_s": 5.615511307027191,
+          "gen_tokens": 750,
+          "visual_tokens": 0,
+          "batches": [
+            {
+              "first_local_page": 1,
+              "regions": 7,
+              "generated_lengths": [
+                27,
+                555,
+                10,
+                100,
+                37,
+                14,
+                7
+              ],
+              "ended_with_eos": [
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                true
+              ],
+              "finish_reasons": [
+                "stop",
+                "stop",
+                "stop",
+                "stop",
+                "stop",
+                "stop",
+                "stop"
+              ],
+              "elapsed_s": 5.539720596047118,
+              "input_tokens": [
+                165,
+                1028,
+                201,
+                181,
+                167,
+                193,
+                173
+              ],
+              "transport": "lossless PNG",
+              "recognizer_gpus": [
+                2,
+                3,
+                0,
+                1,
+                2,
+                3,
+                0
+              ]
+            }
+          ],
+          "page_blocks": [
+            {
+              "local_page": 1,
+              "blocks": [
+                {
+                  "label": "figure_title",
+                  "characters": 108
+                },
+                {
+                  "label": "table",
+                  "characters": 2091
+                },
+                {
+                  "label": "chart",
+                  "characters": 0
+                },
+                {
+                  "label": "vision_footnote",
+                  "characters": 44
+                },
+                {
+                  "label": "text",
+                  "characters": 446
+                },
+                {
+                  "label": "text",
+                  "characters": 119
+                },
+                {
+                  "label": "footer",
+                  "characters": 35
+                },
+                {
+                  "label": "footer",
+                  "characters": 18
+                }
+              ]
+            }
+          ],
+          "peak_allocated_bytes": 346036224,
+          "peak_reserved_bytes": 465131520,
+          "backend": "paddleocr",
+          "region_batch_size": 4,
+          "region_dispatch": "all_gpus",
+          "submission_batch_size": 64,
+          "recognition_backend": "vllm-server",
+          "decoding": "greedy"
+        },
+        {
+          "worker": 3,
+          "pages_1_based": [
+            4
+          ],
+          "pages": 1,
+          "elapsed_s": 3.6234519720310345,
+          "gen_tokens": 1045,
+          "visual_tokens": 0,
+          "batches": [
+            {
+              "first_local_page": 1,
+              "regions": 9,
+              "generated_lengths": [
+                235,
+                193,
+                184,
+                18,
+                155,
+                38,
+                200,
+                7,
+                15
+              ],
+              "ended_with_eos": [
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                true
+              ],
+              "finish_reasons": [
+                "stop",
+                "stop",
+                "stop",
+                "stop",
+                "stop",
+                "stop",
+                "stop",
+                "stop",
+                "stop"
+              ],
+              "elapsed_s": 3.5480581920128316,
+              "input_tokens": [
+                277,
+                313,
+                217,
+                163,
+                301,
+                173,
+                289,
+                178,
+                197
+              ],
+              "transport": "lossless PNG",
+              "recognizer_gpus": [
+                3,
+                0,
+                1,
+                2,
+                3,
+                0,
+                1,
+                2,
+                3
+              ]
+            }
+          ],
+          "page_blocks": [
+            {
+              "local_page": 1,
+              "blocks": [
+                {
+                  "label": "text",
+                  "characters": 776
+                },
+                {
+                  "label": "text",
+                  "characters": 837
+                },
+                {
+                  "label": "text",
+                  "characters": 0
+                },
+                {
+                  "label": "text",
+                  "characters": 568
+                },
+                {
+                  "label": "paragraph_title",
+                  "characters": 48
+                },
+                {
+                  "label": "text",
+                  "characters": 758
+                },
+                {
+                  "label": "text",
+                  "characters": 0
+                },
+                {
+                  "label": "text",
+                  "characters": 206
+                },
+                {
+                  "label": "text",
+                  "characters": 782
+                },
+                {
+                  "label": "footer",
+                  "characters": 18
+                },
+                {
+                  "label": "footer",
+                  "characters": 35
+                }
+              ]
+            }
+          ],
+          "peak_allocated_bytes": 346036224,
+          "peak_reserved_bytes": 465131520,
+          "backend": "paddleocr",
+          "region_batch_size": 4,
+          "region_dispatch": "all_gpus",
+          "submission_batch_size": 64,
+          "recognition_backend": "vllm-server",
+          "decoding": "greedy"
+        }
+      ],
+      "gen_tokens": 6551,
+      "visual_tokens": 0
+    },
+    {
+      "pages": 5,
+      "gpu_workers": 4,
+      "page_schedule": "dynamic",
+      "active_workers": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "workers": [
+        {
+          "worker": 0,
+          "pages_1_based": [
+            1
+          ],
+          "pages": 1,
+          "elapsed_s": 3.6803814970189705,
+          "gen_tokens": 1105,
+          "visual_tokens": 0,
+          "batches": [
+            {
+              "first_local_page": 1,
+              "regions": 18,
+              "generated_lengths": [
+                13,
+                3,
+                46,
+                221,
+                102,
+                67,
+                3,
+                79,
+                116,
+                43,
+                63,
+                55,
+                81,
+                13,
+                38,
+                140,
+                7,
+                15
+              ],
+              "ended_with_eos": [
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                true
+              ],
+              "finish_reasons": [
+                "stop",
+                "stop",
+                "stop",
+                "stop",
+                "stop",
+                "stop",
+                "stop",
+                "stop",
+                "stop",
+                "stop",
+                "stop",
+                "stop",
+                "stop",
+                "stop",
+                "stop",
+                "stop",
+                "stop",
+                "stop"
+              ],
+              "elapsed_s": 3.59544453502167,
+              "input_tokens": [
+                205,
+                173,
+                163,
+                313,
+                205,
+                178,
+                157,
+                163,
+                193,
+                175,
+                163,
+                163,
+                178,
+                168,
+                175,
+                169,
+                178,
+                189
+              ],
+              "transport": "lossless PNG",
+              "recognizer_gpus": [
+                0,
+                1,
+                2,
+                3,
+                0,
+                1,
+                2,
+                3,
+                0,
+                1,
+                2,
+                3,
+                0,
+                1,
+                2,
+                3,
+                0,
+                1
+              ]
+            }
+          ],
+          "page_blocks": [
+            {
+              "local_page": 1,
+              "blocks": [
+                {
+                  "label": "doc_title",
+                  "characters": 33
+                },
+                {
+                  "label": "paragraph_title",
+                  "characters": 12
+                },
+                {
+                  "label": "text",
+                  "characters": 232
+                },
+                {
+                  "label": "text",
+                  "characters": 798
+                },
+                {
+                  "label": "text",
+                  "characters": 518
+                },
+                {
+                  "label": "text",
+                  "characters": 291
+                },
+                {
+                  "label": "paragraph_title",
+                  "characters": 10
+                },
+                {
+                  "label": "text",
+                  "characters": 245
+                },
+                {
+                  "label": "text",
+                  "characters": 429
+                },
+                {
+                  "label": "text",
+                  "characters": 0
+                },
+                {
+                  "label": "text",
+                  "characters": 158
+                },
+                {
+                  "label": "text",
+                  "characters": 212
+                },
+                {
+                  "label": "text",
+                  "characters": 205
+                },
+                {
+                  "label": "text",
+                  "characters": 260
+                },
+                {
+                  "label": "paragraph_title",
+                  "characters": 44
+                },
+                {
+                  "label": "text",
+                  "characters": 198
+                },
+                {
+                  "label": "footnote",
+                  "characters": 667
+                },
+                {
+                  "label": "footer",
+                  "characters": 18
+                },
+                {
+                  "label": "footer",
+                  "characters": 35
+                }
+              ]
+            }
+          ],
+          "peak_allocated_bytes": 346036224,
+          "peak_reserved_bytes": 465131520,
+          "backend": "paddleocr",
+          "region_batch_size": 4,
+          "region_dispatch": "all_gpus",
+          "submission_batch_size": 64,
+          "recognition_backend": "vllm-server",
+          "decoding": "greedy"
+        },
+        {
+          "worker": 1,
+          "pages_1_based": [
+            2,
+            5
+          ],
+          "pages": 2,
+          "elapsed_s": 24.642869542120025,
+          "gen_tokens": 3651,
+          "visual_tokens": 0,
+          "batches": [
+            {
+              "first_local_page": 1,
+              "regions": 6,
+              "generated_lengths": [
+                20,
+                7,
+                38,
+                149,
+                14,
+                7
+              ],
+              "ended_with_eos": [
+                true,
+                true,
+                true,
+                true,
+                true,
+                true
+              ],
+              "finish_reasons": [
+                "stop",
+                "stop",
+                "stop",
+                "stop",
+                "stop",
+                "stop"
+              ],
+              "elapsed_s": 1.3570226039737463,
+              "input_tokens": [
+                197,
+                175,
+                223,
+                165,
+                193,
+                178
+              ],
+              "transport": "lossless PNG",
+              "recognizer_gpus": [
+                1,
+                2,
+                3,
+                0,
+                1,
+                2
+              ]
+            },
+            {
+              "first_local_page": 2,
+              "regions": 6,
+              "generated_lengths": [
+                135,
+                6,
+                3252,
+                3,
+                13,
+                7
+              ],
+              "ended_with_eos": [
+                true,
+                true,
+                true,
+                true,
+                true,
+                true
+              ],
+              "finish_reasons": [
+                "stop",
+                "stop",
+                "stop",
+                "stop",
+                "stop",
+                "stop"
+              ],
+              "elapsed_s": 23.09837515000254,
+              "input_tokens": [
+                160,
+                169,
+                1613,
+                169,
+                193,
+                178
+              ],
+              "transport": "lossless PNG",
+              "recognizer_gpus": [
+                1,
+                2,
+                3,
+                0,
+                1,
+                2
+              ]
+            }
+          ],
+          "page_blocks": [
+            {
+              "local_page": 1,
+              "blocks": [
+                {
+                  "label": "figure_title",
+                  "characters": 80
+                },
+                {
+                  "label": "chart",
+                  "characters": 0
+                },
+                {
+                  "label": "vision_footnote",
+                  "characters": 42
+                },
+                {
+                  "label": "vision_footnote",
+                  "characters": 105
+                },
+                {
+                  "label": "vision_footnote",
+                  "characters": 622
+                },
+                {
+                  "label": "footer",
+                  "characters": 35
+                },
+                {
+                  "label": "footer",
+                  "characters": 18
+                }
+              ]
+            },
+            {
+              "local_page": 2,
+              "blocks": [
+                {
+                  "label": "figure_title",
+                  "characters": 405
+                },
+                {
+                  "label": "figure_title",
+                  "characters": 10
+                },
+                {
+                  "label": "table",
+                  "characters": 8758
+                },
+                {
+                  "label": "number",
+                  "characters": 2
+                },
+                {
+                  "label": "footer",
+                  "characters": 32
+                },
+                {
+                  "label": "footer",
+                  "characters": 18
+                }
+              ]
+            }
+          ],
+          "peak_allocated_bytes": 346036224,
+          "peak_reserved_bytes": 464869376,
+          "backend": "paddleocr",
+          "region_batch_size": 4,
+          "region_dispatch": "all_gpus",
+          "submission_batch_size": 64,
+          "recognition_backend": "vllm-server",
+          "decoding": "greedy"
+        },
+        {
+          "worker": 2,
+          "pages_1_based": [
+            3
+          ],
+          "pages": 1,
+          "elapsed_s": 5.676568336901255,
+          "gen_tokens": 750,
+          "visual_tokens": 0,
+          "batches": [
+            {
+              "first_local_page": 1,
+              "regions": 7,
+              "generated_lengths": [
+                27,
+                555,
+                10,
+                100,
+                37,
+                14,
+                7
+              ],
+              "ended_with_eos": [
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                true
+              ],
+              "finish_reasons": [
+                "stop",
+                "stop",
+                "stop",
+                "stop",
+                "stop",
+                "stop",
+                "stop"
+              ],
+              "elapsed_s": 5.6020654869498685,
+              "input_tokens": [
+                165,
+                1028,
+                201,
+                181,
+                167,
+                193,
+                173
+              ],
+              "transport": "lossless PNG",
+              "recognizer_gpus": [
+                2,
+                3,
+                0,
+                1,
+                2,
+                3,
+                0
+              ]
+            }
+          ],
+          "page_blocks": [
+            {
+              "local_page": 1,
+              "blocks": [
+                {
+                  "label": "figure_title",
+                  "characters": 108
+                },
+                {
+                  "label": "table",
+                  "characters": 2091
+                },
+                {
+                  "label": "chart",
+                  "characters": 0
+                },
+                {
+                  "label": "vision_footnote",
+                  "characters": 44
+                },
+                {
+                  "label": "text",
+                  "characters": 446
+                },
+                {
+                  "label": "text",
+                  "characters": 119
+                },
+                {
+                  "label": "footer",
+                  "characters": 35
+                },
+                {
+                  "label": "footer",
+                  "characters": 18
+                }
+              ]
+            }
+          ],
+          "peak_allocated_bytes": 346036224,
+          "peak_reserved_bytes": 465131520,
+          "backend": "paddleocr",
+          "region_batch_size": 4,
+          "region_dispatch": "all_gpus",
+          "submission_batch_size": 64,
+          "recognition_backend": "vllm-server",
+          "decoding": "greedy"
+        },
+        {
+          "worker": 3,
+          "pages_1_based": [
+            4
+          ],
+          "pages": 1,
+          "elapsed_s": 3.6592757219914347,
+          "gen_tokens": 1045,
+          "visual_tokens": 0,
+          "batches": [
+            {
+              "first_local_page": 1,
+              "regions": 9,
+              "generated_lengths": [
+                235,
+                193,
+                184,
+                18,
+                155,
+                38,
+                200,
+                7,
+                15
+              ],
+              "ended_with_eos": [
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                true
+              ],
+              "finish_reasons": [
+                "stop",
+                "stop",
+                "stop",
+                "stop",
+                "stop",
+                "stop",
+                "stop",
+                "stop",
+                "stop"
+              ],
+              "elapsed_s": 3.5844070119783282,
+              "input_tokens": [
+                277,
+                313,
+                217,
+                163,
+                301,
+                173,
+                289,
+                178,
+                197
+              ],
+              "transport": "lossless PNG",
+              "recognizer_gpus": [
+                3,
+                0,
+                1,
+                2,
+                3,
+                0,
+                1,
+                2,
+                3
+              ]
+            }
+          ],
+          "page_blocks": [
+            {
+              "local_page": 1,
+              "blocks": [
+                {
+                  "label": "text",
+                  "characters": 776
+                },
+                {
+                  "label": "text",
+                  "characters": 837
+                },
+                {
+                  "label": "text",
+                  "characters": 0
+                },
+                {
+                  "label": "text",
+                  "characters": 568
+                },
+                {
+                  "label": "paragraph_title",
+                  "characters": 48
+                },
+                {
+                  "label": "text",
+                  "characters": 758
+                },
+                {
+                  "label": "text",
+                  "characters": 0
+                },
+                {
+                  "label": "text",
+                  "characters": 206
+                },
+                {
+                  "label": "text",
+                  "characters": 782
+                },
+                {
+                  "label": "footer",
+                  "characters": 18
+                },
+                {
+                  "label": "footer",
+                  "characters": 35
+                }
+              ]
+            }
+          ],
+          "peak_allocated_bytes": 346036224,
+          "peak_reserved_bytes": 465131520,
+          "backend": "paddleocr",
+          "region_batch_size": 4,
+          "region_dispatch": "all_gpus",
+          "submission_batch_size": 64,
+          "recognition_backend": "vllm-server",
+          "decoding": "greedy"
+        }
+      ],
+      "gen_tokens": 6551,
+      "visual_tokens": 0
+    }
+  ],
+  "gpu_telemetry": {
+    "measured": {
+      "phase": "measured",
+      "interval_ms": 1000,
+      "devices": [
+        {
+          "uuid": "GPU-ad391ba2-170d-001e-3298-63640703ba94",
+          "index": 0,
+          "samples": 78,
+          "metrics": {
+            "gpu_busy_pct": {
+              "mean": 10.948717948717949,
+              "min": 0.0,
+              "max": 100.0
+            },
+            "memory_busy_pct": {
+              "mean": 8.064102564102564,
+              "min": 0.0,
+              "max": 88.0
+            },
+            "memory_used_mib": {
+              "mean": 13160.97435897436,
+              "min": 13107.0,
+              "max": 13167.0
+            },
+            "memory_total_mib": {
+              "mean": 23034.0,
+              "min": 23034.0,
+              "max": 23034.0
+            },
+            "power_w": {
+              "mean": 34.97897435897436,
+              "min": 28.85,
+              "max": 74.81
+            },
+            "power_limit_w": {
+              "mean": 72.0,
+              "min": 72.0,
+              "max": 72.0
+            },
+            "sm_clock_mhz": {
+              "mean": 1986.5384615384614,
+              "min": 1155.0,
+              "max": 2040.0
+            },
+            "memory_clock_mhz": {
+              "mean": 6251.0,
+              "min": 6251.0,
+              "max": 6251.0
+            },
+            "temperature_c": {
+              "mean": 54.62820512820513,
+              "min": 48.0,
+              "max": 62.0
+            }
+          },
+          "clock_event_masks": [
+            "0x0000000000000000",
+            "0x0000000000000004"
+          ]
+        },
+        {
+          "uuid": "GPU-ccc76d7e-fcc9-4930-19c9-7aecc935da5e",
+          "index": 1,
+          "samples": 78,
+          "metrics": {
+            "gpu_busy_pct": {
+              "mean": 8.91025641025641,
+              "min": 0.0,
+              "max": 100.0
+            },
+            "memory_busy_pct": {
+              "mean": 5.615384615384615,
+              "min": 0.0,
+              "max": 73.0
+            },
+            "memory_used_mib": {
+              "mean": 10639.205128205129,
+              "min": 10632.0,
+              "max": 10644.0
+            },
+            "memory_total_mib": {
+              "mean": 23034.0,
+              "min": 23034.0,
+              "max": 23034.0
+            },
+            "power_w": {
+              "mean": 32.00410256410257,
+              "min": 27.41,
+              "max": 73.1
+            },
+            "power_limit_w": {
+              "mean": 72.0,
+              "min": 72.0,
+              "max": 72.0
+            },
+            "sm_clock_mhz": {
+              "mean": 2026.5384615384614,
+              "min": 1575.0,
+              "max": 2040.0
+            },
+            "memory_clock_mhz": {
+              "mean": 6251.0,
+              "min": 6251.0,
+              "max": 6251.0
+            },
+            "temperature_c": {
+              "mean": 49.205128205128204,
+              "min": 43.0,
+              "max": 56.0
+            }
+          },
+          "clock_event_masks": [
+            "0x0000000000000000",
+            "0x0000000000000004"
+          ]
+        },
+        {
+          "uuid": "GPU-ba5751ba-2e74-f2d9-0206-08470044a0e6",
+          "index": 2,
+          "samples": 78,
+          "metrics": {
+            "gpu_busy_pct": {
+              "mean": 4.564102564102564,
+              "min": 0.0,
+              "max": 100.0
+            },
+            "memory_busy_pct": {
+              "mean": 2.782051282051282,
+              "min": 0.0,
+              "max": 73.0
+            },
+            "memory_used_mib": {
+              "mean": 10596.692307692309,
+              "min": 10546.0,
+              "max": 10602.0
+            },
+            "memory_total_mib": {
+              "mean": 23034.0,
+              "min": 23034.0,
+              "max": 23034.0
+            },
+            "power_w": {
+              "mean": 29.973076923076924,
+              "min": 27.64,
+              "max": 58.18
+            },
+            "power_limit_w": {
+              "mean": 72.0,
+              "min": 72.0,
+              "max": 72.0
+            },
+            "sm_clock_mhz": {
+              "mean": 2026.7307692307693,
+              "min": 1455.0,
+              "max": 2040.0
+            },
+            "memory_clock_mhz": {
+              "mean": 6251.0,
+              "min": 6251.0,
+              "max": 6251.0
+            },
+            "temperature_c": {
+              "mean": 52.1025641025641,
+              "min": 45.0,
+              "max": 58.0
+            }
+          },
+          "clock_event_masks": [
+            "0x0000000000000000",
+            "0x0000000000000004"
+          ]
+        },
+        {
+          "uuid": "GPU-9dbde1ef-5e16-94e5-5884-0ae606188e09",
+          "index": 3,
+          "samples": 78,
+          "metrics": {
+            "gpu_busy_pct": {
+              "mean": 94.62820512820512,
+              "min": 0.0,
+              "max": 100.0
+            },
+            "memory_busy_pct": {
+              "mean": 55.65384615384615,
+              "min": 0.0,
+              "max": 70.0
+            },
+            "memory_used_mib": {
+              "mean": 11285.28205128205,
+              "min": 11232.0,
+              "max": 11290.0
+            },
+            "memory_total_mib": {
+              "mean": 23034.0,
+              "min": 23034.0,
+              "max": 23034.0
+            },
+            "power_w": {
+              "mean": 69.66576923076923,
+              "min": 30.94,
+              "max": 74.53
+            },
+            "power_limit_w": {
+              "mean": 72.0,
+              "min": 72.0,
+              "max": 72.0
+            },
+            "sm_clock_mhz": {
+              "mean": 1949.423076923077,
+              "min": 1380.0,
+              "max": 2040.0
+            },
+            "memory_clock_mhz": {
+              "mean": 6251.0,
+              "min": 6251.0,
+              "max": 6251.0
+            },
+            "temperature_c": {
+              "mean": 73.1923076923077,
+              "min": 65.0,
+              "max": 78.0
+            }
+          },
+          "clock_event_masks": [
+            "0x0000000000000000",
+            "0x0000000000000004"
+          ]
+        }
+      ],
+      "errors": [],
+      "notes": [
+        "GPU busy is the percentage of sampled time with one or more kernels executing.",
+        "Memory busy is the percentage of sampled time with device memory reads or writes.",
+        "Neither is percentage of peak compute or peak memory bandwidth.",
+        "One-second sampling is too coarse for individual kernels or short stages."
+      ]
+    },
+    "ocr": {
+      "phase": "measured",
+      "interval_ms": 1000,
+      "devices": [
+        {
+          "uuid": "GPU-ad391ba2-170d-001e-3298-63640703ba94",
+          "index": 0,
+          "samples": 73,
+          "metrics": {
+            "gpu_busy_pct": {
+              "mean": 6.315068493150685,
+              "min": 0.0,
+              "max": 100.0
+            },
+            "memory_busy_pct": {
+              "mean": 4.095890410958904,
+              "min": 0.0,
+              "max": 72.0
+            },
+            "memory_used_mib": {
+              "mean": 13161.602739726028,
+              "min": 13157.0,
+              "max": 13167.0
+            },
+            "memory_total_mib": {
+              "mean": 23034.0,
+              "min": 23034.0,
+              "max": 23034.0
+            },
+            "power_w": {
+              "mean": 33.67465753424658,
+              "min": 28.85,
+              "max": 74.57
+            },
+            "power_limit_w": {
+              "mean": 72.0,
+              "min": 72.0,
+              "max": 72.0
+            },
+            "sm_clock_mhz": {
+              "mean": 2019.86301369863,
+              "min": 1425.0,
+              "max": 2040.0
+            },
+            "memory_clock_mhz": {
+              "mean": 6251.0,
+              "min": 6251.0,
+              "max": 6251.0
+            },
+            "temperature_c": {
+              "mean": 54.602739726027394,
+              "min": 48.0,
+              "max": 62.0
+            }
+          },
+          "clock_event_masks": [
+            "0x0000000000000000",
+            "0x0000000000000004"
+          ]
+        },
+        {
+          "uuid": "GPU-ccc76d7e-fcc9-4930-19c9-7aecc935da5e",
+          "index": 1,
+          "samples": 73,
+          "metrics": {
+            "gpu_busy_pct": {
+              "mean": 9.520547945205479,
+              "min": 0.0,
+              "max": 100.0
+            },
+            "memory_busy_pct": {
+              "mean": 6.0,
+              "min": 0.0,
+              "max": 73.0
+            },
+            "memory_used_mib": {
+              "mean": 10639.232876712329,
+              "min": 10634.0,
+              "max": 10644.0
+            },
+            "memory_total_mib": {
+              "mean": 23034.0,
+              "min": 23034.0,
+              "max": 23034.0
+            },
+            "power_w": {
+              "mean": 32.28945205479452,
+              "min": 27.41,
+              "max": 73.1
+            },
+            "power_limit_w": {
+              "mean": 72.0,
+              "min": 72.0,
+              "max": 72.0
+            },
+            "sm_clock_mhz": {
+              "mean": 2025.6164383561643,
+              "min": 1575.0,
+              "max": 2040.0
+            },
+            "memory_clock_mhz": {
+              "mean": 6251.0,
+              "min": 6251.0,
+              "max": 6251.0
+            },
+            "temperature_c": {
+              "mean": 49.342465753424655,
+              "min": 44.0,
+              "max": 56.0
+            }
+          },
+          "clock_event_masks": [
+            "0x0000000000000000",
+            "0x0000000000000004"
+          ]
+        },
+        {
+          "uuid": "GPU-ba5751ba-2e74-f2d9-0206-08470044a0e6",
+          "index": 2,
+          "samples": 73,
+          "metrics": {
+            "gpu_busy_pct": {
+              "mean": 4.876712328767123,
+              "min": 0.0,
+              "max": 100.0
+            },
+            "memory_busy_pct": {
+              "mean": 2.9726027397260273,
+              "min": 0.0,
+              "max": 73.0
+            },
+            "memory_used_mib": {
+              "mean": 10597.287671232876,
+              "min": 10592.0,
+              "max": 10602.0
+            },
+            "memory_total_mib": {
+              "mean": 23034.0,
+              "min": 23034.0,
+              "max": 23034.0
+            },
+            "power_w": {
+              "mean": 30.10164383561644,
+              "min": 27.75,
+              "max": 58.18
+            },
+            "power_limit_w": {
+              "mean": 72.0,
+              "min": 72.0,
+              "max": 72.0
+            },
+            "sm_clock_mhz": {
+              "mean": 2025.8219178082193,
+              "min": 1455.0,
+              "max": 2040.0
+            },
+            "memory_clock_mhz": {
+              "mean": 6251.0,
+              "min": 6251.0,
+              "max": 6251.0
+            },
+            "temperature_c": {
+              "mean": 52.23287671232877,
+              "min": 46.0,
+              "max": 58.0
+            }
+          },
+          "clock_event_masks": [
+            "0x0000000000000000",
+            "0x0000000000000004"
+          ]
+        },
+        {
+          "uuid": "GPU-9dbde1ef-5e16-94e5-5884-0ae606188e09",
+          "index": 3,
+          "samples": 74,
+          "metrics": {
+            "gpu_busy_pct": {
+              "mean": 98.39189189189189,
+              "min": 0.0,
+              "max": 100.0
+            },
+            "memory_busy_pct": {
+              "mean": 57.87837837837838,
+              "min": 0.0,
+              "max": 70.0
+            },
+            "memory_used_mib": {
+              "mean": 11285.18918918919,
+              "min": 11232.0,
+              "max": 11290.0
+            },
+            "memory_total_mib": {
+              "mean": 23034.0,
+              "min": 23034.0,
+              "max": 23034.0
+            },
+            "power_w": {
+              "mean": 70.65567567567568,
+              "min": 30.94,
+              "max": 74.53
+            },
+            "power_limit_w": {
+              "mean": 72.0,
+              "min": 72.0,
+              "max": 72.0
+            },
+            "sm_clock_mhz": {
+              "mean": 1944.527027027027,
+              "min": 1380.0,
+              "max": 2040.0
+            },
+            "memory_clock_mhz": {
+              "mean": 6251.0,
+              "min": 6251.0,
+              "max": 6251.0
+            },
+            "temperature_c": {
+              "mean": 73.43243243243244,
+              "min": 69.0,
+              "max": 78.0
+            }
+          },
+          "clock_event_masks": [
+            "0x0000000000000000",
+            "0x0000000000000004"
+          ]
+        }
+      ],
+      "errors": [],
+      "notes": [
+        "GPU busy is the percentage of sampled time with one or more kernels executing.",
+        "Memory busy is the percentage of sampled time with device memory reads or writes.",
+        "Neither is percentage of peak compute or peak memory bandwidth.",
+        "One-second sampling is too coarse for individual kernels or short stages."
+      ]
+    },
+    "instrumented": {
+      "phase": "instrumented",
+      "interval_ms": 1000,
+      "devices": [
+        {
+          "uuid": "GPU-ad391ba2-170d-001e-3298-63640703ba94",
+          "index": 0,
+          "samples": 36,
+          "metrics": {
+            "gpu_busy_pct": {
+              "mean": 8.38888888888889,
+              "min": 0.0,
+              "max": 100.0
+            },
+            "memory_busy_pct": {
+              "mean": 6.055555555555555,
+              "min": 0.0,
+              "max": 94.0
+            },
+            "memory_used_mib": {
+              "mean": 13184.833333333334,
+              "min": 13179.0,
+              "max": 13185.0
+            },
+            "memory_total_mib": {
+              "mean": 23034.0,
+              "min": 23034.0,
+              "max": 23034.0
+            },
+            "power_w": {
+              "mean": 31.70861111111111,
+              "min": 28.09,
+              "max": 67.19
+            },
+            "power_limit_w": {
+              "mean": 72.0,
+              "min": 72.0,
+              "max": 72.0
+            },
+            "sm_clock_mhz": {
+              "mean": 2013.3333333333333,
+              "min": 1275.0,
+              "max": 2040.0
+            },
+            "memory_clock_mhz": {
+              "mean": 6251.0,
+              "min": 6251.0,
+              "max": 6251.0
+            },
+            "temperature_c": {
+              "mean": 44.888888888888886,
+              "min": 43.0,
+              "max": 51.0
+            }
+          },
+          "clock_event_masks": [
+            "0x0000000000000000",
+            "0x0000000000000004"
+          ]
+        },
+        {
+          "uuid": "GPU-ccc76d7e-fcc9-4930-19c9-7aecc935da5e",
+          "index": 1,
+          "samples": 36,
+          "metrics": {
+            "gpu_busy_pct": {
+              "mean": 5.416666666666667,
+              "min": 0.0,
+              "max": 100.0
+            },
+            "memory_busy_pct": {
+              "mean": 3.7777777777777777,
+              "min": 0.0,
+              "max": 75.0
+            },
+            "memory_used_mib": {
+              "mean": 10661.0,
+              "min": 10644.0,
+              "max": 10662.0
+            },
+            "memory_total_mib": {
+              "mean": 23034.0,
+              "min": 23034.0,
+              "max": 23034.0
+            },
+            "power_w": {
+              "mean": 29.599444444444444,
+              "min": 26.91,
+              "max": 66.56
+            },
+            "power_limit_w": {
+              "mean": 72.0,
+              "min": 72.0,
+              "max": 72.0
+            },
+            "sm_clock_mhz": {
+              "mean": 2027.9166666666667,
+              "min": 1665.0,
+              "max": 2040.0
+            },
+            "memory_clock_mhz": {
+              "mean": 6251.0,
+              "min": 6251.0,
+              "max": 6251.0
+            },
+            "temperature_c": {
+              "mean": 41.52777777777778,
+              "min": 39.0,
+              "max": 47.0
+            }
+          },
+          "clock_event_masks": [
+            "0x0000000000000000",
+            "0x0000000000000004"
+          ]
+        },
+        {
+          "uuid": "GPU-ba5751ba-2e74-f2d9-0206-08470044a0e6",
+          "index": 2,
+          "samples": 36,
+          "metrics": {
+            "gpu_busy_pct": {
+              "mean": 2.3333333333333335,
+              "min": 0.0,
+              "max": 84.0
+            },
+            "memory_busy_pct": {
+              "mean": 1.1666666666666667,
+              "min": 0.0,
+              "max": 42.0
+            },
+            "memory_used_mib": {
+              "mean": 10617.555555555555,
+              "min": 10602.0,
+              "max": 10618.0
+            },
+            "memory_total_mib": {
+              "mean": 23034.0,
+              "min": 23034.0,
+              "max": 23034.0
+            },
+            "power_w": {
+              "mean": 28.1625,
+              "min": 26.94,
+              "max": 39.37
+            },
+            "power_limit_w": {
+              "mean": 72.0,
+              "min": 72.0,
+              "max": 72.0
+            },
+            "sm_clock_mhz": {
+              "mean": 2033.3333333333333,
+              "min": 1800.0,
+              "max": 2040.0
+            },
+            "memory_clock_mhz": {
+              "mean": 6251.0,
+              "min": 6251.0,
+              "max": 6251.0
+            },
+            "temperature_c": {
+              "mean": 42.94444444444444,
+              "min": 41.0,
+              "max": 50.0
+            }
+          },
+          "clock_event_masks": [
+            "0x0000000000000000",
+            "0x0000000000000004"
+          ]
+        },
+        {
+          "uuid": "GPU-9dbde1ef-5e16-94e5-5884-0ae606188e09",
+          "index": 3,
+          "samples": 36,
+          "metrics": {
+            "gpu_busy_pct": {
+              "mean": 65.33333333333333,
+              "min": 0.0,
+              "max": 100.0
+            },
+            "memory_busy_pct": {
+              "mean": 38.77777777777778,
+              "min": 0.0,
+              "max": 68.0
+            },
+            "memory_used_mib": {
+              "mean": 11301.666666666666,
+              "min": 11290.0,
+              "max": 11302.0
+            },
+            "memory_total_mib": {
+              "mean": 23034.0,
+              "min": 23034.0,
+              "max": 23034.0
+            },
+            "power_w": {
+              "mean": 57.971944444444446,
+              "min": 29.3,
+              "max": 72.33
+            },
+            "power_limit_w": {
+              "mean": 72.0,
+              "min": 72.0,
+              "max": 72.0
+            },
+            "sm_clock_mhz": {
+              "mean": 1990.0,
+              "min": 1410.0,
+              "max": 2040.0
+            },
+            "memory_clock_mhz": {
+              "mean": 6251.0,
+              "min": 6251.0,
+              "max": 6251.0
+            },
+            "temperature_c": {
+              "mean": 62.416666666666664,
+              "min": 58.0,
+              "max": 68.0
+            }
+          },
+          "clock_event_masks": [
+            "0x0000000000000000",
+            "0x0000000000000004"
+          ]
+        }
+      ],
+      "errors": [],
+      "notes": [
+        "GPU busy is the percentage of sampled time with one or more kernels executing.",
+        "Memory busy is the percentage of sampled time with device memory reads or writes.",
+        "Neither is percentage of peak compute or peak memory bandwidth.",
+        "One-second sampling is too coarse for individual kernels or short stages."
+      ]
+    }
+  },
+  "torch_capture": {
+    "framework": "vllm/PyTorch",
+    "scope": "first engine iterations per active recognizer",
+    "maximum_engine_iterations": 32,
+    "gpu_workers": 4,
+    "active_workers": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "workers": [
+      {
+        "worker": 0,
+        "kernel_count": 13372,
+        "trace_files": [
+          "naca-6821156197aa_rank0.1793009495265349351.pt.trace.json.gz",
+          "naca-6821156197aa_dev-dsk-nhsng-2a-0fa0ffcf.us-west-2.amazon.com_2382763.async_llm.1793009526362121531.pt.trace.json.gz"
+        ]
+      },
+      {
+        "worker": 1,
+        "kernel_count": 13372,
+        "trace_files": [
+          "naca-6821156197aa_rank0.1793009495267326654.pt.trace.json.gz",
+          "naca-6821156197aa_dev-dsk-nhsng-2a-0fa0ffcf.us-west-2.amazon.com_2382764.async_llm.1793009526365609467.pt.trace.json.gz"
+        ]
+      },
+      {
+        "worker": 2,
+        "kernel_count": 13374,
+        "trace_files": [
+          "naca-6821156197aa_rank0.1793009495199392229.pt.trace.json.gz",
+          "naca-6821156197aa_dev-dsk-nhsng-2a-0fa0ffcf.us-west-2.amazon.com_2382765.async_llm.1793009526368941845.pt.trace.json.gz"
+        ]
+      },
+      {
+        "worker": 3,
+        "kernel_count": 13353,
+        "trace_files": [
+          "naca-6821156197aa_rank0.1793009495792140317.pt.trace.json.gz",
+          "naca-6821156197aa_dev-dsk-nhsng-2a-0fa0ffcf.us-west-2.amazon.com_2382766.async_llm.1793009526372395469.pt.trace.json.gz"
+        ]
+      }
+    ],
+    "record_shapes": true,
+    "reference_path": "/local/home/nhsng/inference-lab/data/public-v3/refs-vllm-batch1-five/census-income.json",
+    "instrumented_reference_check": {
+      "pass": true,
+      "failures": [],
+      "similarities": [
+        0.99991474011634,
+        0.9998785927818185,
+        0.9999077428065688,
+        0.999783556190421,
+        0.9998861707195547,
+        0.9998847113192932,
+        0.9998901894064157,
+        0.9998092758321563,
+        0.9998515646041527,
+        0.9998460949895904,
+        0.9998906872595591,
+        0.999902556746294,
+        0.9999045402036886,
+        0.9998839164025765,
+        0.9996398784196407,
+        0.9998123598838919,
+        0.9998157505008284,
+        0.9998171291298337,
+        0.999769398109553,
+        0.9997490506627746,
+        0.9997586860407641,
+        0.9997902713051958,
+        0.9997773619053603,
+        0.999651595788368,
+        0.9996637101185831,
+        0.9998102354483199,
+        0.9998244777954508,
+        0.9997764736583149,
+        0.9997763410022439,
+        0.9998002716598394,
+        0.9997792310111242,
+        0.9996654765928833,
+        0.9997849095698741,
+        0.9998149427567323,
+        0.9997388854147189,
+        0.9996672568770781,
+        0.9997533053361833,
+        0.9997896239102272,
+        0.9997416765935625,
+        0.9997555013406275,
+        0.9998030646967546,
+        0.9998216720932618
+      ]
+    },
+    "notes": [
+      "Each engine iteration may process several recognition regions.",
+      "The complete PDF finishes after the bounded trace ends.",
+      "Raw traces contain overlapping CPU ranges; self time is not computed.",
+      "Profiling timings are separate from evaluator measurements."
+    ]
+  },
+  "recognizer_server_configuration": [
+    {
+      "pid": 2382763,
+      "gpu": "GPU-ad391ba2-170d-001e-3298-63640703ba94",
+      "command": [
+        "/local/home/nhsng/inference-lab/.venv-vllm/bin/python",
+        "-m",
+        "vllm.entrypoints.cli.main",
+        "serve",
+        "/home/nhsng/huggingface/PaddleOCR-VL-1.6",
+        "--host",
+        "127.0.0.1",
+        "--port",
+        "8800",
+        "--served-model-name",
+        "PaddleOCR-VL-1.6-0.9B",
+        "--trust-remote-code",
+        "--trust-request-mm-kwargs",
+        "--mm-encoder-attn-backend",
+        "TORCH_SDPA",
+        "--dtype",
+        "bfloat16",
+        "--max-model-len",
+        "16384",
+        "--max-num-seqs",
+        "8",
+        "--max-num-batched-tokens",
+        "16384",
+        "--gpu-memory-utilization",
+        "0.40",
+        "--no-enable-prefix-caching",
+        "--mm-processor-cache-gb",
+        "0",
+        "--generation-config",
+        "vllm",
+        "--profiler-config",
+        "{\"profiler\": \"torch\", \"torch_profiler_dir\": \"/local/home/nhsng/inference-lab/.site/optimization-cycle/servers-8-ngram0-20261026-100556/worker-0-traces\", \"torch_profiler_record_shapes\": true, \"torch_profiler_with_stack\": false}"
+      ],
+      "verified_environment": {
+        "CUDA_VISIBLE_DEVICES": "GPU-ad391ba2-170d-001e-3298-63640703ba94",
+        "VLLM_BATCH_INVARIANT": "1",
+        "VLLM_PLUGINS": "paddle_native_precision",
+        "VLLM_USE_FLASHINFER_SAMPLER": "0",
+        "VLLM_USE_BREAKABLE_CUDAGRAPH": null
+      }
+    },
+    {
+      "pid": 2382764,
+      "gpu": "GPU-ccc76d7e-fcc9-4930-19c9-7aecc935da5e",
+      "command": [
+        "/local/home/nhsng/inference-lab/.venv-vllm/bin/python",
+        "-m",
+        "vllm.entrypoints.cli.main",
+        "serve",
+        "/home/nhsng/huggingface/PaddleOCR-VL-1.6",
+        "--host",
+        "127.0.0.1",
+        "--port",
+        "8801",
+        "--served-model-name",
+        "PaddleOCR-VL-1.6-0.9B",
+        "--trust-remote-code",
+        "--trust-request-mm-kwargs",
+        "--mm-encoder-attn-backend",
+        "TORCH_SDPA",
+        "--dtype",
+        "bfloat16",
+        "--max-model-len",
+        "16384",
+        "--max-num-seqs",
+        "8",
+        "--max-num-batched-tokens",
+        "16384",
+        "--gpu-memory-utilization",
+        "0.40",
+        "--no-enable-prefix-caching",
+        "--mm-processor-cache-gb",
+        "0",
+        "--generation-config",
+        "vllm",
+        "--profiler-config",
+        "{\"profiler\": \"torch\", \"torch_profiler_dir\": \"/local/home/nhsng/inference-lab/.site/optimization-cycle/servers-8-ngram0-20261026-100556/worker-1-traces\", \"torch_profiler_record_shapes\": true, \"torch_profiler_with_stack\": false}"
+      ],
+      "verified_environment": {
+        "CUDA_VISIBLE_DEVICES": "GPU-ccc76d7e-fcc9-4930-19c9-7aecc935da5e",
+        "VLLM_BATCH_INVARIANT": "1",
+        "VLLM_PLUGINS": "paddle_native_precision",
+        "VLLM_USE_FLASHINFER_SAMPLER": "0",
+        "VLLM_USE_BREAKABLE_CUDAGRAPH": null
+      }
+    },
+    {
+      "pid": 2382765,
+      "gpu": "GPU-ba5751ba-2e74-f2d9-0206-08470044a0e6",
+      "command": [
+        "/local/home/nhsng/inference-lab/.venv-vllm/bin/python",
+        "-m",
+        "vllm.entrypoints.cli.main",
+        "serve",
+        "/home/nhsng/huggingface/PaddleOCR-VL-1.6",
+        "--host",
+        "127.0.0.1",
+        "--port",
+        "8802",
+        "--served-model-name",
+        "PaddleOCR-VL-1.6-0.9B",
+        "--trust-remote-code",
+        "--trust-request-mm-kwargs",
+        "--mm-encoder-attn-backend",
+        "TORCH_SDPA",
+        "--dtype",
+        "bfloat16",
+        "--max-model-len",
+        "16384",
+        "--max-num-seqs",
+        "8",
+        "--max-num-batched-tokens",
+        "16384",
+        "--gpu-memory-utilization",
+        "0.40",
+        "--no-enable-prefix-caching",
+        "--mm-processor-cache-gb",
+        "0",
+        "--generation-config",
+        "vllm",
+        "--profiler-config",
+        "{\"profiler\": \"torch\", \"torch_profiler_dir\": \"/local/home/nhsng/inference-lab/.site/optimization-cycle/servers-8-ngram0-20261026-100556/worker-2-traces\", \"torch_profiler_record_shapes\": true, \"torch_profiler_with_stack\": false}"
+      ],
+      "verified_environment": {
+        "CUDA_VISIBLE_DEVICES": "GPU-ba5751ba-2e74-f2d9-0206-08470044a0e6",
+        "VLLM_BATCH_INVARIANT": "1",
+        "VLLM_PLUGINS": "paddle_native_precision",
+        "VLLM_USE_FLASHINFER_SAMPLER": "0",
+        "VLLM_USE_BREAKABLE_CUDAGRAPH": null
+      }
+    },
+    {
+      "pid": 2382766,
+      "gpu": "GPU-9dbde1ef-5e16-94e5-5884-0ae606188e09",
+      "command": [
+        "/local/home/nhsng/inference-lab/.venv-vllm/bin/python",
+        "-m",
+        "vllm.entrypoints.cli.main",
+        "serve",
+        "/home/nhsng/huggingface/PaddleOCR-VL-1.6",
+        "--host",
+        "127.0.0.1",
+        "--port",
+        "8803",
+        "--served-model-name",
+        "PaddleOCR-VL-1.6-0.9B",
+        "--trust-remote-code",
+        "--trust-request-mm-kwargs",
+        "--mm-encoder-attn-backend",
+        "TORCH_SDPA",
+        "--dtype",
+        "bfloat16",
+        "--max-model-len",
+        "16384",
+        "--max-num-seqs",
+        "8",
+        "--max-num-batched-tokens",
+        "16384",
+        "--gpu-memory-utilization",
+        "0.40",
+        "--no-enable-prefix-caching",
+        "--mm-processor-cache-gb",
+        "0",
+        "--generation-config",
+        "vllm",
+        "--profiler-config",
+        "{\"profiler\": \"torch\", \"torch_profiler_dir\": \"/local/home/nhsng/inference-lab/.site/optimization-cycle/servers-8-ngram0-20261026-100556/worker-3-traces\", \"torch_profiler_record_shapes\": true, \"torch_profiler_with_stack\": false}"
+      ],
+      "verified_environment": {
+        "CUDA_VISIBLE_DEVICES": "GPU-9dbde1ef-5e16-94e5-5884-0ae606188e09",
+        "VLLM_BATCH_INVARIANT": "1",
+        "VLLM_PLUGINS": "paddle_native_precision",
+        "VLLM_USE_FLASHINFER_SAMPLER": "0",
+        "VLLM_USE_BREAKABLE_CUDAGRAPH": null
+      }
+    }
+  ],
+  "findings": {
+    "quality": "passed",
+    "summary": "On the current winner, Census spends 95.6% of time in OCR. A 3,252-token page-5 region leaves one recognizer busy while the other three are largely idle.",
+    "observations": [
+      "Median full Census call: 25.74 s; OCR 24.60 s; embedding 1.03 s. Shares use mean wall times.",
+      "In all three ordinary measurements, the longest page-5 region generated 3,252 tokens on GPU 3. Every region ended with raw EOS.",
+      "Measured OCR GPU-busy means were 6.3%, 9.5%, 4.9% and 98.4% for GPUs 0\u20133, using 73\u201374 one-second samples per GPU. GPU 3 averaged 70.7 W at the fixed 72 W limit.",
+      "One warm-up and three ordinary calls are separate from the bounded trace. The complete instrumented output passed the original frozen reference. The trace covers early engine iterations; telemetry covers the full measured OCR windows.",
+      "The servers were restarted with exactly the evaluation configuration. Actual launch commands, GPU UUIDs and batch-invariance environment are recorded with this profile.",
+      "Busy percentage and power do not measure percentage of peak compute or memory bandwidth. The measured imbalance and long sequence identify the remaining critical path."
+    ],
+    "next_step": "After the embedding screen, test within-request n-gram speculative decoding, requiring exact frozen OCR and EOS.",
+    "optimization": "Keep the four L4 GPUs, server concurrency eight, BF16 embeddings, window 64, dynamic pages and frozen references. Propose tokens within the current request only; accept a gain only through the unchanged full evaluator."
+  }
+}

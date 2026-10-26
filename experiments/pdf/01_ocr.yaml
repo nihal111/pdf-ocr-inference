@@ -1,0 +1,18 @@
+# OCR stage: Qwen3-VL-2B, greedy. Expect it to dominate (thousands of generated tokens per page).
+# OCR text must match the HF-transformers baseline byte for byte, so this experiment also measures
+# which speedups keep greedy decoding *exactly* reproducible.
+name: pdf_01_ocr
+manifest: data/sample/manifest.json
+root: data/sample
+warmup: 1
+repeats: 5
+timeout: 1800
+variants:
+  baseline: {}
+  hf_batch4:      {pipeline: {ocr: {page_batch_size: 4}}}            # padded batch: faster, may flip tokens
+  hf_flash2:      {pipeline: {ocr: {attn_implementation: flash_attention_2}}}
+  # vLLM: run this experiment from .venv-vllm (`.venv-vllm/bin/python -m lab.pdf_sweep ...`).
+  vllm_seq:       {pipeline: {ocr: {backend: vllm, page_batch_size: 1}}}
+  vllm_batch8:    {pipeline: {ocr: {backend: vllm, page_batch_size: 8}}}
+  vllm_batch8_eager: {pipeline: {ocr: {backend: vllm, page_batch_size: 8, enforce_eager: true}}}
+  # nano_vl:      {pipeline: {ocr: {backend: nanovllm}}}               # the porting project

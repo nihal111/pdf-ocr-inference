@@ -1,0 +1,11 @@
+{
+  "cases": [
+    {
+      "id": "synthetic-smoke",
+      "pdf": "synthetic.pdf",
+      "reference": "synthetic-reference.json",
+      "pages": 1
+    }
+  ],
+  "purpose": "synthetic-harness-test"
+}

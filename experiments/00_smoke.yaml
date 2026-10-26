@@ -1,0 +1,9 @@
+# Sanity check that the stack works end to end (~1 min on an L4).
+name: 00_smoke
+model: ~/huggingface/Qwen3-0.6B
+repeats: 1
+workloads: [smoke, offline_mixed]
+base:
+  engine: {max_model_len: 4096}
+variants:
+  baseline: {}

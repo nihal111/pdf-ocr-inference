@@ -1,0 +1,12 @@
+# Same engine, different model sizes: watch the bottleneck move from CPU overhead
+# (0.6B) toward memory bandwidth / KV capacity (8B on a 24 GB L4).
+name: 05_models
+repeats: 2
+workloads: [offline_mixed, decode_heavy, online_poisson]
+base:
+  engine: {max_model_len: 4096}
+variants:
+  qwen3-0.6b: {model: ~/huggingface/Qwen3-0.6B}
+  qwen3-1.7b: {model: ~/huggingface/Qwen3-1.7B}
+  qwen3-4b: {model: ~/huggingface/Qwen3-4B}
+  qwen3-8b: {model: ~/huggingface/Qwen3-8B, engine: {max_model_len: 4096, gpu_memory_utilization: 0.95}}

@@ -1,0 +1,47 @@
+---
+title: vLLM · Server concurrency eight
+description: Raise server admission capacity while holding client concurrency and the region window fixed.
+order: 13
+status: passed
+date: 2026-10-26
+run: paddleocr_vllm_server_concurrency_8/20261026-094354
+---
+
+## Evidence
+
+The [window-64 NACA profile](#/profile/8af5225b782fa4321fe2) found each server at four running requests, up to eight waiting, and queues in 40–50% of sampled OCR time. This motivates admitting more queued work.
+
+The preceding full evaluation found a tradeoff: static pages had p50 3.80 s, p95 28.31 s and 23.28 pages/min; dynamic pages had p50 3.96 s, p95 26.82 s and 24.75 pages/min. Test both policies at the new server capacity.
+
+## Controlled change
+
+Change vLLM `--max-num-seqs` from four to eight per GPU. Client concurrency stays **four per recognizer per page worker**, and the submission window stays 64. Therefore `paddle_region_batch_size: 4` in the pipeline configuration is intentional: it controls client concurrency; the actual server launch command records the new limit of eight.
+
+Both variants retain BF16/16-chunk embeddings, four model replicas on the same four L4 GPUs, batch invariance, the frozen five PDFs, original references, table resolution, all decoding settings and disabled prefix/image-processor caches. Speculative decoding is off. Each variant runs one warm-up plus five measured calls per PDF.
+
+The dashboard still compares against the original vLLM batch-1 baseline. Paired incremental comparisons use byte-for-byte copies of the immediately preceding four-request static and dynamic reports. Those copies, digests and actual server commands/environment are stored with this run. Server startup is separate from suite runtime.
+
+The [vLLM tuning guide](https://docs.vllm.ai/en/latest/configuration/optimization/) describes concurrency and token-budget tradeoffs. More admitted requests can improve throughput while increasing latency; the frozen evaluator decides whether this helps here.
+
+## Results
+
+Both variants passed all 60 calls and all 5,580 region EOS checks. Dataset/reference hashes, original comparisons, page order and four-GPU dispatch were audited.
+
+| Configuration | p50 | p95 | Pages/min | Suite runtime |
+| --- | ---: | ---: | ---: | ---: |
+| Eight requests · static pages | 3.63 s | 27.82 s | 24.14 | 5.70 min |
+| Eight requests · dynamic pages | 3.29 s | 25.77 s | 26.16 | 5.02 min |
+
+Dynamic pages at concurrency eight are better on all three metrics than static pages at eight. Relative to the same dynamic policy at four requests, eval reports 1.204× p50, 1.041× p95 and 1.057× throughput. The prior Attention penalty disappeared: its median fell from 3.96 to 3.22 s, while NACA now determines pooled p50 at 3.29 s.
+
+Retain BF16 embeddings, window 64, dynamic pages and server concurrency eight as the current best configuration. The original vLLM batch-1 report remains the comparison baseline. Profile this result before raising concurrency to sixteen. Client concurrency four per recognizer per page worker bounds total outstanding requests at sixteen per recognizer across the four workers, so larger server limits would not increase admission for this pipeline.
+
+## Profile of the winner
+
+The [concurrency-eight dynamic-page NACA profile](#/profile/db72310d9fe71f8fa226) passed the full frozen-output check. OCR takes 81.6% of mean call time; embedding takes 14.2%. Each GPU reached eight running requests, with up to four waiting in 18–24% of sampled OCR time. This supports a concurrency-sixteen test. Seven or eight one-second GPU samples per device show 83.9–97.4% busy time; they do not measure percentage of peak compute.
+
+## Remaining Census tail
+
+The [current-best Census profile](#/profile/df9916c0c1fe6277261c) passed its full frozen-output check. Median full call: 25.74 s; OCR: 24.60 s (95.6% of mean time); embedding: 1.03 s. A 3,252-token page-5 region runs on GPU 3. During measured OCR, GPU-busy means are 6.3%, 9.5%, 4.9% and 98.4% for GPUs 0–3.
+
+The [vLLM speculative-decoding guide](https://docs.vllm.ai/en/latest/features/speculative_decoding/) identifies medium-to-low-concurrency decoding as a potential use case. Within-request n-gram proposals need no extra draft model or cross-call output cache. This is a hypothesis for the long tail, not a promised speedup; exact OCR, raw EOS and the frozen embeddings checks remain mandatory.

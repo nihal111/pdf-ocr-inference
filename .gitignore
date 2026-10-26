@@ -1,0 +1,19 @@
+.venv*/
+__pycache__/
+results/
+*.nsys-rep
+*.ncu-rep
+# Raw event recordings stay local; the site exports aggregated profiling data.
+trace.json
+trace.json.gz
+*.trace.json
+*.trace.json.gz
+*.sqlite
+data/
+.DS_Store
+.site/
+.tools/
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+.coverage

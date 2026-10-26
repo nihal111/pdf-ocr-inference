@@ -1,0 +1,9 @@
+# Decode batch size vs throughput: where does decode stop being memory-bound?
+name: 02_batch_size
+model: ~/huggingface/Qwen3-0.6B
+repeats: 2
+workloads: [decode_heavy, offline_mixed]
+base:
+  engine: {max_model_len: 4096}
+grid:
+  engine.max_num_seqs: [8, 16, 32, 64, 128, 256, 512]

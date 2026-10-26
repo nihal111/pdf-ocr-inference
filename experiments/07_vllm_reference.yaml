@@ -1,0 +1,12 @@
+# The number to beat. Run from the vLLM venv:  .venv-vllm/bin/python -m lab.sweep experiments/07_vllm_reference.yaml
+# Then compare:  python -m lab.compare results/01_knobs results/07_vllm_reference
+name: 07_vllm_reference
+engine: vllm
+model: ~/huggingface/Qwen3-0.6B
+repeats: 3
+workloads: [offline_mixed, decode_heavy, prefill_heavy]
+base:
+  engine: {max_model_len: 4096, gpu_memory_utilization: 0.9}
+variants:
+  vllm: {}
+  vllm_eager: {engine: {enforce_eager: true}}

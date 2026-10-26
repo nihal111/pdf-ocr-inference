@@ -1,0 +1,13 @@
+name: 04_prefix_cache
+model: ~/huggingface/Qwen3-0.6B
+repeats: 3
+workloads:
+  - shared_prefix
+  - {use: shared_prefix, name: shared_prefix_512, shared_prefix_len: 512}
+  - offline_mixed
+base:
+  engine: {max_model_len: 4096}
+variants:
+  baseline: {}
+  no_prefix_cache:
+    engine: {enable_prefix_caching: false}

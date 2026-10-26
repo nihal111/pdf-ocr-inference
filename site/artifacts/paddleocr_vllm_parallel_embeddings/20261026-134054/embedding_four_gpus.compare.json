@@ -1,0 +1,21 @@
+{
+  "pass": true,
+  "dataset_sha256": "8f85a3aa64b8f85b571d5e2137af1bc37dc048a9c34e116375a6578581e26dea",
+  "metrics": {
+    "p50_ms": {
+      "baseline": 15083.373098052107,
+      "optimized": 2331.4213400008157,
+      "speedup": 6.469604116279912
+    },
+    "p95_ms": {
+      "baseline": 36390.45744051691,
+      "optimized": 12379.4904619921,
+      "speedup": 2.9395763543131306
+    },
+    "pages_per_minute_sequential": {
+      "baseline": 12.192731911762852,
+      "optimized": 45.6267888514147,
+      "speedup": 3.7421300805766573
+    }
+  }
+}

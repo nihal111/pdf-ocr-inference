@@ -1,0 +1,18 @@
+{
+  "hardware_id": "",
+  "gpu_model": "",
+  "gpu_count": null,
+  "gpu_uuids": "",
+  "driver_version": "",
+  "cuda_runtime": "",
+  "python_version": "",
+  "engine": "",
+  "precision": "",
+  "batch_size": "",
+  "concurrency": 1,
+  "source_revision": "",
+  "model_revisions": "",
+  "power_settings": "",
+  "cache_state": "",
+  "other_gpu_activity": ""
+}
