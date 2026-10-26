@@ -155,7 +155,7 @@ function overview() {
       <div class="overview-card-top"><div><h2 id="overview-journey-title">Where the gains came from</h2><p class="tiny muted">Share of measured time reductions. Explore a lever for the exact tweak.</p></div><label class="overview-metric-picker">Metric <select id="overview-metric" aria-label="Optimization contribution metric"><option value="p50_ms">p50 latency</option><option value="p95_ms">p95 latency</option><option value="pages_per_minute_sequential">Time per page</option></select></label></div>
       <div id="overview-contributions"></div>
     </section>
-    <nav class="overview-resources" aria-label="Pipeline research and results"><a href="#/doc/pages/pipeline">Pipeline documentation →</a><a href="#/doc/experiments/028-optimization-conclusion">Sweep findings →</a><a href="#/journal">Experiment journal →</a><a href="#/datasets">Frozen PDFs →</a><a href="#/output/latest">PDF → Markdown</a><a href="#/embeddings/latest">Embeddings →</a></nav>
+    <nav class="overview-resources" aria-label="Pipeline research and results"><a href="#/doc/pages/pipeline">Pipeline documentation →</a><a href="#/doc/pages/lessons-learned">Lessons learned →</a><a href="#/journal">Experiment journal →</a><a href="#/datasets">Frozen PDFs →</a><a href="#/output/latest">PDF → Markdown</a><a href="#/embeddings/latest">Embeddings →</a></nav>
   </div>`;
   renderContributionChart();
   document.querySelector('#overview-metric').addEventListener('change',event=>renderContributionChart(event.target.value));

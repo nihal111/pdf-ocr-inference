@@ -55,4 +55,4 @@ Related reports: [Qwen #1611](https://github.com/QwenLM/Qwen3-VL/issues/1611) an
 
 Research describes how repeated output can reinforce further repetition: [Learning to Break the Loop](https://arxiv.org/abs/2206.02369) and [Neural Text Degeneration](https://arxiv.org/abs/1904.09751). This is a plausible mechanism, not a demonstrated root cause for either case here.
 
-External sources were checked on **26 October 2026**. [Pipeline](#/doc/pages/pipeline) · [Evaluation rules](#/doc/pages/baseline)
+External sources were checked on **26 October 2026**. [Lessons learned](#/doc/pages/lessons-learned) · [Pipeline](#/doc/pages/pipeline) · [Evaluation rules](#/doc/pages/baseline)
