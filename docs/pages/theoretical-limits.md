@@ -1,117 +1,196 @@
 ---
 title: Theoretical limits
-description: Measured cost, hardware bounds and remaining headroom.
+description: Model size, token workload and ideal conversion time on four L4 GPUs.
 order: 7
 ---
 
-**Rendering and OCR account for 97.1% of measured time. Eliminating embedding would improve throughput by at most 2.5%. Hardware saturation remains unproven.**
+**The model-based limit is several seconds for the entire 20-page corpus.** With the benchmark's one-PDF-at-a-time rule, idealized conversion takes about **14–16 seconds with ordinary decoding**, or **4.4–5.4 seconds if every four-token speculative draft succeeds**. Admitting all five PDFs together reduces those estimates to **8.9–11.3 seconds** and **2.7–4.5 seconds**, respectively. These are conditional calculations, not measured results or a guarantee that the current implementation can reach them.
 
-Scope: **five frozen PDFs, 20 pages, four NVIDIA L4 GPUs**, one warm-up and five measured calls per PDF. [Evaluation](#/run/b75edaea6a9b5182a677/server_8_draft4_control) · [Calculation data](/artifact?path=analysis/theoretical-limits-20261026-retained.json).
+The current optimized pipeline takes **26.53 seconds** to process the corpus once, using the sum of the five mean measured PDF latencies. The baseline takes **97.83 seconds**. This page estimates how much of that time the models themselves require, rather than extrapolating from measured stage percentages.
 
-## Measured cost
+Scope: **five frozen PDFs, 20 pages, four NVIDIA L4 GPUs, warm models**, from raw PDF input to all **136 chunk embeddings**. We first retain the benchmark's sequential PDF calls, then remove that scheduling restriction. Startup and compilation are excluded. The benchmark's five measured repetitions estimate each PDF's latency; we count the corpus only once here. Measurements come from the **2026-10-27 revalidation of revision `12f9cf6`**. [Calculation and input hashes](/artifact?path=analysis/model-limits-20261027.json).
 
-| Eval metric | Result | Speedup vs baseline |
-| --- | ---: | ---: |
-| Pooled p50 | **2.229 s** | **6.77× / +576.8%** |
-| Pooled p95 | **12.402 s** | **2.93×** |
-| Pages/minute | **46.122** | **3.78×** |
+## What is actually running?
 
-Configuration: eight requests per recognizer, four n-gram drafts, 32-row decoder tiles and shared region scheduling. Embeddings use compiled BF16, batch 16, across all four GPUs. Pages render inside OCR workers.
+PaddleOCR-VL-1.6 is described as a **0.9-billion-parameter model**. Counting the pinned checkpoint gives **958,588,736 stored parameters**. The vLLM implementation omits **52,987,088** parameters belonging to an unused vision pooling head and packing-position embedding, leaving **905,601,648 active parameters**.
 
-The following totals sum **one mean call per PDF**, using five measured calls each:
+| Component | Parameters used | Precision | Work |
+| --- | ---: | --- | --- |
+| OCR vision encoder | 412,987,248 | FP32 | Read each recognized image region |
+| OCR image-to-language projector | 25,960,192 | FP32 | Merge and project image patches |
+| OCR language transformer, including input embeddings | 360,748,032 | BF16 | Process the image/text prompt, then generate text |
+| OCR vocabulary output head | 105,906,176 | BF16 | Score 103,424 possible next tokens |
+| Qwen3-Embedding-0.6B | 595,776,512 | BF16 | Encode the completed text chunks |
 
-| Stage | Time | Share of full-call time |
-| --- | ---: | ---: |
-| Rendering + OCR | **25.267 s** | **97.1%** |
-| Embedding | 0.625 s | 2.4% |
-| Preparation + chunking | 0.121 s | 0.5% |
+The OCR model occupies approximately **2.69 GB of parameter storage per GPU**, and the embedding model another **1.19 GB**, excluding caches, activations and layout detection. These are four full replicas; a single region is not split across four GPUs.
 
-Rendering overlaps OCR, so their combined wall time is measured once. **Census and W-9 account for 76.2% of total processing time**; they dominate throughput and tail latency. NACA and Attention overlap around pooled p50.
+The OCR decoder has **18 layers**, hidden width **1,024**, intermediate width **3,072**, **16 query heads** and **2 KV heads**, each of dimension **128**. Its attention query width is therefore **2,048**, which matters when counting attention FLOPs. The vision encoder has **27 layers**, width **1,152**, and **14 × 14** image patches merged in **2 × 2** groups before entering the language model.
 
-## Remaining speedup
+The embedding model has **28 layers**, hidden width **1,024**, intermediate width **3,072**, and **8 KV heads**. It performs one forward pass over each chunk and takes a last-token embedding; it does not autoregressively generate 42,220 tokens.
 
-For each measured call, replace `stage time` with `stage time / speedup`, then recompute eval's pooled metrics. These are **conditional estimates**, with all other work fixed.
+Page layout is a separate **PP-DocLayoutV3** model, run once per page at **800 × 800** resolution. Its exported graph contains **32.7 million stored FP32 values**, including constants and statistics, so that count is not an exact trainable-parameter count. Its convolution and matrix operations are included below.
 
-| Hypothetical change | p50 | p95 | Pages/min | Throughput gain |
-| --- | ---: | ---: | ---: | ---: |
-| Embedding 2× faster | 2.193 s | 12.302 s | 46.682 | +1.2% |
-| Embedding takes zero time | 2.157 s | 12.202 s | 47.256 | **+2.5% ceiling** |
-| Rendering + OCR 1.10× faster | 2.034 s | 11.297 s | 50.588 | +9.7% |
-| Rendering + OCR 2× faster | 1.177 s | 6.324 s | 89.656 | +94.4% |
+Counts come from checkpoint headers and the loaded implementation, not rounded model names. [OCR configuration][ocr-config] · [Embedding configuration][embed-config].
 
-Removing embedding entirely caps **p50 speedup at +3.3%**. Removing preparation and chunking caps throughput gain at **+0.5%**. Further substantial gains must come from rendering/OCR.
+## How much text do these PDFs produce?
 
-## Hardware bounds
+There are two different token workloads: the tokens generated by OCR, and the completed Markdown sent through chunking and embedding.
 
-The machine has **22.5 GiB reported memory per GPU**, 96 logical CPUs and 363 GiB system RAM.
+| PDF | Pages | OCR regions | Generated OCR tokens¹ | Longest region¹ | Embedding input tokens | Chunks |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Earthquake checklist | 2 | 99 | 1,878 | 118 | 2,547 | 18 |
+| NACA seaplanes | 3 | 71 | 3,828 | 280 | 6,894 | 25 |
+| IRS W-9 | 5 | 182 | 8,902 | 1,167 | 10,124 | 37 |
+| Census income | 5 | 46 | 6,551 | 3,252 | 18,869 | 42 |
+| Attention paper | 5 | 67 | 3,731 | 240 | 3,786 | 14 |
+| **Total** | **20** | **465** | **24,890** | **3,252** | **42,220** | **136** |
+
+¹ Includes one end-of-sequence token per region.
+
+Tokenizing the saved, assembled Markdown gives **47,081 tokens with the OCR tokenizer**, or **41,368 with the embedding tokenizer**. These counts differ because the tokenizers differ, and the final Markdown includes document assembly and table formatting applied after recognition. Chunking adds repeated section context, bringing actual embedding input to **42,220 tokens**.
+
+Consequently, using the final Markdown's 47,081 tokens as the OCR decode workload would substantially overcount it. We use **24,890 generated tokens from the recognition traces**, and reproduce the **136 chunks with the actual chunker and embedding tokenizer**. Prompt/output length pairs match across all baseline and optimized repetitions.
+
+Image input also costs work. The traces contain **88,148 prompt tokens**. Each region has **13 non-image prompt tokens**; subtracting these leaves **82,103 visual tokens**, corresponding to **328,412 pre-merge image patches**. The calculation derives this from the chat template and image merge factor; the trace's legacy `visual_tokens: 0` field is not evidence of zero vision work.
+
+## What does “100% GPU utilization” mean here?
+
+Use the maximum rate of the resource each operation needs:
 
 | Resource | One L4 | Four L4s, independent work |
 | --- | ---: | ---: |
 | Device-memory bandwidth | 300 GB/s | 1,200 GB/s |
-| FP32 compute | 30.3 TFLOP/s | 121.2 TFLOP/s |
-| Dense BF16 Tensor Core compute | 121 TFLOP/s | 484 TFLOP/s |
-| Power limit | 72 W | 288 W |
+| FP32 arithmetic | 30.3 TFLOP/s | 121.2 TFLOP/s |
+| Dense BF16 Tensor Core arithmetic | 121 TFLOP/s | 484 TFLOP/s |
 
-These are advertised peaks. NVIDIA's 242 BF16 TFLOP/s figure includes sparsity; **121 TFLOP/s is the dense limit** used here. [Specifications][l4]
+NVIDIA's **242 BF16 TFLOP/s** specification includes structured sparsity. The model uses dense weights, so we use **121 TFLOP/s per GPU**. The retained OCR path uses FP32 vision with TF32 disabled; assigning BF16 or sparse throughput to its vision encoder would understate the cost. [L4 specifications][l4].
 
-Each GPU holds approximately **2.90 GB of OCR weights**—FP32 vision and BF16 decoding—and **1.19 GB of BF16 embedding weights**. These figures exclude layout detection, caches and activations.
+A GPU can be fully occupied streaming decoder weights while using only a small fraction of its arithmetic capacity. Peak compute and peak bandwidth are different ceilings. We assume ideal use of the relevant ceiling, zero dispatch gaps, and free CPU rendering, image transport, tokenization and document assembly. “GPU busy” telemetry does not measure this efficiency. [GPU performance model][roofline].
 
-Four replicas process independent regions. Their bandwidth does not automatically combine for a single long sequence.
+## Decode speed: why parameter count alone is insufficient
 
-## OCR: the long-sequence bound
-
-Census's page-5 table produces **3,252 tokens with EOS**. Its six-region submission batch takes **10.536–10.648 s**. This includes work beyond the long sequence's decoding.
-
-The decoder's linear weights contain **360.7 million parameters**, or **721.4 MB in BF16**. Streaming them once at 300 GB/s takes **2.40 ms**. With speculative decoding:
+The vision encoder runs once per region. The decoder's input embedding is a lookup, not a full vocabulary-sized multiplication on every step. The repeatedly multiplied matrices are:
 
 ```text
-Ideal weight-stream time ≈ 7.82 seconds / a
-a = average output tokens advanced per verification pass
+Transformer linear parameters       254,803,968
+Vocabulary output-head parameters +105,906,176
+                                  -----------
+Parameters streamed per decode pass 360,710,144
+BF16 bytes                          721,420,288
+Ideal weight-stream time            721,420,288 / 300,000,000,000
+                                  = 2.405 milliseconds
 ```
 
-For example, `a = 2` gives **3.91 s of ideal weight traffic**. This assumes one complete weight stream per pass, peak bandwidth and no persistent weight-cache reuse. It excludes KV traffic, vision, prefill, proposal/rejection work and launch gaps.
+That gives a **weight-only ceiling of about 416 tokens/second for one ordinary decoding sequence**, before attention's KV-cache traffic. Eight active sequences can share one weight stream on each GPU. If all 32 slots remain busy, the corresponding aggregate ceiling is approximately **13,307 tokens/second**.
 
-**We need the current sequence's acceptance rate and achieved memory bandwidth to tighten this estimate.** Dividing this model by the measured batch time would not establish hardware efficiency. [Model configuration][ocr-config] · [Performance model][roofline]
+However, dividing 24,890 by 13,307 would give a misleading corpus time. Short regions finish, and the remaining long region still advances sequentially on one GPU. Four replicas do not make its next token arrive four times faster.
 
-## Embedding: the compute bound
+For the Census table, **3,252 generated tokens require 3,251 advances after prefill emits the first token**. At peak bandwidth:
 
-The workload contains **42,220 tokens across 136 chunks**. Its linear layers require approximately **37.19 TFLOP** of useful work: `2 × 440.4 million parameters × tokens`. [Model configuration][embed-config]
-
-| Four-GPU embedding | Time |
+| Census table decoding alone | Ideal time |
 | --- | ---: |
-| Ideal dense-BF16 compute, perfectly balanced tokens | **0.077 s** |
-| Ideal compute, recorded token placement | **0.078 s** |
-| Measured stage total | **0.625 s** |
+| Ordinary decoding, weight traffic only | 7.82 s |
+| Ordinary decoding, weights plus KV traffic | 8.46 s |
+| Two output tokens per five-position verification, weights plus KV | 4.23 s |
+| Five output tokens per five-position verification, weights plus KV | 1.70 s |
 
-The placement estimate uses each PDF's busiest GPU. Its **0.0016 s** gap from perfect balance suggests little opportunity in redistributing tokens alone.
+For context, the measured six-region submission containing that table takes **10.55–10.64 seconds** on the optimized pipeline. Dividing the table's 3,252 tokens by that duration gives **306–308 tokens/second**, but this is an effective rate over the whole submission, including vision, prefill and other regions—not a measurement of the decoder alone.
 
-These compute floors exclude padding, attention, normalization, memory traffic, dispatch and gathering. The gap to measured time is not a GPU-efficiency percentage.
+Each cached context token occupies **18,432 bytes** across the 18 layers' keys and values. The model reads each sequence's KV cache once per pass and writes the new positions, with ideal reuse across speculative queries. It assumes the 721 MB of decoder matrices must be streamed again each pass, rather than remaining in cache.
 
-## What remains unknown
+Four speculative drafts allow **at most five output tokens of progress per verification**: four accepted draft tokens plus one new token. Perfect hardware utilization does **not** imply perfect draft acceptance. Two-token progress is an illustrative scenario; five-token progress is an optimistic counterfactual. Both pay for up to **five verification positions**, including work on rejected drafts.
 
-The [NACA profile](#/profile/7195172c30ec973339d4) records **68.7–82.3% GPU busy**, with only seven samples per device. Busy means time executing kernels, not percentage of peak compute or bandwidth. Operator traces cover only **32 recognition iterations per GPU**. [Metric definitions][smi]
+## The arithmetic budget, including vision and embedding
 
-The most useful next measurement is a **complete Census and W-9 capture** on this configuration:
+We count a multiply-add as two FLOPs. Linear layers cost `2 × parameters × input positions`. Vision attention includes both attention matrix products over every crop's patches; language and embedding attention count their useful causal triangles.
 
-- **Queue delay and vision/prefill time:** how much time precedes decoding?
-- **Output tokens per verification pass:** how much does speculation advance each sequence?
-- **DRAM bytes/s, matrix shapes, clocks and launch gaps:** what limits the GPU work?
+| Stage, entire 20-page corpus | Counted work | Ideal four-GPU arithmetic time |
+| --- | ---: | ---: |
+| Page layout | 3.55 TFLOP | 0.029 s at FP32 |
+| Vision encoder and image projection | 313.63 TFLOP | 2.588 s at FP32 |
+| OCR prompt processing / prefill | 46.63 TFLOP | 0.096 s at BF16 |
+| Ordinary OCR decoding | 20.37 TFLOP | 0.042 s at BF16 |
+| Chunk embedding | 39.26 TFLOP | 0.081 s at BF16 |
+| **Sum** | | **2.837 s** |
 
-Those measurements would distinguish unavoidable model work from scheduling delays and wasted computation. Preserve the four GPUs, frozen outputs and evaluation protocol.
+**About 2.84 seconds is the arithmetic-only budget, not a viable end-to-end prediction.** In particular, the decoder cannot turn its 20.37 TFLOP into 42 milliseconds of useful progress: its serial steps must repeatedly fetch weights. Vision's roughly **2.6 seconds** is substantial even when all FP32 units are fully used.
 
-## Evidence
+For reproducibility, let `I` be a region's visual-token count, `N = 4I` its patch count, `P = I + 13` its prompt length, and `E` an embedding chunk's length:
 
-[Calculation data](/artifact?path=analysis/theoretical-limits-20261026-retained.json) includes unrounded values, input hashes, checkpoint counts and GPU token placement. Estimates use all 25 measured full-PDF calls and eval's percentile function.
+```text
+Vision FLOPs per region =
+    2 × (411,070,464 + 677,376) × N      encoder and patch projection
+  + 2 × 25,952,256 × I                  image-to-language projection
+  + 4 × 27 × 1,152 × N²                 full vision attention
 
-CPU-only reproduction:
+Prefill FLOPs per region =
+    2 × 254,803,968 × P                 decoder transformer
+  + 2 × 18 × 2,048 × P × (P + 1)       causal attention
+  + 2 × 105,906,176                     first-token vocabulary scores
+
+Embedding FLOPs =
+    2 × 440,401,920 × sum(E)            transformer linear layers
+  + 2 × 28 × 2,048 × sum(E × (E + 1))  causal attention
+```
+
+This includes attention omitted by a simple `2 × parameters × tokens` estimate. It excludes normalization, nonlinearities, softmax, padding and activation traffic. Layout's work comes from its exported convolution and matrix-operation shapes; non-matrix layout operations are also omitted.
+
+## Putting the pipeline together
+
+We calculate two idealizations for each PDF, then sum across the five sequential PDFs:
+
+- **Lower envelope:** the largest of the aggregate FP32 work, aggregate BF16 work, or the longest individual region's layout → vision → prefill → decode chain; then add the embedding arithmetic time. This allows perfect overlap and redistribution of independent work.
+- **Phase estimate:** add ideal layout, vision, prefill, decoding and embedding times. Decoding uses an explicit longest-first allocation across **four GPUs × eight slots**, with each pass taking `max(bytes / bandwidth, FLOPs / compute)`. Layout uses whole-page waves; vision, prefill and embedding assume perfectly balanced work.
+
+| Decoding assumption | Lower envelope | Phase estimate |
+| --- | ---: | ---: |
+| Ordinary one-token decoding | **14.05 s** | **15.84 s** |
+| Two output tokens per verification of up to five positions | **7.73 s** | **9.33 s** |
+| Perfect four-draft acceptance: five output tokens per verification | **4.37 s** | **5.42 s** |
+| **Measured optimized pipeline** | | **26.53 s** |
+
+The two columns are **not a confidence interval or a proven bracket on the true optimum**. They expose the effect of overlap versus separate stage service times under the stated traffic model. The phase estimate still omits real work, and the lower envelope assumes more flexible scheduling than the implementation provides.
+
+The per-document phase estimate shows why the Census table matters:
+
+| PDF | Ordinary decode | Two-token progress | Perfect five-token progress |
+| --- | ---: | ---: | ---: |
+| Earthquake checklist | 0.81 s | 0.66 s | 0.58 s |
+| NACA seaplanes | 1.08 s | 0.73 s | 0.53 s |
+| IRS W-9 | 4.07 s | 2.57 s | 1.68 s |
+| Census income | 8.91 s | 4.67 s | 2.13 s |
+| Attention paper | 0.98 s | 0.68 s | 0.51 s |
+
+Under the benchmark protocol, approximately **five seconds requires perfect speculation and ideal GPU service**. Hardware utilization alone does not justify that prediction. Without speculative progress, the same corpus remains around **14–16 seconds** even in this idealization.
+
+## Removing the sequential-PDF restriction
+
+If the objective is simply to finish all 20 pages as quickly as possible, we can also admit all five PDFs together. This gives the four GPUs more independent regions to process while a long table is decoding. Repeating the same calculation with one shared pool of **465 regions**, followed by embedding all chunks, gives:
+
+| Decoding assumption | Lower envelope | Phase estimate |
+| --- | ---: | ---: |
+| Ordinary one-token decoding | **8.90 s** | **11.33 s** |
+| Two output tokens per verification | **4.67 s** | **7.06 s** |
+| Perfect four-draft acceptance | **2.70 s** | **4.50 s** |
+
+This is a hypothetical corpus-batching change, not a measured improvement to the evaluator. It shows why **about 3–5 seconds is an extremely optimistic estimate for processing the corpus together**: it requires perfect speculative acceptance, balanced independent work, peak hardware service, and free non-model work. With ordinary decoding, the single Census table still sets roughly a nine-second floor in this traffic model.
+
+These conclusions retain the current precision and four-replica design. Splitting one decoder across GPUs, changing precision, or replacing the models would require a different calculation. We never divide a single sequence's latency by four or assume that all GPUs can stay equally busy through its final tokens.
+
+## Evidence and reproduction
+
+The [calculation JSON](/artifact?path=analysis/model-limits-20261027.json) records every region's prompt/output lengths, every embedding chunk length, checkpoint counts, model revisions, formulas' inputs, per-GPU decoder schedules and input hashes. No inference is rerun and no measured report is replaced by an estimate.
+
+With the existing local model files and environments:
 
 ```bash
-OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 .venv/bin/python -B -m lab.theoretical_limits \
-  --output results/analysis/theoretical-limits-20261026-retained.json
+OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 .venv/bin/python -B -m lab.model_limits \
+  --output results/analysis/model-limits-20261027.json
 ```
+
+The previous [stage-percentage analysis](/artifact?path=analysis/theoretical-limits-20261026-retained.json) remains available as historical evidence for the 2026-10-26 profiles. Its Amdahl estimates answer a different question: what happens if one measured stage becomes faster while everything else stays fixed?
 
 [l4]: https://www.nvidia.com/en-us/data-center/l4/
 [roofline]: https://docs.nvidia.com/deeplearning/performance/dl-performance-gpu-background/index.html
-[smi]: https://docs.nvidia.com/deploy/nvidia-smi/index.html
-[ocr-config]: https://huggingface.co/PaddlePaddle/PaddleOCR-VL-1.6/blob/main/config.json
-[embed-config]: https://huggingface.co/Qwen/Qwen3-Embedding-0.6B/blob/main/config.json
+[ocr-config]: https://huggingface.co/PaddlePaddle/PaddleOCR-VL-1.6/blob/c5630abae1d940eafe0697512a0325494b02ab42/config.json
+[embed-config]: https://huggingface.co/Qwen/Qwen3-Embedding-0.6B/blob/97b0c614be4d77ee51c0cef4e5f07c00f9eb65b3/config.json

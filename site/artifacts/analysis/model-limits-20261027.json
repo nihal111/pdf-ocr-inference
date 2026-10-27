@@ -1,0 +1,3267 @@
+{
+  "schema_version": 1,
+  "as_of": "2026-10-27",
+  "method": "CPU calculation from checkpoint headers, frozen reference text and saved traces; no new inference.",
+  "measurement_source_revision": "12f9cf6b67404c67bff68fb2e9790548b99c5aa7",
+  "model_revisions": "PaddleOCR-VL-1.6@c5630abae1d940eafe0697512a0325494b02ab42,Qwen3-Embedding-0.6B@97b0c614be4d77ee51c0cef4e5f07c00f9eb65b3,PP-DocLayoutV3@241f8bdfc77a7c7bee915a5057aaee58c235a8d3",
+  "dataset_sha256": "2a97f509e4d12c88250fda8be6532cd7406c84d6635cfb12367e21ab548b62c6",
+  "scope": {
+    "pdfs": 5,
+    "gpus": 4,
+    "slots_per_gpu": 8,
+    "pdf_concurrency": 1,
+    "warm_models": true,
+    "passes_over_dataset": 1
+  },
+  "hardware_per_gpu": {
+    "fp32_flops_s": 30300000000000.0,
+    "dense_bf16_flops_s": 121000000000000.0,
+    "memory_bytes_s": 300000000000.0
+  },
+  "models": {
+    "ocr": {
+      "checkpoint_parameters": 958588736,
+      "unused_checkpoint_parameters": 52987088,
+      "active_parameters": 905601648,
+      "active_vision_parameters": 412987248,
+      "projector_parameters": 25960192,
+      "resident_weight_bytes": 2689098176,
+      "vision_encoder_linear_parameters": 411070464,
+      "patch_projection_linear_parameters": 677376,
+      "projector_linear_parameters": 25952256,
+      "decoder_transformer_linear_parameters": 254803968,
+      "lm_head_parameters": 105906176,
+      "decode_linear_parameters": 360710144,
+      "decode_weight_bytes": 721420288,
+      "kv_bytes_per_token": 18432,
+      "config": {
+        "architectures": [
+          "PaddleOCRVLForConditionalGeneration"
+        ],
+        "attention_probs_dropout_prob": 0.0,
+        "auto_map": {
+          "AutoConfig": "configuration_paddleocr_vl.PaddleOCRVLConfig",
+          "AutoModel": "modeling_paddleocr_vl.PaddleOCRVLForConditionalGeneration",
+          "AutoModelForCausalLM": "modeling_paddleocr_vl.PaddleOCRVLForConditionalGeneration"
+        },
+        "compression_ratio": 1.0,
+        "head_dim": 128,
+        "hidden_act": "silu",
+        "hidden_dropout_prob": 0.0,
+        "hidden_size": 1024,
+        "ignored_index": -100,
+        "image_token_id": 100295,
+        "intermediate_size": 3072,
+        "max_position_embeddings": 131072,
+        "max_sequence_length": null,
+        "model_type": "paddleocr_vl",
+        "num_attention_heads": 16,
+        "num_hidden_layers": 18,
+        "num_key_value_heads": 2,
+        "pad_token_id": 0,
+        "rms_norm_eps": 1e-05,
+        "rope_scaling": {
+          "mrope_section": [
+            16,
+            24,
+            24
+          ],
+          "rope_type": "default",
+          "type": "default"
+        },
+        "rope_theta": 500000,
+        "sliding_window": null,
+        "tie_word_embeddings": false,
+        "torch_dtype": "bfloat16",
+        "transformers_version": "4.55.0",
+        "use_bias": false,
+        "use_cache": false,
+        "use_flash_attention": false,
+        "video_token_id": 101307,
+        "vision_config": {
+          "architectures": [
+            "PaddleOCRVisionModel"
+          ],
+          "attention_dropout": 0.0,
+          "auto_map": {
+            "AutoConfig": "configuration_paddleocr_vl.PaddleOCRVLConfig",
+            "AutoModel": "modeling_paddleocr_vl.PaddleOCRVisionModel"
+          },
+          "hidden_act": "gelu_pytorch_tanh",
+          "hidden_size": 1152,
+          "image_size": 384,
+          "intermediate_size": 4304,
+          "layer_norm_eps": 1e-06,
+          "model_type": "paddleocr_vl",
+          "num_attention_heads": 16,
+          "num_channels": 3,
+          "num_hidden_layers": 27,
+          "pad_token_id": 0,
+          "patch_size": 14,
+          "spatial_merge_size": 2,
+          "temporal_patch_size": 2,
+          "tokens_per_second": 2,
+          "torch_dtype": "bfloat16"
+        },
+        "vision_start_token_id": 101305,
+        "vision_end_token_id": 101306,
+        "vocab_size": 103424,
+        "weight_share_add_bias": true,
+        "use_3d_rope": true,
+        "rope_is_neox_style": true
+      },
+      "safetensors_header_sha256": {
+        "model.safetensors": "afd9580aa85772317f8f5ceb736593cf1963414235b78c05c7810085ae7f5fa6"
+      }
+    },
+    "embedding": {
+      "parameters": 595776512,
+      "linear_parameters": 440401920,
+      "resident_weight_bytes_bf16": 1191553024,
+      "config": {
+        "architectures": [
+          "Qwen3ForCausalLM"
+        ],
+        "attention_bias": false,
+        "attention_dropout": 0.0,
+        "bos_token_id": 151643,
+        "eos_token_id": 151643,
+        "head_dim": 128,
+        "hidden_act": "silu",
+        "hidden_size": 1024,
+        "initializer_range": 0.02,
+        "intermediate_size": 3072,
+        "max_position_embeddings": 32768,
+        "max_window_layers": 28,
+        "model_type": "qwen3",
+        "num_attention_heads": 16,
+        "num_hidden_layers": 28,
+        "num_key_value_heads": 8,
+        "rms_norm_eps": 1e-06,
+        "rope_scaling": null,
+        "rope_theta": 1000000,
+        "sliding_window": null,
+        "tie_word_embeddings": true,
+        "torch_dtype": "bfloat16",
+        "transformers_version": "4.51.3",
+        "use_cache": true,
+        "use_sliding_window": false,
+        "vocab_size": 151669
+      },
+      "safetensors_header_sha256": {
+        "model.safetensors": "61f0cd4e262a6899a646a2e72e8f034615358608c8bf24867bf65249cf40942b"
+      }
+    },
+    "layout": {
+      "stored_fp32_values_including_constants": 32693527,
+      "flops_per_page": 177484262400,
+      "flops_by_operator": {
+        "1.conv2d": 156723200000,
+        "1.depthwise_conv2d": 561600000,
+        "1.matmul": 18663462400,
+        "1.bmm": 1536000000
+      },
+      "operator_counts": {
+        "1.conv2d": 91,
+        "1.depthwise_conv2d": 27,
+        "1.matmul": 121,
+        "1.bmm": 2
+      },
+      "input_shape": [
+        1,
+        3,
+        800,
+        800
+      ],
+      "excluded": "Normalization, activations, interpolation, sorting and other non-matrix ops."
+    }
+  },
+  "prompt_nonimage_tokens": {
+    "OCR:": 13,
+    "Table Recognition:": 13,
+    "Chart Recognition:": 13,
+    "Formula Recognition:": 13,
+    "Spotting:": 13
+  },
+  "decode_rates_ignoring_kv": {
+    "weight_stream_seconds": 0.0024047342933333333,
+    "greedy_tokens_s_per_sequence": 415.84635889807413,
+    "greedy_tokens_s_32_busy_sequences": 13307.083484738372
+  },
+  "totals": {
+    "pages": 20,
+    "regions": 465,
+    "ocr_generated_tokens_including_eos": 24890,
+    "decode_advances_after_prefill": 24425,
+    "ocr_prompt_tokens": 88148,
+    "visual_tokens": 82103,
+    "vision_patches": 328412,
+    "markdown_tokens_ocr_tokenizer": 47081,
+    "markdown_tokens_embedding_tokenizer": 41368,
+    "embedding_tokens": 42220,
+    "chunks": 136,
+    "flops": {
+      "layout": 3549685248000,
+      "vision": 313631327121408,
+      "prefill": 46630719209472,
+      "embedding": 39256117870592,
+      "greedy_decode": 20368442114048
+    },
+    "ideal_arithmetic_stage_seconds": {
+      "layout": 0.02928783207920792,
+      "vision": 2.5877172204736634,
+      "prefill": 0.09634446117659504,
+      "embedding": 0.08110768155080991,
+      "greedy_decode": 0.042083558086876034
+    },
+    "ideal_arithmetic_sum_seconds": 2.836540753367152
+  },
+  "documents": [
+    {
+      "id": "earthquake-checklist-en",
+      "pages": 2,
+      "regions": 99,
+      "ocr_generated_tokens_including_eos": 1878,
+      "decode_advances_after_prefill": 1779,
+      "longest_region_tokens": 118,
+      "ocr_prompt_tokens": 17465,
+      "visual_tokens": 16178,
+      "vision_patches": 64712,
+      "markdown_tokens_ocr_tokenizer": 2997,
+      "markdown_tokens_embedding_tokenizer": 2532,
+      "embedding_tokens": 2547,
+      "chunks": 18,
+      "embedding_chunk_lengths": [
+        63,
+        4,
+        174,
+        55,
+        32,
+        292,
+        105,
+        123,
+        200,
+        116,
+        216,
+        55,
+        174,
+        59,
+        375,
+        80,
+        166,
+        258
+      ],
+      "region_prompt_and_generated_lengths": [
+        [
+          157,
+          2
+        ],
+        [
+          160,
+          15
+        ],
+        [
+          161,
+          5
+        ],
+        [
+          161,
+          6
+        ],
+        [
+          161,
+          24
+        ],
+        [
+          161,
+          24
+        ],
+        [
+          161,
+          33
+        ],
+        [
+          163,
+          3
+        ],
+        [
+          163,
+          30
+        ],
+        [
+          163,
+          43
+        ],
+        [
+          163,
+          52
+        ],
+        [
+          163,
+          62
+        ],
+        [
+          165,
+          5
+        ],
+        [
+          165,
+          17
+        ],
+        [
+          165,
+          22
+        ],
+        [
+          165,
+          29
+        ],
+        [
+          165,
+          34
+        ],
+        [
+          166,
+          13
+        ],
+        [
+          166,
+          16
+        ],
+        [
+          168,
+          3
+        ],
+        [
+          168,
+          6
+        ],
+        [
+          168,
+          14
+        ],
+        [
+          168,
+          38
+        ],
+        [
+          168,
+          39
+        ],
+        [
+          168,
+          42
+        ],
+        [
+          168,
+          118
+        ],
+        [
+          169,
+          2
+        ],
+        [
+          169,
+          2
+        ],
+        [
+          169,
+          2
+        ],
+        [
+          169,
+          2
+        ],
+        [
+          169,
+          2
+        ],
+        [
+          169,
+          2
+        ],
+        [
+          169,
+          2
+        ],
+        [
+          169,
+          3
+        ],
+        [
+          169,
+          5
+        ],
+        [
+          169,
+          5
+        ],
+        [
+          169,
+          5
+        ],
+        [
+          169,
+          5
+        ],
+        [
+          169,
+          6
+        ],
+        [
+          169,
+          6
+        ],
+        [
+          169,
+          6
+        ],
+        [
+          169,
+          13
+        ],
+        [
+          169,
+          14
+        ],
+        [
+          169,
+          19
+        ],
+        [
+          169,
+          29
+        ],
+        [
+          169,
+          39
+        ],
+        [
+          169,
+          63
+        ],
+        [
+          173,
+          4
+        ],
+        [
+          173,
+          8
+        ],
+        [
+          173,
+          38
+        ],
+        [
+          174,
+          5
+        ],
+        [
+          174,
+          12
+        ],
+        [
+          175,
+          3
+        ],
+        [
+          175,
+          14
+        ],
+        [
+          175,
+          29
+        ],
+        [
+          177,
+          5
+        ],
+        [
+          177,
+          6
+        ],
+        [
+          178,
+          16
+        ],
+        [
+          178,
+          20
+        ],
+        [
+          178,
+          20
+        ],
+        [
+          181,
+          8
+        ],
+        [
+          181,
+          9
+        ],
+        [
+          181,
+          20
+        ],
+        [
+          181,
+          37
+        ],
+        [
+          181,
+          65
+        ],
+        [
+          182,
+          2
+        ],
+        [
+          183,
+          4
+        ],
+        [
+          183,
+          5
+        ],
+        [
+          183,
+          7
+        ],
+        [
+          183,
+          19
+        ],
+        [
+          183,
+          19
+        ],
+        [
+          183,
+          19
+        ],
+        [
+          183,
+          26
+        ],
+        [
+          183,
+          28
+        ],
+        [
+          187,
+          34
+        ],
+        [
+          187,
+          34
+        ],
+        [
+          187,
+          39
+        ],
+        [
+          187,
+          41
+        ],
+        [
+          188,
+          6
+        ],
+        [
+          188,
+          6
+        ],
+        [
+          188,
+          6
+        ],
+        [
+          188,
+          16
+        ],
+        [
+          188,
+          17
+        ],
+        [
+          188,
+          17
+        ],
+        [
+          188,
+          19
+        ],
+        [
+          188,
+          19
+        ],
+        [
+          193,
+          9
+        ],
+        [
+          193,
+          10
+        ],
+        [
+          193,
+          10
+        ],
+        [
+          193,
+          19
+        ],
+        [
+          193,
+          24
+        ],
+        [
+          193,
+          30
+        ],
+        [
+          193,
+          41
+        ],
+        [
+          197,
+          11
+        ],
+        [
+          197,
+          15
+        ],
+        [
+          198,
+          25
+        ],
+        [
+          201,
+          12
+        ],
+        [
+          205,
+          13
+        ],
+        [
+          214,
+          30
+        ]
+      ],
+      "flops": {
+        "layout": 354968524800,
+        "vision": 59419147640832,
+        "prefill": 9150708400128,
+        "embedding": 2304228032512,
+        "greedy_decode": 1334438412288
+      },
+      "measured_mean_call_seconds": 1.835629698028788,
+      "measured_longest_region_submission_batches": [
+        {
+          "elapsed_seconds": 1.670593858929351,
+          "regions": 52,
+          "longest_generated_tokens": 118
+        },
+        {
+          "elapsed_seconds": 1.6341389290755615,
+          "regions": 52,
+          "longest_generated_tokens": 118
+        },
+        {
+          "elapsed_seconds": 1.5902352700941265,
+          "regions": 52,
+          "longest_generated_tokens": 118
+        },
+        {
+          "elapsed_seconds": 1.588660262990743,
+          "regions": 52,
+          "longest_generated_tokens": 118
+        },
+        {
+          "elapsed_seconds": 1.578649366972968,
+          "regions": 52,
+          "longest_generated_tokens": 118
+        }
+      ]
+    },
+    {
+      "id": "naca-seaplanes",
+      "pages": 3,
+      "regions": 71,
+      "ocr_generated_tokens_including_eos": 3828,
+      "decode_advances_after_prefill": 3757,
+      "longest_region_tokens": 280,
+      "ocr_prompt_tokens": 12648,
+      "visual_tokens": 11725,
+      "vision_patches": 46900,
+      "markdown_tokens_ocr_tokenizer": 7729,
+      "markdown_tokens_embedding_tokenizer": 6808,
+      "embedding_tokens": 6894,
+      "chunks": 25,
+      "embedding_chunk_lengths": [
+        8,
+        30,
+        143,
+        133,
+        484,
+        161,
+        478,
+        73,
+        502,
+        517,
+        138,
+        512,
+        471,
+        32,
+        512,
+        139,
+        51,
+        512,
+        334,
+        52,
+        512,
+        222,
+        30,
+        512,
+        336
+      ],
+      "region_prompt_and_generated_lengths": [
+        [
+          157,
+          244
+        ],
+        [
+          157,
+          248
+        ],
+        [
+          160,
+          53
+        ],
+        [
+          161,
+          21
+        ],
+        [
+          163,
+          3
+        ],
+        [
+          163,
+          5
+        ],
+        [
+          163,
+          16
+        ],
+        [
+          163,
+          26
+        ],
+        [
+          163,
+          44
+        ],
+        [
+          163,
+          45
+        ],
+        [
+          163,
+          73
+        ],
+        [
+          163,
+          74
+        ],
+        [
+          165,
+          23
+        ],
+        [
+          165,
+          211
+        ],
+        [
+          166,
+          4
+        ],
+        [
+          166,
+          4
+        ],
+        [
+          166,
+          9
+        ],
+        [
+          166,
+          13
+        ],
+        [
+          166,
+          18
+        ],
+        [
+          169,
+          2
+        ],
+        [
+          169,
+          4
+        ],
+        [
+          169,
+          4
+        ],
+        [
+          169,
+          4
+        ],
+        [
+          169,
+          4
+        ],
+        [
+          169,
+          15
+        ],
+        [
+          169,
+          26
+        ],
+        [
+          169,
+          33
+        ],
+        [
+          169,
+          36
+        ],
+        [
+          169,
+          50
+        ],
+        [
+          169,
+          67
+        ],
+        [
+          173,
+          3
+        ],
+        [
+          173,
+          4
+        ],
+        [
+          173,
+          30
+        ],
+        [
+          173,
+          32
+        ],
+        [
+          173,
+          38
+        ],
+        [
+          173,
+          52
+        ],
+        [
+          173,
+          108
+        ],
+        [
+          173,
+          244
+        ],
+        [
+          174,
+          64
+        ],
+        [
+          174,
+          66
+        ],
+        [
+          174,
+          75
+        ],
+        [
+          175,
+          9
+        ],
+        [
+          175,
+          35
+        ],
+        [
+          175,
+          44
+        ],
+        [
+          175,
+          44
+        ],
+        [
+          175,
+          68
+        ],
+        [
+          175,
+          280
+        ],
+        [
+          181,
+          4
+        ],
+        [
+          181,
+          19
+        ],
+        [
+          181,
+          40
+        ],
+        [
+          181,
+          75
+        ],
+        [
+          183,
+          8
+        ],
+        [
+          183,
+          33
+        ],
+        [
+          184,
+          107
+        ],
+        [
+          185,
+          37
+        ],
+        [
+          188,
+          9
+        ],
+        [
+          188,
+          66
+        ],
+        [
+          189,
+          16
+        ],
+        [
+          189,
+          35
+        ],
+        [
+          193,
+          13
+        ],
+        [
+          193,
+          16
+        ],
+        [
+          197,
+          13
+        ],
+        [
+          197,
+          22
+        ],
+        [
+          202,
+          17
+        ],
+        [
+          203,
+          151
+        ],
+        [
+          205,
+          7
+        ],
+        [
+          205,
+          8
+        ],
+        [
+          222,
+          140
+        ],
+        [
+          222,
+          141
+        ],
+        [
+          241,
+          130
+        ],
+        [
+          241,
+          146
+        ]
+      ],
+      "flops": {
+        "layout": 532452787200,
+        "vision": 43128381542400,
+        "prefill": 6629217959936,
+        "embedding": 6406137937920,
+        "greedy_decode": 2847665668096
+      },
+      "measured_mean_call_seconds": 2.3644757280126214,
+      "measured_longest_region_submission_batches": [
+        {
+          "elapsed_seconds": 1.88780245592352,
+          "regions": 30,
+          "longest_generated_tokens": 280
+        },
+        {
+          "elapsed_seconds": 1.8831854519667104,
+          "regions": 30,
+          "longest_generated_tokens": 280
+        },
+        {
+          "elapsed_seconds": 1.9095685289939865,
+          "regions": 30,
+          "longest_generated_tokens": 280
+        },
+        {
+          "elapsed_seconds": 1.9459088490111753,
+          "regions": 30,
+          "longest_generated_tokens": 280
+        },
+        {
+          "elapsed_seconds": 1.9178928029723465,
+          "regions": 30,
+          "longest_generated_tokens": 280
+        }
+      ]
+    },
+    {
+      "id": "irs-w9",
+      "pages": 5,
+      "regions": 182,
+      "ocr_generated_tokens_including_eos": 8902,
+      "decode_advances_after_prefill": 8720,
+      "longest_region_tokens": 1167,
+      "ocr_prompt_tokens": 34453,
+      "visual_tokens": 32087,
+      "vision_patches": 128348,
+      "markdown_tokens_ocr_tokenizer": 10947,
+      "markdown_tokens_embedding_tokenizer": 9959,
+      "embedding_tokens": 10124,
+      "chunks": 37,
+      "embedding_chunk_lengths": [
+        24,
+        24,
+        512,
+        512,
+        512,
+        30,
+        55,
+        207,
+        423,
+        504,
+        501,
+        251,
+        380,
+        78,
+        117,
+        153,
+        4,
+        387,
+        276,
+        33,
+        408,
+        271,
+        504,
+        442,
+        489,
+        93,
+        88,
+        16,
+        393,
+        258,
+        502,
+        512,
+        91,
+        512,
+        72,
+        260,
+        230
+      ],
+      "region_prompt_and_generated_lengths": [
+        [
+          157,
+          16
+        ],
+        [
+          157,
+          16
+        ],
+        [
+          157,
+          16
+        ],
+        [
+          160,
+          4
+        ],
+        [
+          160,
+          4
+        ],
+        [
+          160,
+          4
+        ],
+        [
+          160,
+          10
+        ],
+        [
+          160,
+          12
+        ],
+        [
+          161,
+          4
+        ],
+        [
+          161,
+          4
+        ],
+        [
+          161,
+          36
+        ],
+        [
+          161,
+          36
+        ],
+        [
+          161,
+          38
+        ],
+        [
+          161,
+          40
+        ],
+        [
+          161,
+          41
+        ],
+        [
+          161,
+          41
+        ],
+        [
+          161,
+          41
+        ],
+        [
+          161,
+          42
+        ],
+        [
+          161,
+          42
+        ],
+        [
+          161,
+          46
+        ],
+        [
+          161,
+          46
+        ],
+        [
+          161,
+          50
+        ],
+        [
+          161,
+          53
+        ],
+        [
+          161,
+          53
+        ],
+        [
+          161,
+          54
+        ],
+        [
+          161,
+          55
+        ],
+        [
+          161,
+          55
+        ],
+        [
+          163,
+          12
+        ],
+        [
+          163,
+          16
+        ],
+        [
+          163,
+          94
+        ],
+        [
+          165,
+          4
+        ],
+        [
+          165,
+          4
+        ],
+        [
+          165,
+          4
+        ],
+        [
+          165,
+          6
+        ],
+        [
+          165,
+          15
+        ],
+        [
+          165,
+          35
+        ],
+        [
+          165,
+          47
+        ],
+        [
+          165,
+          61
+        ],
+        [
+          166,
+          2
+        ],
+        [
+          166,
+          12
+        ],
+        [
+          166,
+          12
+        ],
+        [
+          166,
+          15
+        ],
+        [
+          167,
+          4
+        ],
+        [
+          167,
+          120
+        ],
+        [
+          167,
+          141
+        ],
+        [
+          169,
+          84
+        ],
+        [
+          172,
+          12
+        ],
+        [
+          172,
+          16
+        ],
+        [
+          172,
+          18
+        ],
+        [
+          173,
+          4
+        ],
+        [
+          173,
+          4
+        ],
+        [
+          173,
+          25
+        ],
+        [
+          173,
+          50
+        ],
+        [
+          173,
+          57
+        ],
+        [
+          173,
+          59
+        ],
+        [
+          173,
+          60
+        ],
+        [
+          173,
+          67
+        ],
+        [
+          173,
+          72
+        ],
+        [
+          173,
+          72
+        ],
+        [
+          173,
+          217
+        ],
+        [
+          173,
+          218
+        ],
+        [
+          174,
+          5
+        ],
+        [
+          174,
+          112
+        ],
+        [
+          174,
+          129
+        ],
+        [
+          175,
+          3
+        ],
+        [
+          175,
+          10
+        ],
+        [
+          175,
+          18
+        ],
+        [
+          175,
+          21
+        ],
+        [
+          175,
+          83
+        ],
+        [
+          175,
+          85
+        ],
+        [
+          175,
+          88
+        ],
+        [
+          175,
+          93
+        ],
+        [
+          177,
+          15
+        ],
+        [
+          178,
+          6
+        ],
+        [
+          178,
+          9
+        ],
+        [
+          178,
+          20
+        ],
+        [
+          178,
+          53
+        ],
+        [
+          178,
+          57
+        ],
+        [
+          178,
+          57
+        ],
+        [
+          178,
+          59
+        ],
+        [
+          178,
+          60
+        ],
+        [
+          181,
+          5
+        ],
+        [
+          181,
+          6
+        ],
+        [
+          181,
+          7
+        ],
+        [
+          181,
+          16
+        ],
+        [
+          181,
+          24
+        ],
+        [
+          181,
+          24
+        ],
+        [
+          181,
+          28
+        ],
+        [
+          181,
+          84
+        ],
+        [
+          181,
+          128
+        ],
+        [
+          181,
+          136
+        ],
+        [
+          181,
+          149
+        ],
+        [
+          181,
+          163
+        ],
+        [
+          183,
+          4
+        ],
+        [
+          183,
+          6
+        ],
+        [
+          183,
+          7
+        ],
+        [
+          183,
+          16
+        ],
+        [
+          184,
+          20
+        ],
+        [
+          185,
+          4
+        ],
+        [
+          185,
+          18
+        ],
+        [
+          185,
+          23
+        ],
+        [
+          185,
+          24
+        ],
+        [
+          185,
+          25
+        ],
+        [
+          185,
+          25
+        ],
+        [
+          185,
+          25
+        ],
+        [
+          185,
+          29
+        ],
+        [
+          185,
+          31
+        ],
+        [
+          185,
+          31
+        ],
+        [
+          185,
+          32
+        ],
+        [
+          187,
+          5
+        ],
+        [
+          187,
+          15
+        ],
+        [
+          187,
+          62
+        ],
+        [
+          187,
+          74
+        ],
+        [
+          187,
+          74
+        ],
+        [
+          187,
+          74
+        ],
+        [
+          187,
+          77
+        ],
+        [
+          188,
+          7
+        ],
+        [
+          188,
+          7
+        ],
+        [
+          188,
+          10
+        ],
+        [
+          189,
+          9
+        ],
+        [
+          189,
+          9
+        ],
+        [
+          189,
+          11
+        ],
+        [
+          189,
+          16
+        ],
+        [
+          189,
+          18
+        ],
+        [
+          189,
+          22
+        ],
+        [
+          189,
+          23
+        ],
+        [
+          189,
+          23
+        ],
+        [
+          189,
+          26
+        ],
+        [
+          189,
+          27
+        ],
+        [
+          189,
+          27
+        ],
+        [
+          189,
+          28
+        ],
+        [
+          189,
+          29
+        ],
+        [
+          189,
+          31
+        ],
+        [
+          189,
+          35
+        ],
+        [
+          189,
+          37
+        ],
+        [
+          189,
+          39
+        ],
+        [
+          190,
+          15
+        ],
+        [
+          190,
+          17
+        ],
+        [
+          190,
+          24
+        ],
+        [
+          193,
+          11
+        ],
+        [
+          193,
+          13
+        ],
+        [
+          193,
+          16
+        ],
+        [
+          193,
+          19
+        ],
+        [
+          193,
+          20
+        ],
+        [
+          193,
+          21
+        ],
+        [
+          193,
+          22
+        ],
+        [
+          193,
+          25
+        ],
+        [
+          193,
+          25
+        ],
+        [
+          193,
+          26
+        ],
+        [
+          193,
+          27
+        ],
+        [
+          193,
+          28
+        ],
+        [
+          193,
+          30
+        ],
+        [
+          193,
+          31
+        ],
+        [
+          193,
+          31
+        ],
+        [
+          193,
+          31
+        ],
+        [
+          193,
+          32
+        ],
+        [
+          193,
+          32
+        ],
+        [
+          193,
+          33
+        ],
+        [
+          193,
+          34
+        ],
+        [
+          193,
+          36
+        ],
+        [
+          193,
+          37
+        ],
+        [
+          193,
+          41
+        ],
+        [
+          193,
+          42
+        ],
+        [
+          193,
+          48
+        ],
+        [
+          193,
+          55
+        ],
+        [
+          193,
+          181
+        ],
+        [
+          196,
+          14
+        ],
+        [
+          196,
+          21
+        ],
+        [
+          196,
+          24
+        ],
+        [
+          197,
+          14
+        ],
+        [
+          197,
+          20
+        ],
+        [
+          197,
+          20
+        ],
+        [
+          197,
+          24
+        ],
+        [
+          197,
+          26
+        ],
+        [
+          197,
+          27
+        ],
+        [
+          201,
+          16
+        ],
+        [
+          222,
+          147
+        ],
+        [
+          233,
+          289
+        ],
+        [
+          260,
+          269
+        ],
+        [
+          279,
+          191
+        ],
+        [
+          298,
+          244
+        ],
+        [
+          1612,
+          1167
+        ]
+      ],
+      "flops": {
+        "layout": 887421312000,
+        "vision": 122791632187392,
+        "prefill": 18233949470720,
+        "embedding": 9385458761728,
+        "greedy_decode": 6936725061632
+      },
+      "measured_mean_call_seconds": 7.677079052221961,
+      "measured_longest_region_submission_batches": [
+        {
+          "elapsed_seconds": 7.113883430953138,
+          "regions": 15,
+          "longest_generated_tokens": 1167
+        },
+        {
+          "elapsed_seconds": 7.1198366259923205,
+          "regions": 15,
+          "longest_generated_tokens": 1167
+        },
+        {
+          "elapsed_seconds": 7.081085412064567,
+          "regions": 15,
+          "longest_generated_tokens": 1167
+        },
+        {
+          "elapsed_seconds": 7.142723734956235,
+          "regions": 15,
+          "longest_generated_tokens": 1167
+        },
+        {
+          "elapsed_seconds": 7.697918356047012,
+          "regions": 15,
+          "longest_generated_tokens": 1167
+        }
+      ]
+    },
+    {
+      "id": "census-income",
+      "pages": 5,
+      "regions": 46,
+      "ocr_generated_tokens_including_eos": 6551,
+      "decode_advances_after_prefill": 6505,
+      "longest_region_tokens": 3252,
+      "ocr_prompt_tokens": 11137,
+      "visual_tokens": 10539,
+      "vision_patches": 42156,
+      "markdown_tokens_ocr_tokenizer": 21396,
+      "markdown_tokens_embedding_tokenizer": 18303,
+      "embedding_tokens": 18869,
+      "chunks": 42,
+      "embedding_chunk_lengths": [
+        13,
+        421,
+        418,
+        479,
+        43,
+        512,
+        512,
+        512,
+        512,
+        462,
+        445,
+        383,
+        422,
+        162,
+        511,
+        511,
+        511,
+        511,
+        511,
+        511,
+        511,
+        511,
+        511,
+        511,
+        511,
+        511,
+        511,
+        511,
+        511,
+        511,
+        511,
+        511,
+        511,
+        511,
+        511,
+        511,
+        511,
+        511,
+        511,
+        511,
+        250,
+        37
+      ],
+      "region_prompt_and_generated_lengths": [
+        [
+          157,
+          3
+        ],
+        [
+          160,
+          135
+        ],
+        [
+          163,
+          18
+        ],
+        [
+          163,
+          46
+        ],
+        [
+          163,
+          55
+        ],
+        [
+          163,
+          63
+        ],
+        [
+          163,
+          79
+        ],
+        [
+          165,
+          27
+        ],
+        [
+          165,
+          149
+        ],
+        [
+          167,
+          37
+        ],
+        [
+          168,
+          13
+        ],
+        [
+          169,
+          3
+        ],
+        [
+          169,
+          6
+        ],
+        [
+          169,
+          140
+        ],
+        [
+          173,
+          3
+        ],
+        [
+          173,
+          7
+        ],
+        [
+          173,
+          38
+        ],
+        [
+          175,
+          7
+        ],
+        [
+          175,
+          38
+        ],
+        [
+          175,
+          43
+        ],
+        [
+          178,
+          7
+        ],
+        [
+          178,
+          7
+        ],
+        [
+          178,
+          7
+        ],
+        [
+          178,
+          7
+        ],
+        [
+          178,
+          67
+        ],
+        [
+          178,
+          81
+        ],
+        [
+          181,
+          100
+        ],
+        [
+          189,
+          15
+        ],
+        [
+          193,
+          13
+        ],
+        [
+          193,
+          14
+        ],
+        [
+          193,
+          14
+        ],
+        [
+          193,
+          116
+        ],
+        [
+          197,
+          15
+        ],
+        [
+          197,
+          20
+        ],
+        [
+          201,
+          10
+        ],
+        [
+          205,
+          13
+        ],
+        [
+          205,
+          102
+        ],
+        [
+          217,
+          184
+        ],
+        [
+          223,
+          38
+        ],
+        [
+          277,
+          235
+        ],
+        [
+          289,
+          200
+        ],
+        [
+          301,
+          155
+        ],
+        [
+          313,
+          193
+        ],
+        [
+          313,
+          221
+        ],
+        [
+          1028,
+          555
+        ],
+        [
+          1613,
+          3252
+        ]
+      ],
+      "flops": {
+        "layout": 887421312000,
+        "vision": 45396785000448,
+        "prefill": 6082194817024,
+        "embedding": 17682629099520,
+        "greedy_decode": 6468503240704
+      },
+      "measured_mean_call_seconds": 12.357023713970557,
+      "measured_longest_region_submission_batches": [
+        {
+          "elapsed_seconds": 10.56221694604028,
+          "regions": 6,
+          "longest_generated_tokens": 3252
+        },
+        {
+          "elapsed_seconds": 10.547226057969965,
+          "regions": 6,
+          "longest_generated_tokens": 3252
+        },
+        {
+          "elapsed_seconds": 10.640536630991846,
+          "regions": 6,
+          "longest_generated_tokens": 3252
+        },
+        {
+          "elapsed_seconds": 10.546841730014421,
+          "regions": 6,
+          "longest_generated_tokens": 3252
+        },
+        {
+          "elapsed_seconds": 10.548076571081765,
+          "regions": 6,
+          "longest_generated_tokens": 3252
+        }
+      ]
+    },
+    {
+      "id": "attention-paper",
+      "pages": 5,
+      "regions": 67,
+      "ocr_generated_tokens_including_eos": 3731,
+      "decode_advances_after_prefill": 3664,
+      "longest_region_tokens": 240,
+      "ocr_prompt_tokens": 12445,
+      "visual_tokens": 11574,
+      "vision_patches": 46296,
+      "markdown_tokens_ocr_tokenizer": 4012,
+      "markdown_tokens_embedding_tokenizer": 3766,
+      "embedding_tokens": 3786,
+      "chunks": 14,
+      "embedding_chunk_lengths": [
+        59,
+        164,
+        451,
+        368,
+        357,
+        342,
+        313,
+        286,
+        376,
+        437,
+        88,
+        257,
+        172,
+        116
+      ],
+      "region_prompt_and_generated_lengths": [
+        [
+          157,
+          35
+        ],
+        [
+          157,
+          66
+        ],
+        [
+          157,
+          73
+        ],
+        [
+          160,
+          11
+        ],
+        [
+          160,
+          12
+        ],
+        [
+          160,
+          13
+        ],
+        [
+          161,
+          80
+        ],
+        [
+          161,
+          83
+        ],
+        [
+          163,
+          6
+        ],
+        [
+          163,
+          26
+        ],
+        [
+          163,
+          26
+        ],
+        [
+          163,
+          27
+        ],
+        [
+          163,
+          32
+        ],
+        [
+          163,
+          33
+        ],
+        [
+          163,
+          45
+        ],
+        [
+          163,
+          81
+        ],
+        [
+          163,
+          109
+        ],
+        [
+          167,
+          2
+        ],
+        [
+          167,
+          2
+        ],
+        [
+          167,
+          2
+        ],
+        [
+          167,
+          4
+        ],
+        [
+          167,
+          62
+        ],
+        [
+          168,
+          80
+        ],
+        [
+          168,
+          94
+        ],
+        [
+          169,
+          4
+        ],
+        [
+          169,
+          7
+        ],
+        [
+          172,
+          27
+        ],
+        [
+          173,
+          3
+        ],
+        [
+          173,
+          11
+        ],
+        [
+          173,
+          29
+        ],
+        [
+          173,
+          78
+        ],
+        [
+          173,
+          133
+        ],
+        [
+          177,
+          42
+        ],
+        [
+          177,
+          75
+        ],
+        [
+          178,
+          3
+        ],
+        [
+          178,
+          91
+        ],
+        [
+          178,
+          105
+        ],
+        [
+          181,
+          2
+        ],
+        [
+          181,
+          2
+        ],
+        [
+          181,
+          4
+        ],
+        [
+          181,
+          9
+        ],
+        [
+          181,
+          42
+        ],
+        [
+          181,
+          45
+        ],
+        [
+          181,
+          52
+        ],
+        [
+          187,
+          14
+        ],
+        [
+          188,
+          62
+        ],
+        [
+          189,
+          11
+        ],
+        [
+          193,
+          13
+        ],
+        [
+          193,
+          13
+        ],
+        [
+          193,
+          33
+        ],
+        [
+          193,
+          77
+        ],
+        [
+          193,
+          79
+        ],
+        [
+          193,
+          96
+        ],
+        [
+          193,
+          103
+        ],
+        [
+          193,
+          143
+        ],
+        [
+          193,
+          167
+        ],
+        [
+          197,
+          13
+        ],
+        [
+          197,
+          28
+        ],
+        [
+          205,
+          30
+        ],
+        [
+          205,
+          109
+        ],
+        [
+          220,
+          27
+        ],
+        [
+          223,
+          138
+        ],
+        [
+          223,
+          165
+        ],
+        [
+          223,
+          176
+        ],
+        [
+          301,
+          240
+        ],
+        [
+          312,
+          126
+        ],
+        [
+          397,
+          100
+        ]
+      ],
+      "flops": {
+        "layout": 887421312000,
+        "vision": 42895380750336,
+        "prefill": 6534648561664,
+        "embedding": 3477664038912,
+        "greedy_decode": 2781109731328
+      },
+      "measured_mean_call_seconds": 2.294090652372688,
+      "measured_longest_region_submission_batches": [
+        {
+          "elapsed_seconds": 1.7223416389897466,
+          "regions": 12,
+          "longest_generated_tokens": 240
+        },
+        {
+          "elapsed_seconds": 1.8761350660352036,
+          "regions": 12,
+          "longest_generated_tokens": 240
+        },
+        {
+          "elapsed_seconds": 1.7401522119762376,
+          "regions": 12,
+          "longest_generated_tokens": 240
+        },
+        {
+          "elapsed_seconds": 1.784104075981304,
+          "regions": 12,
+          "longest_generated_tokens": 240
+        },
+        {
+          "elapsed_seconds": 1.7501499080099165,
+          "regions": 12,
+          "longest_generated_tokens": 240
+        }
+      ]
+    }
+  ],
+  "scenarios": [
+    {
+      "name": "greedy",
+      "output_advance_per_pass": 1,
+      "verification_positions_per_pass": 1,
+      "cases": [
+        {
+          "id": "earthquake-checklist-en",
+          "lower_envelope_seconds": 0.49794657866422454,
+          "phase_estimate_seconds": 0.8071354353864592,
+          "critical_ocr_chain_seconds": 0.308264193377846,
+          "fp32_resource_seconds": 0.49318577694415844,
+          "bf16_resource_seconds": 0.021663526471933883,
+          "embedding_seconds": 0.0047608017200661155,
+          "decode_schedule": {
+            "seconds": 0.28735365119999995,
+            "flops": 1334438412288,
+            "devices": [
+              {
+                "seconds": 0.28735365119999995,
+                "flops": 365009633280,
+                "bytes": 86206095360,
+                "passes": 117
+              },
+              {
+                "seconds": 0.15907575125333334,
+                "flops": 325511020544,
+                "bytes": 47722725376,
+                "passes": 64
+              },
+              {
+                "seconds": 0.1541418666666667,
+                "flops": 323048161280,
+                "bytes": 46242560000,
+                "passes": 62
+              },
+              {
+                "seconds": 0.15173117269333336,
+                "flops": 320869597184,
+                "bytes": 45519351808,
+                "passes": 61
+              }
+            ]
+          }
+        },
+        {
+          "id": "naca-seaplanes",
+          "lower_envelope_seconds": 0.7157845508162697,
+          "phase_estimate_seconds": 1.0759081602818283,
+          "critical_ocr_chain_seconds": 0.7025487286304846,
+          "fp32_resource_seconds": 0.360237907009901,
+          "bf16_resource_seconds": 0.01958033807444628,
+          "embedding_seconds": 0.013235822185785125,
+          "decode_schedule": {
+            "seconds": 0.6872733081600001,
+            "flops": 2847665668096,
+            "devices": [
+              {
+                "seconds": 0.6872733081600001,
+                "flops": 784473014272,
+                "bytes": 206181992448,
+                "passes": 279
+              },
+              {
+                "seconds": 0.6080084104533332,
+                "flops": 703893143552,
+                "bytes": 182402523136,
+                "passes": 247
+              },
+              {
+                "seconds": 0.5977850265600001,
+                "flops": 682242703360,
+                "bytes": 179335507968,
+                "passes": 243
+              },
+              {
+                "seconds": 0.5977283788800001,
+                "flops": 677056806912,
+                "bytes": 179318513664,
+                "passes": 243
+              }
+            ]
+          }
+        },
+        {
+          "id": "irs-w9",
+          "lower_envelope_seconds": 3.339375306641509,
+          "phase_estimate_seconds": 4.06630708395446,
+          "critical_ocr_chain_seconds": 3.3199838629189307,
+          "fp32_resource_seconds": 1.0204542367936633,
+          "bf16_resource_seconds": 0.05200552589328926,
+          "embedding_seconds": 0.019391443722578512,
+          "decode_schedule": {
+            "seconds": 2.9843947793066676,
+            "flops": 6936725061632,
+            "devices": [
+              {
+                "seconds": 2.9843947793066676,
+                "flops": 2492793946112,
+                "bytes": 895318433792,
+                "passes": 1166
+              },
+              {
+                "seconds": 0.7219615948800002,
+                "flops": 1496081973248,
+                "bytes": 216588478464,
+                "passes": 288
+              },
+              {
+                "seconds": 0.6750715016533336,
+                "flops": 1485266010112,
+                "bytes": 202521450496,
+                "passes": 268
+              },
+              {
+                "seconds": 0.6130167398399999,
+                "flops": 1462583132160,
+                "bytes": 183905021952,
+                "passes": 243
+              }
+            ]
+          }
+        },
+        {
+          "id": "census-income",
+          "lower_envelope_seconds": 8.860395005232187,
+          "phase_estimate_seconds": 8.910774088345912,
+          "critical_ocr_chain_seconds": 8.82386064758855,
+          "fp32_resource_seconds": 0.3818828903667327,
+          "bf16_resource_seconds": 0.025931194334148762,
+          "embedding_seconds": 0.03653435764363636,
+          "decode_schedule": {
+            "seconds": 8.47539714730667,
+            "flops": 6468503240704,
+            "devices": [
+              {
+                "seconds": 8.47539714730667,
+                "flops": 4370872238080,
+                "bytes": 2542619144192,
+                "passes": 3251
+              },
+              {
+                "seconds": 1.3867960797866663,
+                "flops": 954837843968,
+                "bytes": 416038823936,
+                "passes": 554
+              },
+              {
+                "seconds": 0.57660346368,
+                "flops": 598943039488,
+                "bytes": 172981039104,
+                "passes": 234
+              },
+              {
+                "seconds": 0.5428267758933334,
+                "flops": 543850119168,
+                "bytes": 162848032768,
+                "passes": 220
+              }
+            ]
+          }
+        },
+        {
+          "id": "attention-paper",
+          "lower_envelope_seconds": 0.6325329571609856,
+          "phase_estimate_seconds": 0.9786738587191455,
+          "critical_ocr_chain_seconds": 0.6253477008822418,
+          "fp32_resource_seconds": 0.3612442414384158,
+          "bf16_resource_seconds": 0.019247434489652892,
+          "embedding_seconds": 0.007185256278743802,
+          "decode_schedule": {
+            "seconds": 0.5923498461866666,
+            "flops": 2781109731328,
+            "devices": [
+              {
+                "seconds": 0.5923498461866666,
+                "flops": 749997342720,
+                "bytes": 177704953856,
+                "passes": 239
+              },
+              {
+                "seconds": 0.4343964808533333,
+                "flops": 684727091200,
+                "bytes": 130318944256,
+                "passes": 175
+              },
+              {
+                "seconds": 0.4116407637333334,
+                "flops": 676284268544,
+                "bytes": 123492229120,
+                "passes": 166
+              },
+              {
+                "seconds": 0.4081626385066666,
+                "flops": 670101028864,
+                "bytes": 122448791552,
+                "passes": 164
+              }
+            ]
+          }
+        }
+      ],
+      "lower_envelope_seconds": 14.046034398515175,
+      "phase_estimate_seconds": 15.838798626687804,
+      "concurrent_corpus": {
+        "scope": "All PDFs admitted together; embedding after all OCR completes.",
+        "lower_envelope_seconds": 8.90496832913936,
+        "phase_estimate_seconds": 11.330298830266942,
+        "decode_schedule": {
+          "seconds": 8.535841634986667,
+          "flops": 20368442114048,
+          "devices": [
+            {
+              "seconds": 8.535841634986667,
+              "flops": 7436969754624,
+              "bytes": 2560752490496,
+              "passes": 3251
+            },
+            {
+              "seconds": 3.0351774583466677,
+              "flops": 4763783413760,
+              "bytes": 910553237504,
+              "passes": 1166
+            },
+            {
+              "seconds": 1.7203227374933348,
+              "flops": 4128053149696,
+              "bytes": 516096821248,
+              "passes": 667
+            },
+            {
+              "seconds": 1.6831815816533342,
+              "flops": 4039635795968,
+              "bytes": 504954474496,
+              "passes": 667
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "two_tokens_per_verification",
+      "output_advance_per_pass": 2,
+      "verification_positions_per_pass": 5,
+      "cases": [
+        {
+          "id": "earthquake-checklist-en",
+          "lower_envelope_seconds": 0.49794657866422454,
+          "phase_estimate_seconds": 0.6648024732531259,
+          "critical_ocr_chain_seconds": 0.16799481652451265,
+          "fp32_resource_seconds": 0.49318577694415844,
+          "bf16_resource_seconds": 0.02526230426446281,
+          "embedding_seconds": 0.0047608017200661155,
+          "decode_schedule": {
+            "seconds": 0.14502068906666668,
+            "flops": 3076246863872,
+            "devices": [
+              {
+                "seconds": 0.14502068906666668,
+                "flops": 851939721216,
+                "bytes": 43506206720,
+                "passes": 59
+              },
+              {
+                "seconds": 0.07964680874666667,
+                "flops": 743556972544,
+                "bytes": 23894042624,
+                "passes": 32
+              },
+              {
+                "seconds": 0.07719599445333333,
+                "flops": 743774240768,
+                "bytes": 23158798336,
+                "passes": 31
+              },
+              {
+                "seconds": 0.07717602645333332,
+                "flops": 736975929344,
+                "bytes": 23152807936,
+                "passes": 31
+              }
+            ]
+          }
+        },
+        {
+          "id": "naca-seaplanes",
+          "lower_envelope_seconds": 0.37887037140293633,
+          "phase_estimate_seconds": 0.7336578554284952,
+          "critical_ocr_chain_seconds": 0.3656345492171512,
+          "fp32_resource_seconds": 0.360237907009901,
+          "bf16_resource_seconds": 0.028004797109950415,
+          "embedding_seconds": 0.013235822185785125,
+          "decode_schedule": {
+            "seconds": 0.3450230033066668,
+            "flops": 6925103841280,
+            "devices": [
+              {
+                "seconds": 0.3450230033066668,
+                "flops": 1911642914816,
+                "bytes": 103506900992,
+                "passes": 140
+              },
+              {
+                "seconds": 0.3054160213333334,
+                "flops": 1709583663104,
+                "bytes": 91624806400,
+                "passes": 124
+              },
+              {
+                "seconds": 0.30023674538666667,
+                "flops": 1657720094720,
+                "bytes": 90071023616,
+                "passes": 122
+              },
+              {
+                "seconds": 0.30021763754666664,
+                "flops": 1646157168640,
+                "bytes": 90065291264,
+                "passes": 122
+              }
+            ]
+          }
+        },
+        {
+          "id": "irs-w9",
+          "lower_envelope_seconds": 1.8588985800281757,
+          "phase_estimate_seconds": 2.574550894941126,
+          "critical_ocr_chain_seconds": 1.839507136305597,
+          "fp32_resource_seconds": 1.0204542367936633,
+          "bf16_resource_seconds": 0.07245634686942148,
+          "embedding_seconds": 0.019391443722578512,
+          "decode_schedule": {
+            "seconds": 1.4926385902933335,
+            "flops": 16834922414080,
+            "devices": [
+              {
+                "seconds": 1.4926385902933335,
+                "flops": 6113184137216,
+                "bytes": 447791577088,
+                "passes": 583
+              },
+              {
+                "seconds": 0.3614060544,
+                "flops": 3619537633280,
+                "bytes": 108421816320,
+                "passes": 144
+              },
+              {
+                "seconds": 0.33786737322666677,
+                "flops": 3581651009536,
+                "bytes": 101360211968,
+                "passes": 134
+              },
+              {
+                "seconds": 0.3128586786133334,
+                "flops": 3520549634048,
+                "bytes": 93857603584,
+                "passes": 124
+              }
+            ]
+          }
+        },
+        {
+          "id": "census-income",
+          "lower_envelope_seconds": 4.6297192556855205,
+          "phase_estimate_seconds": 4.674873481199244,
+          "critical_ocr_chain_seconds": 4.593184898041884,
+          "fp32_resource_seconds": 0.3818828903667327,
+          "bf16_resource_seconds": 0.04570845766241322,
+          "embedding_seconds": 0.03653435764363636,
+          "decode_schedule": {
+            "seconds": 4.239496540160002,
+            "flops": 16040698691584,
+            "devices": [
+              {
+                "seconds": 4.239496540160002,
+                "flops": 10903524884480,
+                "bytes": 1271848962048,
+                "passes": 1626
+              },
+              {
+                "seconds": 0.6935594734933332,
+                "flops": 2358832463872,
+                "bytes": 208067842048,
+                "passes": 277
+              },
+              {
+                "seconds": 0.2884051968,
+                "flops": 1456279093248,
+                "bytes": 86521559040,
+                "passes": 117
+              },
+              {
+                "seconds": 0.2715190340266666,
+                "flops": 1322062249984,
+                "bytes": 81455710208,
+                "passes": 110
+              }
+            ]
+          }
+        },
+        {
+          "id": "attention-paper",
+          "lower_envelope_seconds": 0.3684294977171596,
+          "phase_estimate_seconds": 0.6838774819724789,
+          "critical_ocr_chain_seconds": 0.3361353599755751,
+          "fp32_resource_seconds": 0.3612442414384158,
+          "bf16_resource_seconds": 0.02749509946816529,
+          "embedding_seconds": 0.007185256278743802,
+          "decode_schedule": {
+            "seconds": 0.29755346944,
+            "flops": 6772979580928,
+            "devices": [
+              {
+                "seconds": 0.29755346944,
+                "flops": 1836297453568,
+                "bytes": 89266040832,
+                "passes": 120
+              },
+              {
+                "seconds": 0.21859540309333336,
+                "flops": 1676595593216,
+                "bytes": 65578620928,
+                "passes": 88
+              },
+              {
+                "seconds": 0.2059639671466667,
+                "flops": 1644460720128,
+                "bytes": 61789190144,
+                "passes": 83
+              },
+              {
+                "seconds": 0.20418659669333333,
+                "flops": 1615625814016,
+                "bytes": 61255979008,
+                "passes": 82
+              }
+            ]
+          }
+        }
+      ],
+      "lower_envelope_seconds": 7.733864283498017,
+      "phase_estimate_seconds": 9.33176218679447,
+      "concurrent_corpus": {
+        "scope": "All PDFs admitted together; embedding after all OCR completes.",
+        "lower_envelope_seconds": 4.674292579592694,
+        "phase_estimate_seconds": 7.064859714320277,
+        "decode_schedule": {
+          "seconds": 4.270402519040001,
+          "flops": 49649951391744,
+          "devices": [
+            {
+              "seconds": 4.270402519040001,
+              "flops": 18287834333184,
+              "bytes": 1281120755712,
+              "passes": 1626
+            },
+            {
+              "seconds": 1.5185300821333332,
+              "flops": 11604877770752,
+              "bytes": 455559024640,
+              "passes": 583
+            },
+            {
+              "seconds": 0.8717142084266665,
+              "flops": 9993570435072,
+              "bytes": 261514262528,
+              "passes": 338
+            },
+            {
+              "seconds": 0.8537523473066667,
+              "flops": 9763668852736,
+              "bytes": 256125704192,
+              "passes": 338
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "perfect_four_draft_speculation",
+      "output_advance_per_pass": 5,
+      "verification_positions_per_pass": 5,
+      "cases": [
+        {
+          "id": "earthquake-checklist-en",
+          "lower_envelope_seconds": 0.49794657866422454,
+          "phase_estimate_seconds": 0.5788315429064592,
+          "critical_ocr_chain_seconds": 0.08333182089784599,
+          "fp32_resource_seconds": 0.49318577694415844,
+          "bf16_resource_seconds": 0.021663526471933883,
+          "embedding_seconds": 0.0047608017200661155,
+          "decode_schedule": {
+            "seconds": 0.059049758720000005,
+            "flops": 1334438412288,
+            "devices": [
+              {
+                "seconds": 0.059049758720000005,
+                "flops": 368706682880,
+                "bytes": 17714927616,
+                "passes": 24
+              },
+              {
+                "seconds": 0.03242841429333333,
+                "flops": 321897283584,
+                "bytes": 9728524288,
+                "passes": 13
+              },
+              {
+                "seconds": 0.03239658837333333,
+                "flops": 321537638400,
+                "bytes": 9718976512,
+                "passes": 13
+              },
+              {
+                "seconds": 0.03239578965333333,
+                "flops": 322296807424,
+                "bytes": 9718736896,
+                "passes": 13
+              }
+            ]
+          }
+        },
+        {
+          "id": "naca-seaplanes",
+          "lower_envelope_seconds": 0.3734737291956861,
+          "phase_estimate_seconds": 0.526694409668495,
+          "critical_ocr_chain_seconds": 0.16198566857715124,
+          "fp32_resource_seconds": 0.360237907009901,
+          "bf16_resource_seconds": 0.01958033807444628,
+          "embedding_seconds": 0.013235822185785125,
+          "decode_schedule": {
+            "seconds": 0.13805955754666668,
+            "flops": 2847665668096,
+            "devices": [
+              {
+                "seconds": 0.13805955754666668,
+                "flops": 786104303616,
+                "bytes": 41417867264,
+                "passes": 56
+              },
+              {
+                "seconds": 0.12318730922666667,
+                "flops": 701886808064,
+                "bytes": 36956192768,
+                "passes": 50
+              },
+              {
+                "seconds": 0.12061496661333333,
+                "flops": 681284763648,
+                "bytes": 36184489984,
+                "passes": 49
+              },
+              {
+                "seconds": 0.12061035861333334,
+                "flops": 678389792768,
+                "bytes": 36183107584,
+                "passes": 49
+              }
+            ]
+          }
+        },
+        {
+          "id": "irs-w9",
+          "lower_envelope_seconds": 1.039845680516242,
+          "phase_estimate_seconds": 1.6811242752077924,
+          "critical_ocr_chain_seconds": 0.9531098669722634,
+          "fp32_resource_seconds": 1.0204542367936633,
+          "bf16_resource_seconds": 0.05200552589328926,
+          "embedding_seconds": 0.019391443722578512,
+          "decode_schedule": {
+            "seconds": 0.59921197056,
+            "flops": 6936725061632,
+            "devices": [
+              {
+                "seconds": 0.59921197056,
+                "flops": 2489532989440,
+                "bytes": 179763591168,
+                "passes": 234
+              },
+              {
+                "seconds": 0.14561926485333335,
+                "flops": 1492093108224,
+                "bytes": 43685779456,
+                "passes": 58
+              },
+              {
+                "seconds": 0.13629769728000002,
+                "flops": 1485719879680,
+                "bytes": 40889309184,
+                "passes": 54
+              },
+              {
+                "seconds": 0.12867411968000003,
+                "flops": 1469379084288,
+                "bytes": 38602235904,
+                "passes": 51
+              }
+            ]
+          }
+        },
+        {
+          "id": "census-income",
+          "lower_envelope_seconds": 2.09083477056552,
+          "phase_estimate_seconds": 2.1327936859992422,
+          "critical_ocr_chain_seconds": 2.0543004129218834,
+          "fp32_resource_seconds": 0.3818828903667327,
+          "bf16_resource_seconds": 0.025931194334148762,
+          "embedding_seconds": 0.03653435764363636,
+          "decode_schedule": {
+            "seconds": 1.6974167449600002,
+            "flops": 6468503240704,
+            "devices": [
+              {
+                "seconds": 1.6974167449600002,
+                "flops": 4374541860864,
+                "bytes": 509225023488,
+                "passes": 651
+              },
+              {
+                "seconds": 0.2779660288,
+                "flops": 955587428352,
+                "bytes": 83389808640,
+                "passes": 111
+              },
+              {
+                "seconds": 0.11588666026666666,
+                "flops": 596010762240,
+                "bytes": 34765998080,
+                "passes": 47
+              },
+              {
+                "seconds": 0.10864112298666667,
+                "flops": 542363189248,
+                "bytes": 32592336896,
+                "passes": 44
+              }
+            ]
+          }
+        },
+        {
+          "id": "attention-paper",
+          "lower_envelope_seconds": 0.3684294977171596,
+          "phase_estimate_seconds": 0.5053901040524789,
+          "critical_ocr_chain_seconds": 0.1611103103755752,
+          "fp32_resource_seconds": 0.3612442414384158,
+          "bf16_resource_seconds": 0.019247434489652892,
+          "embedding_seconds": 0.007185256278743802,
+          "decode_schedule": {
+            "seconds": 0.11906609151999999,
+            "flops": 2781109731328,
+            "devices": [
+              {
+                "seconds": 0.11906609151999999,
+                "flops": 748364283904,
+                "bytes": 35719827456,
+                "passes": 48
+              },
+              {
+                "seconds": 0.08703224490666667,
+                "flops": 696100175872,
+                "bytes": 26109673472,
+                "passes": 35
+              },
+              {
+                "seconds": 0.08440104277333335,
+                "flops": 671199674368,
+                "bytes": 25320312832,
+                "passes": 34
+              },
+              {
+                "seconds": 0.08220803072,
+                "flops": 665445597184,
+                "bytes": 24662409216,
+                "passes": 33
+              }
+            ]
+          }
+        }
+      ],
+      "lower_envelope_seconds": 4.370530256658832,
+      "phase_estimate_seconds": 5.424834017834468,
+      "concurrent_corpus": {
+        "scope": "All PDFs admitted together; embedding after all OCR completes.",
+        "lower_envelope_seconds": 2.698112734103681,
+        "phase_estimate_seconds": 4.504717419280276,
+        "decode_schedule": {
+          "seconds": 1.7102602239999998,
+          "flops": 20368442114048,
+          "devices": [
+            {
+              "seconds": 1.7102602239999998,
+              "flops": 7438911750144,
+              "bytes": 513078067200,
+              "passes": 651
+            },
+            {
+              "seconds": 0.6098574950400002,
+              "flops": 4770770321408,
+              "bytes": 182957248512,
+              "passes": 234
+            },
+            {
+              "seconds": 0.36046600874666657,
+              "flops": 4133760778240,
+              "bytes": 108139802624,
+              "passes": 140
+            },
+            {
+              "seconds": 0.35340341930666663,
+              "flops": 4024999264256,
+              "bytes": 106021025792,
+              "passes": 140
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "measured_seconds_per_20_pages": {
+    "baseline": 97.8298561024014,
+    "optimized": 26.528298844606613
+  },
+  "assumptions": [
+    "Four full replicas; no tensor parallelism, quantization, precision changes or sparse weights.",
+    "FP32 vision/layout and dense BF16 language/embedding; peaks are sustained without launch gaps.",
+    "Free PDF rendering, crop transport, tokenization, Markdown assembly and host orchestration.",
+    "No startup, compilation, padding, activation traffic, normalization or sampling overhead.",
+    "One full decoder matrix-weight stream per GPU pass; no persistent weight residency in cache.",
+    "Read each sequence's KV once and write its verification positions; ideal reuse within the pass.",
+    "Attention includes QK and AV; causal useful triangles for language/embedding, full vision attention.",
+    "Every region is ready for the decoder; longest-first placement has advance-length foresight.",
+    "Embedding follows completed OCR for each PDF; PDFs are processed sequentially.",
+    "Advance 2 is an illustration; advance 5 requires every four-token draft to be accepted.",
+    "Lower envelope and phase estimate are different idealizations, not a confidence interval or measured speed."
+  ],
+  "input_sha256": {
+    "reports/baseline.json": "3c40950c68dc6b7d60240938cefc79585d9410beb90297f5079b5e8865232ff5",
+    "reports/optimized.json": "8f6f5ecdc6d91549e217d224a953b52e49b731e8b47d57ddbd599f8acd3747b3",
+    "reports/optimized-env.json": "97ec10d27e8041662af79db3ab88d8dd3ac8c780db8ca326ae0a31e104b0d24e",
+    "reports/provenance.json": "1a494ee500c3b0bc9619b23ad40f965d346f99036b03e9cabb7fc2b080583902",
+    "data/public-v3/manifest.json": "e9469700b2ffc835a5ca47f5aa90a9c146b2da10509a26ae8af15312d3e3567b",
+    "lab/model_limits.py": "4d7067b5ab9bc0b0fb55fc1206d558b42751b576bfa6e33e773fc7a54e8c25d2",
+    "document_pipeline/chunker.py": "e7f6d3d9115e858d99d6f9d68efdf44f34e564a321de6c57dd17f6f909e4f701",
+    "document_pipeline/embedders.py": "6fa6b857013fde393132d7961ceff035cbec91ed7761f9b9000808b878cf3d65",
+    "document_pipeline/config.py": "5fb35b7ad2a0200ca294e994caefba82315431bc7cc3c13d1eff2f3e0fa93845",
+    "document_pipeline/paddle_server.py": "472bc945397227e082d310a5aad86197a65db258785eac111f20ca1cb7e7ad9e",
+    "pipelines/optimized.py": "62a02adef5b795e4fa525d5f9bbced37daeb7a79d13eba96c0e4966609c47b08",
+    "engine/paddle_vllm_plugin/paddle_native_precision/model.py": "b224bb82bcfec4f72c1b6c75e7af858fb0c7c1f230318fcaaa1f02b01ebc97a3",
+    "models/PaddleOCR-VL-1.6/added_tokens.json": "f59f889088e0fe21c523e7cf121bb6dca3b0bb148cb7159fbb4572c74dfc5644",
+    "models/PaddleOCR-VL-1.6/special_tokens_map.json": "d3a125c03103deb2acaf7730791bdbbf196f620e5a2213b664511ff9b4b25bab",
+    "models/PaddleOCR-VL-1.6/tokenizer.json": "c8a215a59183d0d0781adc33bacd3ce6162716f7fd568fb30234a74d69803a7d",
+    "models/PaddleOCR-VL-1.6/tokenizer.model": "34ef7db83df785924fb83d7b887b6e822a031c56e15cff40aaf9b982988180df",
+    "models/PaddleOCR-VL-1.6/tokenizer_config.json": "1f979337347cc0cb72a6282d8a23ed183539aa81a87a906f022aee2bab83c7c5",
+    "models/Qwen3-Embedding-0.6B/tokenizer.json": "def76fb086971c7867b829c23a26261e38d9d74e02139253b38aeb9df8b4b50a",
+    "models/Qwen3-Embedding-0.6B/tokenizer_config.json": "253153d0738ceb4c668d2eff957714dd2bea0b56de772a9fdccd96cbf517e6a0",
+    "models/PaddleOCR-VL-1.6/config.json": "ce7f4565f8b1db78532ad5d1b9ebe55c2139d49bd4cb04778b580a08a598f171",
+    "models/Qwen3-Embedding-0.6B/config.json": "b5bf1f51fc45be473a54718cef92448d90a1be001bf9b9a44b8c7f10a19feaa9",
+    "runtime/vllm/model_executor/models/paddleocr_vl.py": "23f72162812919e051835fc5078c1408fe9db9893ab15cb934ca39b99479593d",
+    "runtime/vllm/model_executor/determinism/batch_invariant.py": "94e2f6453ad61dd085def8c95c64555b91fd8547e695fca3d530ae6a85b712b5",
+    "models/PP-DocLayoutV3/inference.json": "2b68367c5b312a03de5a6e1642c597c8f95165a7e40cd59c6700cf4a5042f4fd",
+    "results/revalidation/20261027-020444/baseline-stages.jsonl": "15dcad9193fa6516d5b0ef5955e8abf92f68c6049543bea0007deac8cc6b243c",
+    "results/revalidation/20261027-020444/optimized-stages.jsonl": "af41616668ca5826122bfb6fe617837ac0054eed0fa5df5fc8b372b4e125e484",
+    "data/public-v3/refs-vllm-batch4-invariant/earthquake-checklist-en.json": "8d5cfc52f1c591124b530a5a8bc86e485c21c9f7056521034c7cd5744d434afa",
+    "data/public-v3/pdfs/earthquake-checklist-en.pdf": "94d971783f310284fb98380a1b741323c26309ca44e53447f94c00c201fb6e1c",
+    "data/public-v3/refs-vllm-batch4-invariant/naca-seaplanes.json": "6a17922e061a6a50a8a7325113e8ec7d9891ca6f3ef9e85400e772ea5c34296f",
+    "data/public-v3/pdfs/naca-seaplanes.pdf": "f2d06b097f1ad3abcd758a8b808254628ff902498d180ee3e2a3b932553ad9c7",
+    "data/public-v3/refs-vllm-batch1-five/irs-w9.json": "18ccbfd7e7e316007355399292e83888a49ce8f1410e8edc7cb7039ce656e858",
+    "data/public-v3/pdfs/irs-w9.pdf": "a37e6bf8daf64bae290e4630637e36b115f533e1db68094eb168a028cee6edc9",
+    "data/public-v3/refs-vllm-batch1-five/census-income.json": "1d222d777bb7f352c3a986dec2ae00adc6cfbb48e7fa4eb2f30ba356d3b4950c",
+    "data/public-v3/pdfs/census-income.pdf": "46fe6b6a2da76706a3963e72eb630469e989f0651bfe81f89d9ed0c42d8f8dba",
+    "data/public-v3/refs-vllm-batch1-five/attention-paper.json": "e4dcab25facd8d481a02775fde0bb16eb93c83fd5defb84241295a8596a9b7fe",
+    "data/public-v3/pdfs/attention-paper.pdf": "549ae6f4858f4b9da495fb089f4bf02a0afd84adc696c2eb6f2cd61e5352db61"
+  },
+  "references": [
+    "https://www.nvidia.com/en-us/data-center/l4/",
+    "https://docs.nvidia.com/deeplearning/performance/dl-performance-gpu-background/index.html",
+    "https://huggingface.co/PaddlePaddle/PaddleOCR-VL-1.6/blob/c5630abae1d940eafe0697512a0325494b02ab42/config.json",
+    "https://huggingface.co/Qwen/Qwen3-Embedding-0.6B/blob/97b0c614be4d77ee51c0cef4e5f07c00f9eb65b3/config.json"
+  ]
+}
