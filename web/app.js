@@ -494,7 +494,8 @@ function runsSummaryTable(list) {
 function runs() {
   // Details are shared between variants only for this visit; Refresh reads fresh reports.
   runDetailRequests=new Map();
-  const list=state.runs;
+  // Verification reports remain available through their direct links, not as new experiments.
+  const list=state.runs.filter(run=>!run.path.startsWith('revalidation/'));
   const b=state.benchmark||{};
   const method=`Current benchmark: ${b.pdfs||'—'} frozen PDFs · ${b.pages||'—'} pages. Each PDF: ${b.warmup||1} warm-up excluded + ${b.repeats||5} measured calls. PDFs run sequentially.`;
   content.innerHTML=heading('Measurements','Experiment runs','Best measured p50 pinned first; remaining experiments newest first. Expand for controls, document timings and profiles.')+`<div class="benchmark-note"><strong>Fixed hardware</strong> ${esc(b.hardware_note||'4 NVIDIA L4 GPUs')}<p>${esc(method)}</p><p>Comparison baseline: vLLM batch 1. Batch invariance is enabled for current runs.</p></div>`+(list.length?`<div id="run-summary">${runsSummaryTable(list)}</div>`:`<div class="card">${empty('No matching runs yet','PDF sweep reports appear here automatically.','<a class="button" href="#/doc/pages/baseline">Set up the baseline →</a>')}</div>`);
