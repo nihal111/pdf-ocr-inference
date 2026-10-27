@@ -608,6 +608,7 @@ async function documentView(id,token) {
     (d.kind==='experiment'?`<div class="doc-meta">${badge(d.status||'planned')}<span>${esc(d.date)}</span>${links.join('')}</div>`:'')+
     `<div class="doc-layout ${d.id==='pages/pipeline'?'pipeline-doc-layout':''}"><article class="prose">${d.id==='pages/pipeline'?pipelineDiagram():''}${d.html}</article><aside class="toc" aria-label="On this page"><p>ON THIS PAGE</p><div id="toc-items"></div></aside></div>`;
   content.querySelectorAll('.prose table').forEach((table,index)=>{
+    if(table.querySelector('thead th')?.textContent.trim()==='PDF')table.classList.add('pdf-table');
     const wrapper=document.createElement('div');
     wrapper.className='table-wrap';wrapper.tabIndex=0;
     wrapper.setAttribute('role','region');wrapper.setAttribute('aria-label',`${d.title} · Table ${index+1}`);
