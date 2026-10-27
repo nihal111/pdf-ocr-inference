@@ -1,4 +1,4 @@
-"""Exercise the documented root-directory commands using a test-only adapter."""
+"""Exercise the documented eval/ commands from the repository root using a test-only adapter."""
 import json
 import os
 from pathlib import Path
@@ -7,7 +7,7 @@ import sys
 import tempfile
 import unittest
 
-ROOT = Path(__file__).resolve().parents[2]
+ROOT = Path(__file__).resolve().parents[1]
 
 
 class CommandLineTests(unittest.TestCase):

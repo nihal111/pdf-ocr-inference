@@ -32,8 +32,9 @@ relative to `--root data/public-v3`. All listed page counts were checked against
 the actual PDFs. References already exist and must not be overwritten.
 For a new reference capture, use a separate manifest with unused reference paths.
 
-Both measured variants expose `document_pipeline.adapter.embed_pdf`; their
-pipeline settings are selected by `DOCUMENT_PIPELINE_CONFIG`. Engine and precision
+Both measured variants expose `embed_pdf` through `pipelines.baseline` and
+`pipelines.optimized`, which pin the pipeline settings and client environment of the
+two measured runs. Each needs its own recognizer launch; see the root README. Engine and precision
 may differ between variants; hardware identity and sequential PDF concurrency
 must match. Set `CUDA_VISIBLE_DEVICES` to the assigned GPUs before running any
 inference, using the existing isolated project environments.

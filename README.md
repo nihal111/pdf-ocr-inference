@@ -89,13 +89,46 @@ The active OCR stage is **[PaddleOCR-VL-1.6](https://huggingface.co/PaddlePaddle
 | Chunk | Markdown blocks with a 512-token target and heading context |
 | Embed | [Qwen3-Embedding-0.6B](https://huggingface.co/Qwen/Qwen3-Embedding-0.6B), sentence-transformers, fp32, on GPU 0 |
 
-The evaluator calls `document_pipeline.adapter.embed_pdf(path)`. OCR bytes and chunk structure must match the reference exactly, and embedding cosine must be at least 0.99. The current evaluation uses five frozen PDFs (20 pages) and **one warm-up plus five measured calls per PDF**, sequentially. The evaluator pools the 25 measured full-PDF calls for p50/p95 and reports sequential pages/minute. Accepted speedups require matching hardware, dataset, references and settings. Results are never cached between calls.
+The evaluator calls `embed_pdf(path)` from `pipelines.baseline` or `pipelines.optimized`, both thin wrappers over `document_pipeline.adapter`. OCR bytes and chunk structure must match the reference exactly, and embedding cosine must be at least 0.99. The current evaluation uses five frozen PDFs (20 pages) and **one warm-up plus five measured calls per PDF**, sequentially. The evaluator pools the 25 measured full-PDF calls for p50/p95 and reports sequential pages/minute. Accepted speedups require matching hardware, dataset, references and settings. Results are never cached between calls.
 
 `embed_pdf` returns full-document `ocr_text` and a non-empty, ordered `chunks` list.
 Each chunk has a unique string `id` and a non-empty plain Python list of finite
 floats in `embedding`; all vectors have the same length. Missing files raise
 `FileNotFoundError`, and malformed PDFs raise `ValueError`. These input errors
 leave the pipeline ready for another call. See the [Python interface](docs/pages/pipeline.md#python-interface).
+
+### Baseline vs optimized with the evaluator
+
+`pipelines.baseline` and `pipelines.optimized` pin the two measured configurations
+(`vllm_batch_1` and `server_8_draft4_control`) and expose the same `embed_pdf`.
+`tests/test_pipelines.py` fails if either drifts from its experiment YAML. Each variant
+needs its own recognizer launch; stop the previous servers before starting the next.
+
+```bash
+source .venv/bin/activate
+export CUDA_VISIBLE_DEVICES=GPU-...,GPU-...,GPU-...,GPU-...   # the four assigned UUIDs
+python3 -m unittest discover -s eval/tests
+
+# Baseline recognizers: four requests per GPU, no speculation, no decoder tiles.
+python -m lab.paddle_servers --directory results/servers/baseline &   # wait for "Worker 3 healthy"
+python3 eval/capture_reference.py --module pipelines.baseline \
+  --manifest data/public-v3/manifest.json --root data/public-v3   # only if references are absent
+python3 eval/evaluate.py --module pipelines.baseline \
+  --manifest data/public-v3/manifest.json --root data/public-v3 --timeout 1800 \
+  --environment reports/baseline-env.json --out reports/baseline.json
+kill %1
+
+# Optimized recognizers: eight requests per GPU, four GPU n-gram drafts, fixed 32-row tiles.
+python -m lab.paddle_servers --directory results/servers/optimized \
+  --max-num-seqs 8 --ngram-tokens 4 --ngram-method ngram_gpu --decode-matmul-fixed32 &   # wait again
+python3 eval/evaluate.py --module pipelines.optimized \
+  --manifest data/public-v3/manifest.json --root data/public-v3 --timeout 1800 \
+  --environment reports/optimized-env.json --out reports/optimized.json
+kill %1
+
+python3 eval/compare.py --baseline reports/baseline.json \
+  --optimized reports/optimized.json --out reports/comparison.json
+```
 
 Paddle layout/parser runs in `.venv-paddle`, recognizer servers in `.venv-vllm`, and the parent/embedder in `.venv`. Keep these environments separate because their CUDA-library packages share filenames.
 
