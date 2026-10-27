@@ -1,0 +1,36 @@
+{
+  "purpose": "frozen-five-pdf-vllm-benchmark",
+  "selection": "Five small capped PDFs, with the Spanish checklist replaced by Attention Is All You Need at user request. This selection and its PDF bytes are frozen.",
+  "cases": [
+    {
+      "id": "earthquake-checklist-en",
+      "pdf": "pdfs/earthquake-checklist-en.pdf",
+      "reference": "refs-vllm-batch4-invariant/earthquake-checklist-en.json",
+      "pages": 2
+    },
+    {
+      "id": "naca-seaplanes",
+      "pdf": "pdfs/naca-seaplanes.pdf",
+      "reference": "refs-vllm-batch4-invariant/naca-seaplanes.json",
+      "pages": 3
+    },
+    {
+      "id": "irs-w9",
+      "pdf": "pdfs/irs-w9.pdf",
+      "reference": "refs-vllm-batch1-five/irs-w9.json",
+      "pages": 5
+    },
+    {
+      "id": "census-income",
+      "pdf": "pdfs/census-income.pdf",
+      "reference": "refs-vllm-batch1-five/census-income.json",
+      "pages": 5
+    },
+    {
+      "id": "attention-paper",
+      "pdf": "pdfs/attention-paper.pdf",
+      "reference": "refs-vllm-batch1-five/attention-paper.json",
+      "pages": 5
+    }
+  ]
+}

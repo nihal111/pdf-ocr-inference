@@ -1,0 +1,120 @@
+{
+  "dataset": "public-v3",
+  "sources": [
+    {
+      "id": "attention-paper",
+      "title": "Attention Is All You Need",
+      "source_page": "https://arxiv.org/abs/1706.03762",
+      "url": "https://arxiv.org/pdf/1706.03762",
+      "category": "Research paper: mathematics, figures, technical text",
+      "resolved_url": "https://arxiv.org/pdf/1706.03762",
+      "retrieved_at": "2026-10-26T03:24:04.344871+00:00",
+      "pdf": "pdfs/attention-paper.pdf",
+      "pdf_sha256": "549ae6f4858f4b9da495fb089f4bf02a0afd84adc696c2eb6f2cd61e5352db61",
+      "original_sha256": "bdfaa68d8984f0dc02beaca527b76f207d99b666d31d1da728ee0728182df697",
+      "bytes": 459024,
+      "original_pages": 15,
+      "selected_pages_1_based": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "full_document": false,
+      "selection_notes": "Selected source pages preserve text, figures and table layouts; no rasterization or rotation."
+    },
+    {
+      "id": "naca-seaplanes",
+      "title": "The estimation of maximum load capacity of seaplanes and flying boats",
+      "source_page": "https://ntrs.nasa.gov/citations/19930091528",
+      "url": "https://ntrs.nasa.gov/api/citations/19930091528/downloads/19930091528.pdf",
+      "category": "Historical printed scan: multi-column text, equations and graphs",
+      "resolved_url": "https://ntrs.nasa.gov/api/citations/19930091528/downloads/19930091528.pdf",
+      "retrieved_at": "2026-10-26T03:24:04.688493+00:00",
+      "pdf": "pdfs/naca-seaplanes.pdf",
+      "pdf_sha256": "f2d06b097f1ad3abcd758a8b808254628ff902498d180ee3e2a3b932553ad9c7",
+      "original_sha256": "f2d06b097f1ad3abcd758a8b808254628ff902498d180ee3e2a3b932553ad9c7",
+      "bytes": 274041,
+      "original_pages": 3,
+      "selected_pages_1_based": [
+        1,
+        2,
+        3
+      ],
+      "full_document": true,
+      "selection_notes": "Complete source PDF."
+    },
+    {
+      "id": "census-income",
+      "title": "Income in the United States: 2023",
+      "source_page": "https://www.census.gov/library/publications/2024/demo/p60-282.html",
+      "url": "https://www2.census.gov/library/publications/2024/demo/p60-282.pdf",
+      "category": "Statistical report: multi-column text and tables",
+      "resolved_url": "https://www2.census.gov/library/publications/2024/demo/p60-282.pdf",
+      "retrieved_at": "2026-10-26T03:24:04.365142+00:00",
+      "pdf": "pdfs/census-income.pdf",
+      "pdf_sha256": "46fe6b6a2da76706a3963e72eb630469e989f0651bfe81f89d9ed0c42d8f8dba",
+      "original_sha256": "e6cf145cb10b5d037f5e77fa199d2e558bfe24f76273f385e9767c2eabba1cbf",
+      "bytes": 166056,
+      "original_pages": 59,
+      "selected_pages_1_based": [
+        7,
+        8,
+        12,
+        13,
+        22
+      ],
+      "full_document": false,
+      "selection_notes": "Selected source pages preserve text, figures and table layouts; no rasterization or rotation."
+    },
+    {
+      "id": "irs-w9",
+      "title": "Form W-9",
+      "source_page": "https://www.irs.gov/forms-pubs/about-form-w-9",
+      "url": "https://www.irs.gov/pub/irs-pdf/fw9.pdf",
+      "category": "Blank form: fields, checkboxes, table-like layout",
+      "resolved_url": "https://www.irs.gov/pub/irs-pdf/fw9.pdf",
+      "retrieved_at": "2026-10-26T03:24:04.398535+00:00",
+      "pdf": "pdfs/irs-w9.pdf",
+      "pdf_sha256": "a37e6bf8daf64bae290e4630637e36b115f533e1db68094eb168a028cee6edc9",
+      "original_sha256": "2d420cbb4123dcf1fb82595b2359cfbb5d81f00b9df9d359fcc7af361d093f53",
+      "bytes": 69012,
+      "original_pages": 6,
+      "selected_pages_1_based": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "full_document": false,
+      "selection_notes": "Selected source pages preserve text, figures and table layouts; no rasterization or rotation."
+    },
+    {
+      "id": "earthquake-checklist-en",
+      "title": "Earthquake Preparedness Checklist \u2014 English",
+      "source_page": "https://www.redcross.org/get-help/how-to-prepare-for-emergencies/types-of-emergencies/earthquake.html",
+      "url": "https://www.redcross.org/content/dam/redcross/get-help/pdfs/earthquake/EN_Earthquake-Preparedness-Checklist.pdf",
+      "category": "Public safety checklist: columns, illustrations and short instructions",
+      "resolved_url": "https://www.redcross.org/content/dam/redcross/get-help/pdfs/earthquake/EN_Earthquake-Preparedness-Checklist.pdf",
+      "retrieved_at": "2026-10-26T03:38:50.154691+00:00",
+      "pdf": "pdfs/earthquake-checklist-en.pdf",
+      "pdf_sha256": "94d971783f310284fb98380a1b741323c26309ca44e53447f94c00c201fb6e1c",
+      "original_sha256": "94d971783f310284fb98380a1b741323c26309ca44e53447f94c00c201fb6e1c",
+      "bytes": 167850,
+      "original_pages": 2,
+      "selected_pages_1_based": [
+        1,
+        2
+      ],
+      "full_document": true,
+      "selection_notes": "Complete source PDF."
+    }
+  ],
+  "selected_documents": 5,
+  "selected_pages": 20,
+  "maximum_pages_per_document": 5,
+  "selection_method": "At most five source pages per document, copied with pypdfium2 without rasterization, scaling or rotation.",
+  "frozen_at": "2026-10-26T08:10:14.873574+00:00"
+}

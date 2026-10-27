@@ -1,0 +1,92 @@
+{
+  "frozen_at": "2026-10-26T08:10:14.873574+00:00",
+  "pdf_count": 5,
+  "page_count": 20,
+  "page_cap": 5,
+  "selection": "Five small capped PDFs, with the Spanish checklist replaced by Attention Is All You Need at user request. This selection and its PDF bytes are frozen.",
+  "pdfs": [
+    {
+      "id": "earthquake-checklist-en",
+      "pdf": "pdfs/earthquake-checklist-en.pdf",
+      "reference": "refs-vllm-batch4-invariant/earthquake-checklist-en.json",
+      "pages": 2,
+      "sha256": "94d971783f310284fb98380a1b741323c26309ca44e53447f94c00c201fb6e1c"
+    },
+    {
+      "id": "naca-seaplanes",
+      "pdf": "pdfs/naca-seaplanes.pdf",
+      "reference": "refs-vllm-batch4-invariant/naca-seaplanes.json",
+      "pages": 3,
+      "sha256": "f2d06b097f1ad3abcd758a8b808254628ff902498d180ee3e2a3b932553ad9c7"
+    },
+    {
+      "id": "irs-w9",
+      "pdf": "pdfs/irs-w9.pdf",
+      "reference": "refs-vllm-batch1-five/irs-w9.json",
+      "pages": 5,
+      "sha256": "a37e6bf8daf64bae290e4630637e36b115f533e1db68094eb168a028cee6edc9"
+    },
+    {
+      "id": "census-income",
+      "pdf": "pdfs/census-income.pdf",
+      "reference": "refs-vllm-batch1-five/census-income.json",
+      "pages": 5,
+      "sha256": "46fe6b6a2da76706a3963e72eb630469e989f0651bfe81f89d9ed0c42d8f8dba"
+    },
+    {
+      "id": "attention-paper",
+      "pdf": "pdfs/attention-paper.pdf",
+      "reference": "refs-vllm-batch1-five/attention-paper.json",
+      "pages": 5,
+      "sha256": "549ae6f4858f4b9da495fb089f4bf02a0afd84adc696c2eb6f2cd61e5352db61"
+    }
+  ],
+  "references": [
+    {
+      "id": "earthquake-checklist-en",
+      "path": "refs-vllm-batch4-invariant/earthquake-checklist-en.json",
+      "sha256": "8d5cfc52f1c591124b530a5a8bc86e485c21c9f7056521034c7cd5744d434afa"
+    },
+    {
+      "id": "naca-seaplanes",
+      "path": "refs-vllm-batch4-invariant/naca-seaplanes.json",
+      "sha256": "6a17922e061a6a50a8a7325113e8ec7d9891ca6f3ef9e85400e772ea5c34296f"
+    },
+    {
+      "id": "irs-w9",
+      "path": "refs-vllm-batch1-five/irs-w9.json",
+      "sha256": "18ccbfd7e7e316007355399292e83888a49ce8f1410e8edc7cb7039ce656e858"
+    },
+    {
+      "id": "census-income",
+      "path": "refs-vllm-batch1-five/census-income.json",
+      "sha256": "1d222d777bb7f352c3a986dec2ae00adc6cfbb48e7fa4eb2f30ba356d3b4950c"
+    },
+    {
+      "id": "attention-paper",
+      "path": "refs-vllm-batch1-five/attention-paper.json",
+      "sha256": "e4dcab25facd8d481a02775fde0bb16eb93c83fd5defb84241295a8596a9b7fe"
+    }
+  ],
+  "manifest_sha256": "e9469700b2ffc835a5ca47f5aa90a9c146b2da10509a26ae8af15312d3e3567b",
+  "reference_serialization": {
+    "updated_at": "2026-10-27T02:04:44.698120+00:00",
+    "change": "Whitespace-only compact JSON for files over 1 MB; OCR, chunk IDs and embedding float values unchanged. No reference recapture.",
+    "files": [
+      {
+        "id": "irs-w9",
+        "old_sha256": "a8b194038bdcf02d74845a51fdab1198dc4cdfc1755c1be4bea95a272a97f29b",
+        "new_sha256": "18ccbfd7e7e316007355399292e83888a49ce8f1410e8edc7cb7039ce656e858",
+        "old_bytes": 1187740,
+        "new_bytes": 845515
+      },
+      {
+        "id": "census-income",
+        "old_sha256": "4b6fa34cc5a5fe1390f752d7c7f3b02003c0438d38d25942509060f1d1addb7a",
+        "new_sha256": "1d222d777bb7f352c3a986dec2ae00adc6cfbb48e7fa4eb2f30ba356d3b4950c",
+        "old_bytes": 1359597,
+        "new_bytes": 971127
+      }
+    ]
+  }
+}
