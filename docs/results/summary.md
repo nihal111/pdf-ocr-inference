@@ -11,9 +11,15 @@ then came from sharing recognition work across GPUs and reducing decoder cost.
 
 | Eval metric | vLLM batch-1 baseline | Retained configuration | Speedup |
 | --- | ---: | ---: | ---: |
-| Full-PDF p50 | 15.08 s | **2.23 s** | **6.77×** |
-| Full-PDF p95 | 36.39 s | **12.40 s** | **2.93×** |
-| Pages/minute | 12.19 | **46.12** | **3.78×** |
+| Full-PDF p50 | 15.10 s | **2.34 s** | **6.44×** |
+| Full-PDF p95 | 36.11 s | **12.41 s** | **2.91×** |
+| Pages/minute | 12.27 | **45.23** | **3.69×** |
+
+Both variants were rerun on 2026-10-27 from clean revision `12f9cf6` and
+passed all 30 calls each against the existing references; no recapture was needed.
+Time-to-first-result was **41.40 s baseline / 131.34 s optimized**. This includes
+client startup and the first warm-up, but excludes recognizer-server startup.
+[Fresh paired evaluation](#/run/a6e67f74fcdf9cbbf963).
 
 **Five frozen PDFs / 20 pages; four L4 GPUs; one warm-up plus five measured calls
 per PDF.** Eval pools 25 measured calls. OCR and ordered chunks must match frozen
@@ -100,8 +106,9 @@ Profiler repairs kept instrumented calls separate from benchmark samples.
 [Token-dependent tile selection](#/doc/experiments/021-decoder-matrix-tiles) initially
 changed only the vocabulary head: compilation froze the decoder's larger tiles.
 Fixed 32-row tiles reached the intended operations. Compilation also made cold
-starts expensive: the latest 442-second suite included a 250-second first warm-up.
-The gains describe warmed-up workers, not faster cold starts.
+starts expensive: an earlier 442-second suite included a 250-second first warm-up.
+The fresh time-to-first-result observations are reported above; the latency and
+throughput gains describe warmed-up workers.
 
 | Trial | What we learned |
 | --- | --- |
@@ -117,4 +124,4 @@ bounds, not measured speedups.
 [Calculation details](#/doc/pages/theoretical-limits).
 
 The final configuration passed the frozen-reference checks and delivered a
-**6.77× p50 speedup** on the five-PDF benchmark, using the same four L4 GPUs.
+**6.44× p50 speedup** on the five-PDF benchmark, using the same four L4 GPUs.

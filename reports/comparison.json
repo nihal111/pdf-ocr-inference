@@ -1,21 +1,21 @@
 {
   "pass": true,
-  "dataset_sha256": "8f85a3aa64b8f85b571d5e2137af1bc37dc048a9c34e116375a6578581e26dea",
+  "dataset_sha256": "2a97f509e4d12c88250fda8be6532cd7406c84d6635cfb12367e21ab548b62c6",
   "metrics": {
     "p50_ms": {
-      "baseline": 15083.373098052107,
-      "optimized": 2228.553292923607,
-      "speedup": 6.768235314787759
+      "baseline": 15102.166450000368,
+      "optimized": 2344.4195949705318,
+      "speedup": 6.441750650096488
     },
     "p95_ms": {
-      "baseline": 36390.45744051691,
-      "optimized": 12402.371777663939,
-      "speedup": 2.934153087238873
+      "baseline": 36112.0400874177,
+      "optimized": 12411.389366118237,
+      "speedup": 2.9095888479656997
     },
     "pages_per_minute_sequential": {
-      "baseline": 12.192731911762852,
-      "optimized": 46.12181978413683,
-      "speedup": 3.7827305740759485
+      "baseline": 12.266194061901968,
+      "optimized": 45.234713579983975,
+      "speedup": 3.6877546003026453
     }
   }
 }

@@ -1,32 +1,118 @@
 {
-  "exported_at": "2026-10-26T17:00:06+00:00",
-  "measurement_status": "Previously accepted measurements; no new GPU timing run.",
+  "exported_at": "2026-10-27T02:41:01+00:00",
+  "measurement_status": "New GPU timing runs of both pinned pipeline modules from a clean local clone.",
+  "source_revision": "12f9cf6b67404c67bff68fb2e9790548b99c5aa7",
+  "eval_tree": "89ad471934a8e7094a275fa42ffc12021090603a",
+  "clean_clone": ".site/revalidation-clone-20261027-020444",
   "sources": {
     "baseline": {
-      "path": "results/paddleocr_vllm_five_pdf_eval/20261026-081822/vllm_batch_1.json",
-      "sha256": "a88283940e92536be3e2feaba66a96123605789719f4e95114732d8b748d32a5",
-      "module": "document_pipeline.adapter",
-      "source_revision": "4d56ea6-dirty",
+      "path": "results/revalidation/20261027-020444/baseline.json",
+      "sha256": "3c40950c68dc6b7d60240938cefc79585d9410beb90297f5079b5e8865232ff5",
+      "module": "pipelines.baseline",
+      "source_revision": "12f9cf6",
       "configuration": {
-        "module": "document_pipeline.adapter",
+        "module": "pipelines.baseline",
         "warmup_per_case": 1,
         "repeats_per_case": 5,
         "minimum_cosine": 0.99,
         "timeout_seconds": 1800.0
+      },
+      "created_at": "2026-10-27T02:32:34.378350+00:00"
+    },
+    "optimized": {
+      "path": "results/revalidation/20261027-020444/optimized.json",
+      "sha256": "8f6f5ecdc6d91549e217d224a953b52e49b731e8b47d57ddbd599f8acd3747b3",
+      "module": "pipelines.optimized",
+      "source_revision": "12f9cf6",
+      "configuration": {
+        "module": "pipelines.optimized",
+        "warmup_per_case": 1,
+        "repeats_per_case": 5,
+        "minimum_cosine": 0.99,
+        "timeout_seconds": 1800.0
+      },
+      "created_at": "2026-10-27T02:40:27.354489+00:00"
+    }
+  },
+  "baseline_self_check": {
+    "pass": true,
+    "cases": 5,
+    "calls": 30,
+    "references_recaptured": false
+  },
+  "dataset": {
+    "manifest": "data/public-v3/manifest.json",
+    "dataset_sha256": "2a97f509e4d12c88250fda8be6532cd7406c84d6635cfb12367e21ab548b62c6",
+    "pdf_count": 5,
+    "page_count": 20,
+    "reference_values_unchanged": true,
+    "reference_serialization": [
+      {
+        "id": "irs-w9",
+        "old_sha256": "a8b194038bdcf02d74845a51fdab1198dc4cdfc1755c1be4bea95a272a97f29b",
+        "new_sha256": "18ccbfd7e7e316007355399292e83888a49ce8f1410e8edc7cb7039ce656e858",
+        "old_bytes": 1187740,
+        "new_bytes": 845515
+      },
+      {
+        "id": "census-income",
+        "old_sha256": "4b6fa34cc5a5fe1390f752d7c7f3b02003c0438d38d25942509060f1d1addb7a",
+        "new_sha256": "1d222d777bb7f352c3a986dec2ae00adc6cfbb48e7fa4eb2f30ba356d3b4950c",
+        "old_bytes": 1359597,
+        "new_bytes": 971127
+      }
+    ]
+  },
+  "time_to_first_result_ms": {
+    "baseline": 41398.90191005543,
+    "optimized": 131343.6623220332
+  },
+  "previous_measurements": {
+    "baseline": {
+      "created_at": "2026-10-26T08:28:39.911067+00:00",
+      "sha256": "a88283940e92536be3e2feaba66a96123605789719f4e95114732d8b748d32a5",
+      "source_revision": "4d56ea6-dirty",
+      "summary": {
+        "p50_ms": 15083.373098052107,
+        "p95_ms": 36390.45744051691,
+        "pages_per_minute_sequential": 12.192731911762852,
+        "passing_cases": 5,
+        "total_cases": 5,
+        "measured_samples": 25,
+        "comparable": true
+      },
+      "cold_start": {
+        "worker_startup_ms": 17310.064985067584,
+        "process_to_first_result_ms": 30666.45121201873
       }
     },
     "optimized": {
-      "path": "results/paddleocr_vllm_six_request_tiles/20261026-150343/server_8_draft4_control.json",
+      "created_at": "2026-10-26T15:11:07.207247+00:00",
       "sha256": "6314a448e4fea25c5918fc70a04f5f9fd6d37162ed85a18a891a5ac923cd9574",
-      "module": "document_pipeline.adapter",
       "source_revision": "bf120cf-dirty",
-      "configuration": {
-        "module": "document_pipeline.adapter",
-        "warmup_per_case": 1,
-        "repeats_per_case": 5,
-        "minimum_cosine": 0.99,
-        "timeout_seconds": 1800.0
+      "summary": {
+        "p50_ms": 2228.553292923607,
+        "p95_ms": 12402.371777663939,
+        "pages_per_minute_sequential": 46.12181978413683,
+        "passing_cases": 5,
+        "total_cases": 5,
+        "measured_samples": 25,
+        "comparable": true
+      },
+      "cold_start": {
+        "worker_startup_ms": 22909.713080036454,
+        "process_to_first_result_ms": 272506.2797720311
       }
+    }
+  },
+  "validation": {
+    "targeted_pytest": "33 passed, 8 subtests passed",
+    "evaluator_unittest": "36 passed",
+    "eval_source_unchanged": true,
+    "fresh_clone_evaluator": true,
+    "recognition_eos_completions": {
+      "baseline": 2790,
+      "optimized": 2790
     }
   }
 }

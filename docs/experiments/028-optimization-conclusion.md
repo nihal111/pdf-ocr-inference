@@ -3,25 +3,36 @@ title: Optimization sweep · Retained configuration and plateau
 description: The validated gains, the configuration to keep, and why the latest trials ended this sweep.
 order: 28
 status: passed
-date: 2026-10-26
-run: paddleocr_vllm_six_request_tiles/20261026-150343
+date: 2026-10-27
+run: revalidation/20261027-020444
 profile: profiles/20261026-143036-naca-seaplanes-PaddleOCR-VL-1.6-vLLM-Render-pages-inside-OCR-workers-c911f4
 ---
 
 ## Result
 
-The latest full evaluation of the retained configuration passed at **2.229 s p50**,
-**12.402 s p95** and **46.122 pages/min**. Versus the original vLLM batch 1
-baseline, these are **6.77× p50 speedup (+576.8%)**, **2.93× p95 speedup** and
-**3.78× throughput**. The original baseline remains the comparison anchor.
+The 2026-10-27 revalidation of both pinned pipeline modules passed all 30 calls per
+variant at clean source revision `12f9cf6`. The retained configuration measured
+**2.344 s p50**, **12.411 s p95** and
+**45.235 pages/min**. Against the freshly measured
+baseline (15.102 s p50, 36.112 s p95,
+12.266 pages/min), that is
+**6.44× p50 speedup (+544.2%)**,
+**2.91× p95 speedup** and **3.69× throughput**.
 
-Identical retained-configuration evaluations measured p50 between 2.229 and
-2.271 s. Treat small differences within that range as repeat variation, not a
-new optimization. The latest suite took 442.4 s, including a 249.6 s first warm-up;
-compiler startup varies and is excluded from pooled latency and throughput.
+The baseline passed the existing references: OCR bytes, ordered chunk IDs and
+embedding cosine. No references were recaptured, and evaluator code and thresholds
+were unchanged. Compact serialization of two reference files preserved all values
+while bringing each shipped file below 1 MB.
 
-All measurements use the same five frozen PDFs / 20 pages, four L4 GPUs, and one
-warm-up plus five measured calls per PDF. Each report pools 25 full-PDF measured
+Time-to-first-result was **41.399 s baseline** and **131.344 s optimized**, including
+client model loading and the first warm-up, excluding recognizer-server startup.
+These are single startup observations; compilation and cache state can affect them.
+Warm-call percentiles exclude startup and warm-up. Earlier identical retained-config
+runs measured p50 between 2.229 and 2.271 s; the new measurements revalidate current
+code rather than introduce another optimization.
+
+All measurements use the same five frozen PDFs / 20 pages, four L4 GPUs, one
+warm-up and five measured calls per PDF, sequentially. Each report pools 25 measured
 calls. Frozen OCR and ordered chunks must match; embedding cosine must be at least
 0.99, and every recognition region must finish with EOS.
 
@@ -35,15 +46,20 @@ calls. Frozen OCR and ordered chunks must match; embedding cosine must be at lea
 - Render at the existing 150 DPI inside OCR page workers, preserving exact pixels.
 - BF16 compiled embeddings in 16-chunk batches, replicated across all four GPUs; restore original chunk order after embedding.
 
-The [latest verification](#/run/b75edaea6a9b5182a677)
-contains the expanded pipeline, actual server commands, source hashes, raw reports,
-per-call stage data and placement/EOS audits. The [retained configuration profile](#/profile/7195172c30ec973339d4)
-records ordinary calls separately from the bounded instrumented capture.
+The [fresh paired verification](#/run/a6e67f74fcdf9cbbf963)
+contains the pipeline configurations, source hashes, raw reports and per-call
+stage data. Launch commands and environment exports are recorded with the run.
+The [retained configuration profile](#/profile/7195172c30ec973339d4) is the original
+October 26 diagnostic; it records ordinary calls separately from the bounded
+instrumented capture. Historical runs and profiles remain linked to their original
+measurements.
 
 ## Measured progression
 
-These are saved full-evaluation results, not stage-only estimates. Incremental
-tradeoffs and fresh-control comparisons are recorded in each experiment's notes.
+These are saved full-evaluation results, not stage-only estimates. Historical
+rows preserve the original tuning measurements. The last two rows are the new
+paired revalidation used for the headline speedups above. Incremental tradeoffs
+and fresh-control comparisons are recorded in each experiment's notes.
 
 | Configuration | Pooled p50 | Pooled p95 | Pages/min |
 | --- | ---: | ---: | ---: |
@@ -57,7 +73,9 @@ tradeoffs and fresh-control comparisons are recorded in each experiment's notes.
 | [Fixed 32-row decoder tiles](#/run/81ce12032be0a1d87ff4/decoder_tiles_fixed32) | 2.528 s | 12.890 s | 43.697 |
 | [Embedding across four GPUs](#/run/901be5b3884c7556a3dd/embedding_four_gpus) | 2.331 s | 12.379 s | 45.627 |
 | [Rendering inside OCR workers](#/run/40e811453ad54f72d35a/render_in_page_workers) | 2.271 s | 12.362 s | 45.802 |
-| [Latest identical retained-config control](#/run/b75edaea6a9b5182a677/server_8_draft4_control) | 2.229 s | 12.402 s | 46.122 |
+| [Earlier identical retained-config control](#/run/b75edaea6a9b5182a677/server_8_draft4_control) | 2.229 s | 12.402 s | 46.122 |
+| [Fresh baseline revalidation](#/run/a6e67f74fcdf9cbbf963/baseline) | 15.102 s | 36.112 s | 12.266 |
+| [Fresh retained-config revalidation](#/run/a6e67f74fcdf9cbbf963/optimized) | 2.344 s | 12.411 s | 45.235 |
 
 ## Why this sweep stopped
 
@@ -78,5 +96,5 @@ result is not explained by the option silently failing to take effect.
 This ends the measured tuning sweep; it does not prove a hardware limit.
 Rendering/OCR still accounts for about 94% of NACA wall time. One-second GPU busy
 samples and bounded kernel traces do not establish peak compute or bandwidth
-saturation. A later sweep would need a new concrete hypothesis and the same frozen
-checks, rather than promoting these marginal or regressing variants.
+saturation. The retained configuration closes this sweep with a passing fresh
+paired evaluation; the marginal or regressing alternatives were not promoted.
