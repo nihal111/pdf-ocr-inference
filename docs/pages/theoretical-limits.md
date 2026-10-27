@@ -4,11 +4,30 @@ description: Model size, token workload and ideal conversion time on four L4 GPU
 order: 7
 ---
 
-**The model-based limit is several seconds for the entire 20-page corpus.** With the benchmark's one-PDF-at-a-time rule, idealized conversion takes about **14–16 seconds with ordinary decoding**, or **4.4–5.4 seconds if every four-token speculative draft succeeds**. Admitting all five PDFs together reduces those estimates to **8.9–11.3 seconds** and **2.7–4.5 seconds**, respectively. These are conditional calculations, not measured results or a guarantee that the current implementation can reach them.
+**Our optimized reference takes 26.53 seconds to process all five PDFs serially: 20 pages in, 136 chunk embeddings out, with warm models.** This is one pass through the whole dataset, not one PDF and not all benchmark repetitions. We average the five measured calls for each PDF, then add those five averages.
 
-The current optimized pipeline takes **26.53 seconds** to process the corpus once, using the sum of the five mean measured PDF latencies. The baseline takes **97.83 seconds**. This page estimates how much of that time the models themselves require, rather than extrapolating from measured stage percentages.
+The theoretical calculations below cover that same five-PDF serial workload. They give about **14–16 seconds with ordinary decoding**, or **4.4–5.4 seconds if every four-token speculative draft succeeds**. These are conditional idealizations, not measured results or a guarantee that the implementation can reach them. The baseline's measured time for the same workload is **97.83 seconds**.
 
-Scope: **five frozen PDFs, 20 pages, four NVIDIA L4 GPUs, warm models**, from raw PDF input to all **136 chunk embeddings**. We first retain the benchmark's sequential PDF calls, then remove that scheduling restriction. Startup and compilation are excluded. The benchmark's five measured repetitions estimate each PDF's latency; we count the corpus only once here. Measurements come from the **2026-10-27 revalidation of revision `12f9cf6`**. [Calculation and input hashes](/artifact?path=analysis/model-limits-20261027.json).
+Scope: **five frozen PDFs, 20 pages, four NVIDIA L4 GPUs, warm models, one PDF at a time**, from raw PDF input to all **136 chunk embeddings**. Startup and compilation are excluded. The benchmark's five measured repetitions estimate each PDF's latency; we count the corpus only once here. Measurements come from the **2026-10-27 revalidation of revision `12f9cf6`**. [Calculation and input hashes](/artifact?path=analysis/model-limits-20261027.json).
+
+## Theoretical versus measured: all five PDFs, processed serially
+
+The measured column uses our retained optimized configuration, `pipelines.optimized`, from the [current reference report](/artifact?path=revalidation/20261027-020444/optimized.json). **Every number below is in seconds for all five PDFs combined.**
+
+Both theoretical columns in this table assume **perfect four-draft acceptance and peak GPU service**. The **optimistic minimum** allows independent GPU work to overlap perfectly. The **stage-by-stage ideal** adds the modeled stages' ideal service times. They are two best-case calculations, not a best/worst-case range.
+
+| Stage, all five PDFs serially | Measured optimized reference | Optimistic minimum | Stage-by-stage ideal |
+| --- | ---: | ---: | ---: |
+| Prepare PDFs | 0.004 | 0, assumed | 0, assumed |
+| Render pages + OCR | **25.764** | **4.289** | **5.344** |
+| Chunk the Markdown | 0.122 | 0, assumed | 0, assumed |
+| Embed all 136 chunks | **0.633** | **0.081** | **0.081** |
+| Other call overhead | 0.005 | 0, assumed | 0, assumed |
+| **Entire five-PDF workload** | **26.528** | **4.371** | **5.425** |
+
+**Rendering/OCR accounts for nearly all of the measured gap.** Its measured interval includes rendering, layout detection, vision encoding, prompt processing, token generation, transport and OCR postprocessing. The saved reference does not time those components separately, so we compare their combined modeled cost with the combined measured interval. Embedding has its own measured interval.
+
+Zero preparation, chunking and other overhead are assumptions of the ideal model, not claims that those operations can literally take no time. The measured total includes the small difference between evaluator call time and the named stage intervals. Actual draft acceptance is not assumed to be perfect; the ordinary-decoding and two-token-progress scenarios appear below.
 
 ## What is actually running?
 
@@ -104,6 +123,8 @@ Four speculative drafts allow **at most five output tokens of progress per verif
 
 We count a multiply-add as two FLOPs. Linear layers cost `2 × parameters × input positions`. Vision attention includes both attention matrix products over every crop's patches; language and embedding attention count their useful causal triangles.
 
+This table breaks down the **modeled GPU work**. The first four rows belong to the single measured rendering/OCR interval in the comparison above; they are not separately measured reference timings.
+
 | Stage, entire 20-page corpus | Counted work | Ideal four-GPU arithmetic time |
 | --- | ---: | ---: |
 | Page layout | 3.55 TFLOP | 0.029 s at FP32 |
@@ -137,45 +158,31 @@ This includes attention omitted by a simple `2 × parameters × tokens` estimate
 
 ## Putting the pipeline together
 
-We calculate two idealizations for each PDF, then sum across the five sequential PDFs:
+We calculate two idealizations for each PDF, then sum across the five sequential PDFs. **Every total in this section is the time to finish all five PDFs, one after another.**
 
-- **Lower envelope:** the largest of the aggregate FP32 work, aggregate BF16 work, or the longest individual region's layout → vision → prefill → decode chain; then add the embedding arithmetic time. This allows perfect overlap and redistribution of independent work.
-- **Phase estimate:** add ideal layout, vision, prefill, decoding and embedding times. Decoding uses an explicit longest-first allocation across **four GPUs × eight slots**, with each pass taking `max(bytes / bandwidth, FLOPs / compute)`. Layout uses whole-page waves; vision, prefill and embedding assume perfectly balanced work.
+- **Optimistic minimum:** a best-case lower bound for the counted work, assuming independent work can overlap perfectly. For each PDF, take the largest time required by aggregate FP32 work, aggregate BF16 work, or the longest individual region's layout → vision → prefill → decode chain; then add the embedding arithmetic time.
+- **Stage-by-stage estimate:** add ideal layout, vision, prefill, decoding and embedding times. Decoding uses an explicit longest-first allocation across **four GPUs × eight slots**, with each pass taking `max(bytes / bandwidth, FLOPs / compute)`. Layout uses whole-page waves; vision, prefill and embedding assume perfectly balanced work.
 
-| Decoding assumption | Lower envelope | Phase estimate |
+| Decoding assumption | Optimistic minimum | Stage-by-stage estimate |
 | --- | ---: | ---: |
 | Ordinary one-token decoding | **14.05 s** | **15.84 s** |
 | Two output tokens per verification of up to five positions | **7.73 s** | **9.33 s** |
 | Perfect four-draft acceptance: five output tokens per verification | **4.37 s** | **5.42 s** |
-| **Measured optimized pipeline** | | **26.53 s** |
 
-The two columns are **not a confidence interval or a proven bracket on the true optimum**. They expose the effect of overlap versus separate stage service times under the stated traffic model. The phase estimate still omits real work, and the lower envelope assumes more flexible scheduling than the implementation provides.
+Both columns assume ideal conditions. **The optimistic minimum is not a predicted achievable runtime, and the stage-by-stage estimate is not a worst case.** The first allows perfect overlap; the second adds the ideal stage times for a specific schedule. Both omit real overheads, so the two values do not form a guaranteed range for actual runtime.
 
-The per-document phase estimate shows why the Census table matters:
+The per-document comparison shows how the theoretical estimates and the measured **26.53-second serial total** are assembled:
 
-| PDF | Ordinary decode | Two-token progress | Perfect five-token progress |
-| --- | ---: | ---: | ---: |
-| Earthquake checklist | 0.81 s | 0.66 s | 0.58 s |
-| NACA seaplanes | 1.08 s | 0.73 s | 0.53 s |
-| IRS W-9 | 4.07 s | 2.57 s | 1.68 s |
-| Census income | 8.91 s | 4.67 s | 2.13 s |
-| Attention paper | 0.98 s | 0.68 s | 0.51 s |
+| PDF | Ideal: ordinary decode | Ideal: two-token progress | Ideal: perfect five-token progress | Measured optimized mean |
+| --- | ---: | ---: | ---: | ---: |
+| Earthquake checklist | 0.81 s | 0.66 s | 0.58 s | 1.84 s |
+| NACA seaplanes | 1.08 s | 0.73 s | 0.53 s | 2.36 s |
+| IRS W-9 | 4.07 s | 2.57 s | 1.68 s | 7.68 s |
+| Census income | 8.91 s | 4.67 s | 2.13 s | 12.36 s |
+| Attention paper | 0.98 s | 0.68 s | 0.51 s | 2.29 s |
+| **All five PDFs, serially** | **15.84 s** | **9.33 s** | **5.42 s** | **26.53 s** |
 
 Under the benchmark protocol, approximately **five seconds requires perfect speculation and ideal GPU service**. Hardware utilization alone does not justify that prediction. Without speculative progress, the same corpus remains around **14–16 seconds** even in this idealization.
-
-## Removing the sequential-PDF restriction
-
-If the objective is simply to finish all 20 pages as quickly as possible, we can also admit all five PDFs together. This gives the four GPUs more independent regions to process while a long table is decoding. Repeating the same calculation with one shared pool of **465 regions**, followed by embedding all chunks, gives:
-
-| Decoding assumption | Lower envelope | Phase estimate |
-| --- | ---: | ---: |
-| Ordinary one-token decoding | **8.90 s** | **11.33 s** |
-| Two output tokens per verification | **4.67 s** | **7.06 s** |
-| Perfect four-draft acceptance | **2.70 s** | **4.50 s** |
-
-This is a hypothetical corpus-batching change, not a measured improvement to the evaluator. It shows why **about 3–5 seconds is an extremely optimistic estimate for processing the corpus together**: it requires perfect speculative acceptance, balanced independent work, peak hardware service, and free non-model work. With ordinary decoding, the single Census table still sets roughly a nine-second floor in this traffic model.
-
-These conclusions retain the current precision and four-replica design. Splitting one decoder across GPUs, changing precision, or replacing the models would require a different calculation. We never divide a single sequence's latency by four or assume that all GPUs can stay equally busy through its final tokens.
 
 ## Evidence and reproduction
 

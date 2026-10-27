@@ -657,6 +657,13 @@
         "greedy_decode": 1334438412288
       },
       "measured_mean_call_seconds": 1.835629698028788,
+      "measured_mean_stage_seconds": {
+        "prepare PDF": 0.001093880389817059,
+        "render + OCR": 1.7456199215957895,
+        "chunk": 0.012162613193504512,
+        "embed": 0.07587107319850475
+      },
+      "measured_other_seconds": 0.0008822096511722499,
       "measured_longest_region_submission_batches": [
         {
           "elapsed_seconds": 1.670593858929351,
@@ -1020,6 +1027,13 @@
         "greedy_decode": 2847665668096
       },
       "measured_mean_call_seconds": 2.3644757280126214,
+      "measured_mean_stage_seconds": {
+        "prepare PDF": 0.0008149133762344718,
+        "render + OCR": 2.223713515000418,
+        "chunk": 0.020138046168722213,
+        "embed": 0.11882068102713675
+      },
+      "measured_other_seconds": 0.0009885724401099694,
       "measured_longest_region_submission_batches": [
         {
           "elapsed_seconds": 1.88780245592352,
@@ -1839,6 +1853,13 @@
         "greedy_decode": 6936725061632
       },
       "measured_mean_call_seconds": 7.677079052221961,
+      "measured_mean_stage_seconds": {
+        "prepare PDF": 0.0007369732018560171,
+        "render + OCR": 7.481701731402427,
+        "chunk": 0.030413143592886625,
+        "embed": 0.16299248000141234
+      },
+      "measured_other_seconds": 0.0012347240233792078,
       "measured_longest_region_submission_batches": [
         {
           "elapsed_seconds": 7.113883430953138,
@@ -2119,6 +2140,13 @@
         "greedy_decode": 6468503240704
       },
       "measured_mean_call_seconds": 12.357023713970557,
+      "measured_mean_stage_seconds": {
+        "prepare PDF": 0.0007424922194331884,
+        "render + OCR": 12.10320580464322,
+        "chunk": 0.04766013259068132,
+        "embed": 0.20428598038852214
+      },
+      "measured_other_seconds": 0.0011293041286997152,
       "measured_longest_region_submission_batches": [
         {
           "elapsed_seconds": 10.56221694604028,
@@ -2455,6 +2483,13 @@
         "greedy_decode": 2781109731328
       },
       "measured_mean_call_seconds": 2.294090652372688,
+      "measured_mean_stage_seconds": {
+        "prepare PDF": 0.0007379288086667657,
+        "render + OCR": 2.2101380391977727,
+        "chunk": 0.011505819973535836,
+        "embed": 0.07092411341145635
+      },
+      "measured_other_seconds": 0.0007847509812561881,
       "measured_longest_region_submission_batches": [
         {
           "elapsed_seconds": 1.7223416389897466,
@@ -2492,8 +2527,8 @@
       "cases": [
         {
           "id": "earthquake-checklist-en",
-          "lower_envelope_seconds": 0.49794657866422454,
-          "phase_estimate_seconds": 0.8071354353864592,
+          "optimistic_minimum_seconds": 0.49794657866422454,
+          "phase_estimate_seconds": 0.8071354353864593,
           "critical_ocr_chain_seconds": 0.308264193377846,
           "fp32_resource_seconds": 0.49318577694415844,
           "bf16_resource_seconds": 0.021663526471933883,
@@ -2527,11 +2562,32 @@
                 "passes": 61
               }
             ]
+          },
+          "model_stage_seconds": {
+            "layout": 0.005857566415841584,
+            "vision": 0.4902569937362376,
+            "prefill": 0.01890642231431405,
+            "decode": 0.28735365119999995,
+            "embed": 0.0047608017200661155
+          },
+          "phase_estimate_stage_seconds": {
+            "prepare PDF": 0,
+            "render + OCR": 0.8023746336663932,
+            "chunk": 0,
+            "embed": 0.0047608017200661155,
+            "other": 0
+          },
+          "optimistic_minimum_stage_seconds": {
+            "prepare PDF": 0,
+            "render + OCR": 0.49318577694415844,
+            "chunk": 0,
+            "embed": 0.0047608017200661155,
+            "other": 0
           }
         },
         {
           "id": "naca-seaplanes",
-          "lower_envelope_seconds": 0.7157845508162697,
+          "optimistic_minimum_seconds": 0.7157845508162697,
           "phase_estimate_seconds": 1.0759081602818283,
           "critical_ocr_chain_seconds": 0.7025487286304846,
           "fp32_resource_seconds": 0.360237907009901,
@@ -2566,11 +2622,32 @@
                 "passes": 243
               }
             ]
+          },
+          "model_stage_seconds": {
+            "layout": 0.005857566415841584,
+            "vision": 0.3558447321980198,
+            "prefill": 0.013696731322181818,
+            "decode": 0.6872733081600001,
+            "embed": 0.013235822185785125
+          },
+          "phase_estimate_stage_seconds": {
+            "prepare PDF": 0,
+            "render + OCR": 1.0626723380960432,
+            "chunk": 0,
+            "embed": 0.013235822185785125,
+            "other": 0
+          },
+          "optimistic_minimum_stage_seconds": {
+            "prepare PDF": 0,
+            "render + OCR": 0.7025487286304846,
+            "chunk": 0,
+            "embed": 0.013235822185785125,
+            "other": 0
           }
         },
         {
           "id": "irs-w9",
-          "lower_envelope_seconds": 3.339375306641509,
+          "optimistic_minimum_seconds": 3.339375306641509,
           "phase_estimate_seconds": 4.06630708395446,
           "critical_ocr_chain_seconds": 3.3199838629189307,
           "fp32_resource_seconds": 1.0204542367936633,
@@ -2605,11 +2682,32 @@
                 "passes": 243
               }
             ]
+          },
+          "model_stage_seconds": {
+            "layout": 0.011715132831683168,
+            "vision": 1.0131322787738615,
+            "prefill": 0.03767344931966942,
+            "decode": 2.9843947793066676,
+            "embed": 0.019391443722578512
+          },
+          "phase_estimate_stage_seconds": {
+            "prepare PDF": 0,
+            "render + OCR": 4.046915640231882,
+            "chunk": 0,
+            "embed": 0.019391443722578512,
+            "other": 0
+          },
+          "optimistic_minimum_stage_seconds": {
+            "prepare PDF": 0,
+            "render + OCR": 3.3199838629189307,
+            "chunk": 0,
+            "embed": 0.019391443722578512,
+            "other": 0
           }
         },
         {
           "id": "census-income",
-          "lower_envelope_seconds": 8.860395005232187,
+          "optimistic_minimum_seconds": 8.860395005232187,
           "phase_estimate_seconds": 8.910774088345912,
           "critical_ocr_chain_seconds": 8.82386064758855,
           "fp32_resource_seconds": 0.3818828903667327,
@@ -2644,11 +2742,32 @@
                 "passes": 220
               }
             ]
+          },
+          "model_stage_seconds": {
+            "layout": 0.011715132831683168,
+            "vision": 0.3745609323469307,
+            "prefill": 0.012566518216991736,
+            "decode": 8.47539714730667,
+            "embed": 0.03653435764363636
+          },
+          "phase_estimate_stage_seconds": {
+            "prepare PDF": 0,
+            "render + OCR": 8.874239730702275,
+            "chunk": 0,
+            "embed": 0.03653435764363636,
+            "other": 0
+          },
+          "optimistic_minimum_stage_seconds": {
+            "prepare PDF": 0,
+            "render + OCR": 8.82386064758855,
+            "chunk": 0,
+            "embed": 0.03653435764363636,
+            "other": 0
           }
         },
         {
           "id": "attention-paper",
-          "lower_envelope_seconds": 0.6325329571609856,
+          "optimistic_minimum_seconds": 0.6325329571609856,
           "phase_estimate_seconds": 0.9786738587191455,
           "critical_ocr_chain_seconds": 0.6253477008822418,
           "fp32_resource_seconds": 0.3612442414384158,
@@ -2683,45 +2802,45 @@
                 "passes": 164
               }
             ]
+          },
+          "model_stage_seconds": {
+            "layout": 0.011715132831683168,
+            "vision": 0.35392228341861387,
+            "prefill": 0.013501340003438016,
+            "decode": 0.5923498461866666,
+            "embed": 0.007185256278743802
+          },
+          "phase_estimate_stage_seconds": {
+            "prepare PDF": 0,
+            "render + OCR": 0.9714886024404017,
+            "chunk": 0,
+            "embed": 0.007185256278743802,
+            "other": 0
+          },
+          "optimistic_minimum_stage_seconds": {
+            "prepare PDF": 0,
+            "render + OCR": 0.6253477008822418,
+            "chunk": 0,
+            "embed": 0.007185256278743802,
+            "other": 0
           }
         }
       ],
-      "lower_envelope_seconds": 14.046034398515175,
+      "optimistic_minimum_seconds": 14.046034398515175,
       "phase_estimate_seconds": 15.838798626687804,
-      "concurrent_corpus": {
-        "scope": "All PDFs admitted together; embedding after all OCR completes.",
-        "lower_envelope_seconds": 8.90496832913936,
-        "phase_estimate_seconds": 11.330298830266942,
-        "decode_schedule": {
-          "seconds": 8.535841634986667,
-          "flops": 20368442114048,
-          "devices": [
-            {
-              "seconds": 8.535841634986667,
-              "flops": 7436969754624,
-              "bytes": 2560752490496,
-              "passes": 3251
-            },
-            {
-              "seconds": 3.0351774583466677,
-              "flops": 4763783413760,
-              "bytes": 910553237504,
-              "passes": 1166
-            },
-            {
-              "seconds": 1.7203227374933348,
-              "flops": 4128053149696,
-              "bytes": 516096821248,
-              "passes": 667
-            },
-            {
-              "seconds": 1.6831815816533342,
-              "flops": 4039635795968,
-              "bytes": 504954474496,
-              "passes": 667
-            }
-          ]
-        }
+      "phase_estimate_stage_seconds": {
+        "prepare PDF": 0,
+        "render + OCR": 15.757690945136995,
+        "chunk": 0,
+        "embed": 0.08110768155080991,
+        "other": 0
+      },
+      "optimistic_minimum_stage_seconds": {
+        "prepare PDF": 0,
+        "render + OCR": 13.964926716964365,
+        "chunk": 0,
+        "embed": 0.08110768155080991,
+        "other": 0
       }
     },
     {
@@ -2731,8 +2850,8 @@
       "cases": [
         {
           "id": "earthquake-checklist-en",
-          "lower_envelope_seconds": 0.49794657866422454,
-          "phase_estimate_seconds": 0.6648024732531259,
+          "optimistic_minimum_seconds": 0.49794657866422454,
+          "phase_estimate_seconds": 0.664802473253126,
           "critical_ocr_chain_seconds": 0.16799481652451265,
           "fp32_resource_seconds": 0.49318577694415844,
           "bf16_resource_seconds": 0.02526230426446281,
@@ -2766,11 +2885,32 @@
                 "passes": 31
               }
             ]
+          },
+          "model_stage_seconds": {
+            "layout": 0.005857566415841584,
+            "vision": 0.4902569937362376,
+            "prefill": 0.01890642231431405,
+            "decode": 0.14502068906666668,
+            "embed": 0.0047608017200661155
+          },
+          "phase_estimate_stage_seconds": {
+            "prepare PDF": 0,
+            "render + OCR": 0.6600416715330599,
+            "chunk": 0,
+            "embed": 0.0047608017200661155,
+            "other": 0
+          },
+          "optimistic_minimum_stage_seconds": {
+            "prepare PDF": 0,
+            "render + OCR": 0.49318577694415844,
+            "chunk": 0,
+            "embed": 0.0047608017200661155,
+            "other": 0
           }
         },
         {
           "id": "naca-seaplanes",
-          "lower_envelope_seconds": 0.37887037140293633,
+          "optimistic_minimum_seconds": 0.37887037140293633,
           "phase_estimate_seconds": 0.7336578554284952,
           "critical_ocr_chain_seconds": 0.3656345492171512,
           "fp32_resource_seconds": 0.360237907009901,
@@ -2805,11 +2945,32 @@
                 "passes": 122
               }
             ]
+          },
+          "model_stage_seconds": {
+            "layout": 0.005857566415841584,
+            "vision": 0.3558447321980198,
+            "prefill": 0.013696731322181818,
+            "decode": 0.3450230033066668,
+            "embed": 0.013235822185785125
+          },
+          "phase_estimate_stage_seconds": {
+            "prepare PDF": 0,
+            "render + OCR": 0.72042203324271,
+            "chunk": 0,
+            "embed": 0.013235822185785125,
+            "other": 0
+          },
+          "optimistic_minimum_stage_seconds": {
+            "prepare PDF": 0,
+            "render + OCR": 0.3656345492171512,
+            "chunk": 0,
+            "embed": 0.013235822185785125,
+            "other": 0
           }
         },
         {
           "id": "irs-w9",
-          "lower_envelope_seconds": 1.8588985800281757,
+          "optimistic_minimum_seconds": 1.8588985800281757,
           "phase_estimate_seconds": 2.574550894941126,
           "critical_ocr_chain_seconds": 1.839507136305597,
           "fp32_resource_seconds": 1.0204542367936633,
@@ -2844,11 +3005,32 @@
                 "passes": 124
               }
             ]
+          },
+          "model_stage_seconds": {
+            "layout": 0.011715132831683168,
+            "vision": 1.0131322787738615,
+            "prefill": 0.03767344931966942,
+            "decode": 1.4926385902933335,
+            "embed": 0.019391443722578512
+          },
+          "phase_estimate_stage_seconds": {
+            "prepare PDF": 0,
+            "render + OCR": 2.5551594512185476,
+            "chunk": 0,
+            "embed": 0.019391443722578512,
+            "other": 0
+          },
+          "optimistic_minimum_stage_seconds": {
+            "prepare PDF": 0,
+            "render + OCR": 1.839507136305597,
+            "chunk": 0,
+            "embed": 0.019391443722578512,
+            "other": 0
           }
         },
         {
           "id": "census-income",
-          "lower_envelope_seconds": 4.6297192556855205,
+          "optimistic_minimum_seconds": 4.6297192556855205,
           "phase_estimate_seconds": 4.674873481199244,
           "critical_ocr_chain_seconds": 4.593184898041884,
           "fp32_resource_seconds": 0.3818828903667327,
@@ -2883,11 +3065,32 @@
                 "passes": 110
               }
             ]
+          },
+          "model_stage_seconds": {
+            "layout": 0.011715132831683168,
+            "vision": 0.3745609323469307,
+            "prefill": 0.012566518216991736,
+            "decode": 4.239496540160002,
+            "embed": 0.03653435764363636
+          },
+          "phase_estimate_stage_seconds": {
+            "prepare PDF": 0,
+            "render + OCR": 4.638339123555608,
+            "chunk": 0,
+            "embed": 0.03653435764363636,
+            "other": 0
+          },
+          "optimistic_minimum_stage_seconds": {
+            "prepare PDF": 0,
+            "render + OCR": 4.593184898041884,
+            "chunk": 0,
+            "embed": 0.03653435764363636,
+            "other": 0
           }
         },
         {
           "id": "attention-paper",
-          "lower_envelope_seconds": 0.3684294977171596,
+          "optimistic_minimum_seconds": 0.3684294977171596,
           "phase_estimate_seconds": 0.6838774819724789,
           "critical_ocr_chain_seconds": 0.3361353599755751,
           "fp32_resource_seconds": 0.3612442414384158,
@@ -2922,45 +3125,45 @@
                 "passes": 82
               }
             ]
+          },
+          "model_stage_seconds": {
+            "layout": 0.011715132831683168,
+            "vision": 0.35392228341861387,
+            "prefill": 0.013501340003438016,
+            "decode": 0.29755346944,
+            "embed": 0.007185256278743802
+          },
+          "phase_estimate_stage_seconds": {
+            "prepare PDF": 0,
+            "render + OCR": 0.6766922256937351,
+            "chunk": 0,
+            "embed": 0.007185256278743802,
+            "other": 0
+          },
+          "optimistic_minimum_stage_seconds": {
+            "prepare PDF": 0,
+            "render + OCR": 0.3612442414384158,
+            "chunk": 0,
+            "embed": 0.007185256278743802,
+            "other": 0
           }
         }
       ],
-      "lower_envelope_seconds": 7.733864283498017,
+      "optimistic_minimum_seconds": 7.733864283498017,
       "phase_estimate_seconds": 9.33176218679447,
-      "concurrent_corpus": {
-        "scope": "All PDFs admitted together; embedding after all OCR completes.",
-        "lower_envelope_seconds": 4.674292579592694,
-        "phase_estimate_seconds": 7.064859714320277,
-        "decode_schedule": {
-          "seconds": 4.270402519040001,
-          "flops": 49649951391744,
-          "devices": [
-            {
-              "seconds": 4.270402519040001,
-              "flops": 18287834333184,
-              "bytes": 1281120755712,
-              "passes": 1626
-            },
-            {
-              "seconds": 1.5185300821333332,
-              "flops": 11604877770752,
-              "bytes": 455559024640,
-              "passes": 583
-            },
-            {
-              "seconds": 0.8717142084266665,
-              "flops": 9993570435072,
-              "bytes": 261514262528,
-              "passes": 338
-            },
-            {
-              "seconds": 0.8537523473066667,
-              "flops": 9763668852736,
-              "bytes": 256125704192,
-              "passes": 338
-            }
-          ]
-        }
+      "phase_estimate_stage_seconds": {
+        "prepare PDF": 0,
+        "render + OCR": 9.250654505243661,
+        "chunk": 0,
+        "embed": 0.08110768155080991,
+        "other": 0
+      },
+      "optimistic_minimum_stage_seconds": {
+        "prepare PDF": 0,
+        "render + OCR": 7.652756601947207,
+        "chunk": 0,
+        "embed": 0.08110768155080991,
+        "other": 0
       }
     },
     {
@@ -2970,8 +3173,8 @@
       "cases": [
         {
           "id": "earthquake-checklist-en",
-          "lower_envelope_seconds": 0.49794657866422454,
-          "phase_estimate_seconds": 0.5788315429064592,
+          "optimistic_minimum_seconds": 0.49794657866422454,
+          "phase_estimate_seconds": 0.5788315429064593,
           "critical_ocr_chain_seconds": 0.08333182089784599,
           "fp32_resource_seconds": 0.49318577694415844,
           "bf16_resource_seconds": 0.021663526471933883,
@@ -3005,11 +3208,32 @@
                 "passes": 13
               }
             ]
+          },
+          "model_stage_seconds": {
+            "layout": 0.005857566415841584,
+            "vision": 0.4902569937362376,
+            "prefill": 0.01890642231431405,
+            "decode": 0.059049758720000005,
+            "embed": 0.0047608017200661155
+          },
+          "phase_estimate_stage_seconds": {
+            "prepare PDF": 0,
+            "render + OCR": 0.5740707411863932,
+            "chunk": 0,
+            "embed": 0.0047608017200661155,
+            "other": 0
+          },
+          "optimistic_minimum_stage_seconds": {
+            "prepare PDF": 0,
+            "render + OCR": 0.49318577694415844,
+            "chunk": 0,
+            "embed": 0.0047608017200661155,
+            "other": 0
           }
         },
         {
           "id": "naca-seaplanes",
-          "lower_envelope_seconds": 0.3734737291956861,
+          "optimistic_minimum_seconds": 0.3734737291956861,
           "phase_estimate_seconds": 0.526694409668495,
           "critical_ocr_chain_seconds": 0.16198566857715124,
           "fp32_resource_seconds": 0.360237907009901,
@@ -3044,12 +3268,33 @@
                 "passes": 49
               }
             ]
+          },
+          "model_stage_seconds": {
+            "layout": 0.005857566415841584,
+            "vision": 0.3558447321980198,
+            "prefill": 0.013696731322181818,
+            "decode": 0.13805955754666668,
+            "embed": 0.013235822185785125
+          },
+          "phase_estimate_stage_seconds": {
+            "prepare PDF": 0,
+            "render + OCR": 0.5134585874827099,
+            "chunk": 0,
+            "embed": 0.013235822185785125,
+            "other": 0
+          },
+          "optimistic_minimum_stage_seconds": {
+            "prepare PDF": 0,
+            "render + OCR": 0.360237907009901,
+            "chunk": 0,
+            "embed": 0.013235822185785125,
+            "other": 0
           }
         },
         {
           "id": "irs-w9",
-          "lower_envelope_seconds": 1.039845680516242,
-          "phase_estimate_seconds": 1.6811242752077924,
+          "optimistic_minimum_seconds": 1.039845680516242,
+          "phase_estimate_seconds": 1.6811242752077926,
           "critical_ocr_chain_seconds": 0.9531098669722634,
           "fp32_resource_seconds": 1.0204542367936633,
           "bf16_resource_seconds": 0.05200552589328926,
@@ -3083,11 +3328,32 @@
                 "passes": 51
               }
             ]
+          },
+          "model_stage_seconds": {
+            "layout": 0.011715132831683168,
+            "vision": 1.0131322787738615,
+            "prefill": 0.03767344931966942,
+            "decode": 0.59921197056,
+            "embed": 0.019391443722578512
+          },
+          "phase_estimate_stage_seconds": {
+            "prepare PDF": 0,
+            "render + OCR": 1.661732831485214,
+            "chunk": 0,
+            "embed": 0.019391443722578512,
+            "other": 0
+          },
+          "optimistic_minimum_stage_seconds": {
+            "prepare PDF": 0,
+            "render + OCR": 1.0204542367936633,
+            "chunk": 0,
+            "embed": 0.019391443722578512,
+            "other": 0
           }
         },
         {
           "id": "census-income",
-          "lower_envelope_seconds": 2.09083477056552,
+          "optimistic_minimum_seconds": 2.09083477056552,
           "phase_estimate_seconds": 2.1327936859992422,
           "critical_ocr_chain_seconds": 2.0543004129218834,
           "fp32_resource_seconds": 0.3818828903667327,
@@ -3122,11 +3388,32 @@
                 "passes": 44
               }
             ]
+          },
+          "model_stage_seconds": {
+            "layout": 0.011715132831683168,
+            "vision": 0.3745609323469307,
+            "prefill": 0.012566518216991736,
+            "decode": 1.6974167449600002,
+            "embed": 0.03653435764363636
+          },
+          "phase_estimate_stage_seconds": {
+            "prepare PDF": 0,
+            "render + OCR": 2.0962593283556057,
+            "chunk": 0,
+            "embed": 0.03653435764363636,
+            "other": 0
+          },
+          "optimistic_minimum_stage_seconds": {
+            "prepare PDF": 0,
+            "render + OCR": 2.0543004129218834,
+            "chunk": 0,
+            "embed": 0.03653435764363636,
+            "other": 0
           }
         },
         {
           "id": "attention-paper",
-          "lower_envelope_seconds": 0.3684294977171596,
+          "optimistic_minimum_seconds": 0.3684294977171596,
           "phase_estimate_seconds": 0.5053901040524789,
           "critical_ocr_chain_seconds": 0.1611103103755752,
           "fp32_resource_seconds": 0.3612442414384158,
@@ -3161,48 +3448,65 @@
                 "passes": 33
               }
             ]
+          },
+          "model_stage_seconds": {
+            "layout": 0.011715132831683168,
+            "vision": 0.35392228341861387,
+            "prefill": 0.013501340003438016,
+            "decode": 0.11906609151999999,
+            "embed": 0.007185256278743802
+          },
+          "phase_estimate_stage_seconds": {
+            "prepare PDF": 0,
+            "render + OCR": 0.4982048477737351,
+            "chunk": 0,
+            "embed": 0.007185256278743802,
+            "other": 0
+          },
+          "optimistic_minimum_stage_seconds": {
+            "prepare PDF": 0,
+            "render + OCR": 0.3612442414384158,
+            "chunk": 0,
+            "embed": 0.007185256278743802,
+            "other": 0
           }
         }
       ],
-      "lower_envelope_seconds": 4.370530256658832,
+      "optimistic_minimum_seconds": 4.370530256658832,
       "phase_estimate_seconds": 5.424834017834468,
-      "concurrent_corpus": {
-        "scope": "All PDFs admitted together; embedding after all OCR completes.",
-        "lower_envelope_seconds": 2.698112734103681,
-        "phase_estimate_seconds": 4.504717419280276,
-        "decode_schedule": {
-          "seconds": 1.7102602239999998,
-          "flops": 20368442114048,
-          "devices": [
-            {
-              "seconds": 1.7102602239999998,
-              "flops": 7438911750144,
-              "bytes": 513078067200,
-              "passes": 651
-            },
-            {
-              "seconds": 0.6098574950400002,
-              "flops": 4770770321408,
-              "bytes": 182957248512,
-              "passes": 234
-            },
-            {
-              "seconds": 0.36046600874666657,
-              "flops": 4133760778240,
-              "bytes": 108139802624,
-              "passes": 140
-            },
-            {
-              "seconds": 0.35340341930666663,
-              "flops": 4024999264256,
-              "bytes": 106021025792,
-              "passes": 140
-            }
-          ]
-        }
+      "phase_estimate_stage_seconds": {
+        "prepare PDF": 0,
+        "render + OCR": 5.343726336283658,
+        "chunk": 0,
+        "embed": 0.08110768155080991,
+        "other": 0
+      },
+      "optimistic_minimum_stage_seconds": {
+        "prepare PDF": 0,
+        "render + OCR": 4.289422575108022,
+        "chunk": 0,
+        "embed": 0.08110768155080991,
+        "other": 0
       }
     }
   ],
+  "measured_optimized_reference": {
+    "report": "reports/optimized.json",
+    "trace": "results/revalidation/20261027-020444/optimized-stages.jsonl",
+    "configuration": "Retained optimized configuration, clean-revision revalidation.",
+    "aggregation": "Mean of five measured calls per PDF, summed over all five PDFs processed serially.",
+    "warmups_excluded": true,
+    "stage_seconds": {
+      "prepare PDF": 0.004126187996007502,
+      "render + OCR": 25.764379011839626,
+      "chunk": 0.1218797555193305,
+      "embed": 0.6328943280270323,
+      "other": 0.0050195612246173305
+    },
+    "total_seconds": 26.528298844606617,
+    "stage_scope": "Rendering, layout, vision, prefill, decoding and OCR postprocessing share one measured render + OCR interval.",
+    "other_scope": "Evaluator call time minus named stage intervals, including result assembly and call-boundary overhead."
+  },
   "measured_seconds_per_20_pages": {
     "baseline": 97.8298561024014,
     "optimized": 26.528298844606613
@@ -3218,7 +3522,7 @@
     "Every region is ready for the decoder; longest-first placement has advance-length foresight.",
     "Embedding follows completed OCR for each PDF; PDFs are processed sequentially.",
     "Advance 2 is an illustration; advance 5 requires every four-token draft to be accepted.",
-    "Lower envelope and phase estimate are different idealizations, not a confidence interval or measured speed."
+    "Optimistic minimum and stage-by-stage estimate both assume ideal conditions; neither predicts actual runtime or a worst case."
   ],
   "input_sha256": {
     "reports/baseline.json": "3c40950c68dc6b7d60240938cefc79585d9410beb90297f5079b5e8865232ff5",
@@ -3226,7 +3530,7 @@
     "reports/optimized-env.json": "97ec10d27e8041662af79db3ab88d8dd3ac8c780db8ca326ae0a31e104b0d24e",
     "reports/provenance.json": "1a494ee500c3b0bc9619b23ad40f965d346f99036b03e9cabb7fc2b080583902",
     "data/public-v3/manifest.json": "e9469700b2ffc835a5ca47f5aa90a9c146b2da10509a26ae8af15312d3e3567b",
-    "lab/model_limits.py": "4d7067b5ab9bc0b0fb55fc1206d558b42751b576bfa6e33e773fc7a54e8c25d2",
+    "lab/model_limits.py": "a95f0fada84718726d4dcbb11d9f734aaaec0bc618fd1211c04f5a18c4f67492",
     "document_pipeline/chunker.py": "e7f6d3d9115e858d99d6f9d68efdf44f34e564a321de6c57dd17f6f909e4f701",
     "document_pipeline/embedders.py": "6fa6b857013fde393132d7961ceff035cbec91ed7761f9b9000808b878cf3d65",
     "document_pipeline/config.py": "5fb35b7ad2a0200ca294e994caefba82315431bc7cc3c13d1eff2f3e0fa93845",

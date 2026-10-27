@@ -249,6 +249,15 @@ def calculate(root, models):
         rows = traces["optimized"][f"{case['id']}.pdf"]
         assert len(rows) == 6
         assert [r["phase"] for r in result["runs"]] == ["warmup"] + ["measured"] * 5
+        stage_names = ("prepare PDF", "render + OCR", "chunk", "embed")
+        for row, call in zip(rows, result["runs"], strict=True):
+            assert set(row["stages_s"]) == set(stage_names)
+            assert abs(row["total_s"] - call["latency_ms"] / 1000) < .01
+        mean_stages = {stage: mean(row["stages_s"][stage] for row in rows[1:])
+                       for stage in stage_names}
+        mean_call = mean(result["latency_ms"]) / 1000
+        other_seconds = mean_call - sum(mean_stages.values())
+        assert other_seconds >= 0
         regions = region_lengths(rows[1])
         for variant in traces:
             repeats = traces[variant][f"{case['id']}.pdf"]
@@ -290,11 +299,12 @@ def calculate(root, models):
             "markdown_tokens_embedding_tokenizer": len(et(ref["ocr_text"], add_special_tokens=False)["input_ids"]),
             "embedding_tokens": sum(lengths), "chunks": len(chunks), "embedding_chunk_lengths": lengths,
             "region_prompt_and_generated_lengths": regions, "flops": flops,
-            "measured_mean_call_seconds": mean(result["latency_ms"]) / 1000,
+            "measured_mean_call_seconds": mean_call,
+            "measured_mean_stage_seconds": mean_stages,
+            "measured_other_seconds": other_seconds,
             "measured_longest_region_submission_batches": longest_batches,
         })
 
-    all_regions = [region for doc in docs for region in doc["region_prompt_and_generated_lengths"]]
     all_flops = {key: sum(doc["flops"][key] for doc in docs) for key in docs[0]["flops"]}
     for label, advance, width in (("greedy", 1, 1), ("two_tokens_per_verification", 2, 5),
                                   ("perfect_four_draft_speculation", 5, 5)):
@@ -307,44 +317,46 @@ def calculate(root, models):
                            + decoder.schedule([(p, g)], advance, width)["seconds"]
                            for p, g in regions)
             # Relax scheduling and overlap FP32/BF16 resources completely. The
-            # largest resource/individual-chain requirement is a lower envelope,
+            # largest resource/individual-chain requirement is an optimistic minimum,
             # conditional on our weight-stream and KV-traffic assumptions.
             fp32_floor = (f["layout"] + f["vision"]) / (GPU_COUNT * FP32)
             bf16_floor = (f["prefill"] + schedule["flops"]) / (GPU_COUNT * BF16)
             embedding = f["embedding"] / (GPU_COUNT * BF16)
-            lower = max(fp32_floor, bf16_floor, critical) + embedding
+            optimistic_minimum = max(fp32_floor, bf16_floor, critical) + embedding
             # A different estimate: ideal stage service times added, with page
             # waves for layout and the explicit replicated decoder schedule.
-            phase = (math.ceil(doc["pages"] / GPU_COUNT) * layout_one
-                     + f["vision"] / (GPU_COUNT * FP32)
-                     + f["prefill"] / (GPU_COUNT * BF16)
-                     + schedule["seconds"] + embedding)
-            cases.append({"id": doc["id"], "lower_envelope_seconds": lower,
+            model_stages = {
+                "layout": math.ceil(doc["pages"] / GPU_COUNT) * layout_one,
+                "vision": f["vision"] / (GPU_COUNT * FP32),
+                "prefill": f["prefill"] / (GPU_COUNT * BF16),
+                "decode": schedule["seconds"],
+                "embed": embedding,
+            }
+            phase = sum(model_stages.values())
+            phase_stages = {
+                "prepare PDF": 0, "render + OCR": phase - embedding,
+                "chunk": 0, "embed": embedding, "other": 0,
+            }
+            minimum_stages = {
+                **phase_stages, "render + OCR": optimistic_minimum - embedding,
+            }
+            cases.append({"id": doc["id"], "optimistic_minimum_seconds": optimistic_minimum,
                           "phase_estimate_seconds": phase, "critical_ocr_chain_seconds": critical,
                           "fp32_resource_seconds": fp32_floor, "bf16_resource_seconds": bf16_floor,
-                          "embedding_seconds": embedding, "decode_schedule": schedule})
-        concurrent_decode = decoder.schedule(all_regions, advance, width)
-        concurrent_embedding = all_flops["embedding"] / (GPU_COUNT * BF16)
-        concurrent_lower = max(
-            (all_flops["layout"] + all_flops["vision"]) / (GPU_COUNT * FP32),
-            (all_flops["prefill"] + concurrent_decode["flops"]) / (GPU_COUNT * BF16),
-            max(case["critical_ocr_chain_seconds"] for case in cases),
-        ) + concurrent_embedding
-        concurrent_phase = (
-            math.ceil(sum(doc["pages"] for doc in docs) / GPU_COUNT) * layout_one
-            + all_flops["vision"] / (GPU_COUNT * FP32)
-            + all_flops["prefill"] / (GPU_COUNT * BF16)
-            + concurrent_decode["seconds"] + concurrent_embedding)
+                          "embedding_seconds": embedding, "decode_schedule": schedule,
+                          "model_stage_seconds": model_stages,
+                          "phase_estimate_stage_seconds": phase_stages,
+                          "optimistic_minimum_stage_seconds": minimum_stages})
         scenarios.append({"name": label, "output_advance_per_pass": advance,
                           "verification_positions_per_pass": width, "cases": cases,
-                          "lower_envelope_seconds": sum(c["lower_envelope_seconds"] for c in cases),
+                          "optimistic_minimum_seconds": sum(c["optimistic_minimum_seconds"] for c in cases),
                           "phase_estimate_seconds": sum(c["phase_estimate_seconds"] for c in cases),
-                          "concurrent_corpus": {
-                              "scope": "All PDFs admitted together; embedding after all OCR completes.",
-                              "lower_envelope_seconds": concurrent_lower,
-                              "phase_estimate_seconds": concurrent_phase,
-                              "decode_schedule": concurrent_decode,
-                          }})
+                          "phase_estimate_stage_seconds": {
+                              stage: sum(c["phase_estimate_stage_seconds"][stage] for c in cases)
+                              for stage in phase_stages},
+                          "optimistic_minimum_stage_seconds": {
+                              stage: sum(c["optimistic_minimum_stage_seconds"][stage] for c in cases)
+                              for stage in minimum_stages}})
 
     totals = {key: sum(d[key] for d in docs) for key in (
         "pages", "regions", "ocr_generated_tokens_including_eos", "decode_advances_after_prefill",
@@ -355,6 +367,14 @@ def calculate(root, models):
         k: f / (GPU_COUNT * (FP32 if k in ("layout", "vision") else BF16))
         for k, f in totals["flops"].items()}
     totals["ideal_arithmetic_sum_seconds"] = sum(totals["ideal_arithmetic_stage_seconds"].values())
+    measured_stages = {
+        stage: sum(doc["measured_mean_stage_seconds"][stage] for doc in docs)
+        for stage in stage_names}
+    measured_stages["other"] = sum(doc["measured_other_seconds"] for doc in docs)
+    measured_total = sum(doc["measured_mean_call_seconds"] for doc in docs)
+    assert math.isclose(sum(measured_stages.values()), measured_total, rel_tol=1e-12)
+    assert math.isclose(measured_total, 60 * totals["pages"]
+                        / report["summary"]["pages_per_minute_sequential"], rel_tol=1e-12)
     weight_time = 2 * decoder.linear_parameters / BANDWIDTH
     return {
         "schema_version": 1, "as_of": "2026-10-27",
@@ -388,6 +408,15 @@ def calculate(root, models):
                                     "greedy_tokens_s_per_sequence": 1 / weight_time,
                                     "greedy_tokens_s_32_busy_sequences": GPU_COUNT * SLOTS / weight_time},
         "totals": totals, "documents": docs, "scenarios": scenarios,
+        "measured_optimized_reference": {
+            "report": "reports/optimized.json", "trace": f"{RUN}/optimized-stages.jsonl",
+            "configuration": "Retained optimized configuration, clean-revision revalidation.",
+            "aggregation": "Mean of five measured calls per PDF, summed over all five PDFs processed serially.",
+            "warmups_excluded": True, "stage_seconds": measured_stages,
+            "total_seconds": measured_total,
+            "stage_scope": "Rendering, layout, vision, prefill, decoding and OCR postprocessing share one measured render + OCR interval.",
+            "other_scope": "Evaluator call time minus named stage intervals, including result assembly and call-boundary overhead.",
+        },
         "measured_seconds_per_20_pages": {
             name: 60 * totals["pages"] / r["summary"]["pages_per_minute_sequential"]
             for name, r in (("baseline", baseline), ("optimized", report))},
@@ -402,7 +431,7 @@ def calculate(root, models):
             "Every region is ready for the decoder; longest-first placement has advance-length foresight.",
             "Embedding follows completed OCR for each PDF; PDFs are processed sequentially.",
             "Advance 2 is an illustration; advance 5 requires every four-token draft to be accepted.",
-            "Lower envelope and phase estimate are different idealizations, not a confidence interval or measured speed.",
+            "Optimistic minimum and stage-by-stage estimate both assume ideal conditions; neither predicts actual runtime or a worst case.",
         ],
         "input_sha256": fingerprints,
         "references": [
