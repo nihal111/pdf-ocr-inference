@@ -3,8 +3,13 @@
 Start the recognizers first, with the launcher defaults (four requests per GPU, no speculation,
 no decoder tiles):
 
-    python -m lab.paddle_servers --directory results/servers/baseline
+    export CUDA_MODULE_LOADING=EAGER VLLM_BATCH_INVARIANT=1
+    export HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1
+    export PADDLE_PDX_DISABLE_MODEL_SOURCE_CHECK=True VLLM_USE_FLASHINFER_SAMPLER=0
+    python -m lab.paddle_servers --directory results/servers/baseline --max-num-seqs 4
 
+Export the four assigned CUDA_VISIBLE_DEVICES UUIDs before launching.
+Wait for ready.json, indicating all four workers are healthy.
 References are captured from this module only.
 """
 from pipelines._variant import pin

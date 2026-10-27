@@ -1,9 +1,17 @@
 """Retained configuration (experiments/pdf/26_six_request_tiles.yaml, variant server_8_draft4_control).
 
-Start the recognizers first: eight requests per GPU, four GPU n-gram drafts, fixed 32-row tiles.
+Start the recognizers first: eight requests per GPU, four GPU n-gram drafts,
+fixed 32-row tiles and an isolated server compilation cache.
 
+    export CUDA_MODULE_LOADING=EAGER VLLM_BATCH_INVARIANT=1
+    export HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1
+    export PADDLE_PDX_DISABLE_MODEL_SOURCE_CHECK=True VLLM_USE_FLASHINFER_SAMPLER=0
     python -m lab.paddle_servers --directory results/servers/optimized \
-        --max-num-seqs 8 --ngram-tokens 4 --ngram-method ngram_gpu --decode-matmul-fixed32
+        --max-num-seqs 8 --ngram-tokens 4 --ngram-method ngram_gpu --decode-matmul-fixed32 \
+        --isolate-compile-cache
+
+Export the four assigned CUDA_VISIBLE_DEVICES UUIDs before launching.
+Wait for ready.json, indicating all four workers are healthy.
 """
 from pipelines._variant import pin
 

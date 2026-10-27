@@ -106,29 +106,80 @@ needs its own recognizer launch; stop the previous servers before starting the n
 
 ```bash
 source .venv/bin/activate
-export CUDA_VISIBLE_DEVICES=GPU-...,GPU-...,GPU-...,GPU-...   # the four assigned UUIDs
+export CUDA_VISIBLE_DEVICES="$(python3 -c 'import json; print(json.load(open("reports/baseline-env.json"))["gpu_uuids"])')"
+export CUDA_MODULE_LOADING=EAGER VLLM_BATCH_INVARIANT=1
+export HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1
+export PADDLE_PDX_DISABLE_MODEL_SOURCE_CHECK=True VLLM_USE_FLASHINFER_SAMPLER=0
 python3 -m unittest discover -s eval/tests
+test -z "$(git status --porcelain)" || { echo "Commit changes before measuring"; exit 1; }
+
+# Stage all measurements outside tracked reports so both runs measure a clean tree.
+RUN_DIR="results/revalidation/$(date -u +%Y%m%d-%H%M%S)"
+mkdir -p "$RUN_DIR"
+# Read the pinned literals without importing either GPU pipeline.
+for variant in baseline optimized; do
+  python3 - "$variant" > "$RUN_DIR/$variant-config.json" <<'PY'
+import ast, json, sys
+from pathlib import Path
+root = Path.cwd()
+tree = ast.parse((root / "pipelines" / (sys.argv[1] + ".py")).read_text())
+config = next(ast.literal_eval(n.value) for n in tree.body
+              if isinstance(n, ast.Assign) and any(
+                  isinstance(t, ast.Name) and t.id == "PIPELINE" for t in n.targets))
+config["ocr"]["paddle_python"] = str(root / ".venv-paddle/bin/python")
+config["ocr"]["paddle_server_python"] = str(root / ".venv-vllm/bin/python")
+print(json.dumps(config))
+PY
+done
 
 # Baseline recognizers: four requests per GPU, no speculation, no decoder tiles.
-python -m lab.paddle_servers --directory results/servers/baseline &   # wait for "Worker 3 healthy"
-python3 eval/capture_reference.py --module pipelines.baseline \
-  --manifest data/public-v3/manifest.json --root data/public-v3   # only if references are absent
+python -m lab.paddle_servers --directory "$RUN_DIR/baseline-servers" --max-num-seqs 4 &
+SERVER_PID=$!
+until test -f "$RUN_DIR/baseline-servers/ready.json"; do
+  kill -0 "$SERVER_PID" || { wait "$SERVER_PID"; exit 1; }
+  sleep 2
+done
+python -m lab.pdf_env --config "$(cat "$RUN_DIR/baseline-config.json")" \
+  --out "$RUN_DIR/baseline-env.json"
+# References are shipped. Only if absent, capture from the baseline:
+# python3 eval/capture_reference.py --module pipelines.baseline \
+#   --manifest data/public-v3/manifest.json --root data/public-v3 --timeout 1800
 python3 eval/evaluate.py --module pipelines.baseline \
-  --manifest data/public-v3/manifest.json --root data/public-v3 --timeout 1800 \
-  --environment reports/baseline-env.json --out reports/baseline.json
-kill %1
+  --manifest data/public-v3/manifest.json --root data/public-v3 \
+  --warmup 1 --repeats 5 --timeout 1800 \
+  --environment "$RUN_DIR/baseline-env.json" --out "$RUN_DIR/baseline.json"
+kill "$SERVER_PID"
+wait "$SERVER_PID" || true
 
 # Optimized recognizers: eight requests per GPU, four GPU n-gram drafts, fixed 32-row tiles.
-python -m lab.paddle_servers --directory results/servers/optimized \
-  --max-num-seqs 8 --ngram-tokens 4 --ngram-method ngram_gpu --decode-matmul-fixed32 &   # wait again
+python -m lab.paddle_servers --directory "$RUN_DIR/optimized-servers" \
+  --max-num-seqs 8 --ngram-tokens 4 --ngram-method ngram_gpu --decode-matmul-fixed32 \
+  --isolate-compile-cache &
+SERVER_PID=$!
+until test -f "$RUN_DIR/optimized-servers/ready.json"; do
+  kill -0 "$SERVER_PID" || { wait "$SERVER_PID"; exit 1; }
+  sleep 2
+done
+python -m lab.pdf_env --config "$(cat "$RUN_DIR/optimized-config.json")" \
+  --out "$RUN_DIR/optimized-env.json"
 python3 eval/evaluate.py --module pipelines.optimized \
-  --manifest data/public-v3/manifest.json --root data/public-v3 --timeout 1800 \
-  --environment reports/optimized-env.json --out reports/optimized.json
-kill %1
+  --manifest data/public-v3/manifest.json --root data/public-v3 \
+  --warmup 1 --repeats 5 --timeout 1800 \
+  --environment "$RUN_DIR/optimized-env.json" --out "$RUN_DIR/optimized.json"
+kill "$SERVER_PID"
+wait "$SERVER_PID" || true
 
-python3 eval/compare.py --baseline reports/baseline.json \
-  --optimized reports/optimized.json --out reports/comparison.json
+python3 eval/compare.py --baseline "$RUN_DIR/baseline.json" \
+  --optimized "$RUN_DIR/optimized.json" --out "$RUN_DIR/comparison.json"
+# After reviewing the results, replace the reports and update their provenance.
+cp "$RUN_DIR"/{baseline,optimized,comparison,baseline-env,optimized-env}.json reports/
 ```
+
+Both server launches require the exported environment above; importing a client
+module cannot change an already-running server's environment. The optimized
+launch also preserves the original isolated compilation-cache policy. TTFR is
+the evaluator's process-to-first-result time, including client model loading and
+the first warm-up, but excluding recognizer-server startup.
 
 Paddle layout/parser runs in `.venv-paddle`, recognizer servers in `.venv-vllm`, and the parent/embedder in `.venv`. Keep these environments separate because their CUDA-library packages share filenames.
 

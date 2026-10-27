@@ -1,0 +1,70 @@
+{
+  "checked_at": "2026-10-27",
+  "baseline_experiment": "results/paddleocr_vllm_five_pdf_eval/20261026-081822/experiment.yaml",
+  "optimized_experiment": "results/paddleocr_vllm_six_request_tiles/20261026-150343/experiment.yaml",
+  "findings": [
+    "Recognition batch/admission, dtype, model length, speculation and decoder tile settings matched the recorded launches.",
+    "README and both module docstrings omitted the server-side batch-invariance and eager CUDA environment exports. Added the recorded shared environment.",
+    "Optimized command omitted --isolate-compile-cache, which was enabled in the retained run. Added it to README and optimized docstring."
+  ],
+  "recorded": {
+    "baseline": {
+      "workers": 4,
+      "source_directory": ".site/vllm-baseline/invariance/servers",
+      "settings": {
+        "--host": "127.0.0.1",
+        "--served-model-name": "PaddleOCR-VL-1.6-0.9B",
+        "--mm-encoder-attn-backend": "TORCH_SDPA",
+        "--dtype": "bfloat16",
+        "--max-model-len": "16384",
+        "--max-num-seqs": "4",
+        "--max-num-batched-tokens": "16384",
+        "--gpu-memory-utilization": "0.40",
+        "--mm-processor-cache-gb": "0",
+        "--generation-config": "vllm",
+        "prefix_cache": false,
+        "decoder_tile_mode": "0",
+        "isolated_compile_cache": false,
+        "speculation": null
+      },
+      "worker_records_sha256": {
+        "worker-0.json": "f86437c96d41c8dfbb4623959ba93da9f8724a4f67c418a93eca6aa2a3e4e553",
+        "worker-1.json": "1d729d74f6e0f05ccdb16b39b7c9b51b66a170212f6105f68f39e920520d2955",
+        "worker-2.json": "03b34be4108e9e88f858eb6e5b92ff17e842a114fc3cdbabb59586c8a241f9f9",
+        "worker-3.json": "b15380fc038ccef35fadf2c1fdfbd085d35213eb94fd6e4111301b93dc5271af"
+      }
+    },
+    "optimized": {
+      "workers": 4,
+      "source_directory": ".site/optimization-cycle/servers-8-ngram_gpu4-decode-fixed32-20261026-150153",
+      "settings": {
+        "--host": "127.0.0.1",
+        "--served-model-name": "PaddleOCR-VL-1.6-0.9B",
+        "--mm-encoder-attn-backend": "TORCH_SDPA",
+        "--dtype": "bfloat16",
+        "--max-model-len": "16384",
+        "--max-num-seqs": "8",
+        "--max-num-batched-tokens": "16384",
+        "--gpu-memory-utilization": "0.40",
+        "--mm-processor-cache-gb": "0",
+        "--generation-config": "vllm",
+        "prefix_cache": false,
+        "decoder_tile_mode": "32",
+        "isolated_compile_cache": true,
+        "speculation": {
+          "method": "ngram_gpu",
+          "num_speculative_tokens": 4,
+          "prompt_lookup_min": 2,
+          "prompt_lookup_max": 5,
+          "rejection_sample_method": "standard"
+        }
+      },
+      "worker_records_sha256": {
+        "worker-0.json": "c5f9e37bf7b13bdfff20368939f0915beb87af12b1b989190b5479cdfb999dd8",
+        "worker-1.json": "5a5c7313d13ce2d0df2f8added81611d30cbd645e0b393b52ddfc64f85a1ada9",
+        "worker-2.json": "307d0451062e2b234b2ebb024ebf1c5fd4e4588eafd48704ce0bfaa4df6424aa",
+        "worker-3.json": "cef33e36b20befa8492c90f4d5a156e6d712e65037b2efe24eceea86542eef56"
+      }
+    }
+  }
+}

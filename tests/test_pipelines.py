@@ -38,3 +38,14 @@ def test_optimized_environment_selects_fixed_decoder_tiles():
     source = (ROOT / "pipelines/optimized.py").read_text()
     assert '"DOCUMENT_PIPELINE_PADDLE_DECODE_TILES": "32"' in source
     assert "--max-num-seqs 8 --ngram-tokens 4 --ngram-method ngram_gpu --decode-matmul-fixed32" in source
+
+
+@pytest.mark.parametrize("name", VARIANTS)
+def test_documented_server_launch_preserves_environment_and_cache_policy(name):
+    sources = [(ROOT / "README.md").read_text(),
+               ast.get_docstring(ast.parse((ROOT / "pipelines" / f"{name}.py").read_text()))]
+    for source in sources:
+        assert "CUDA_MODULE_LOADING=EAGER VLLM_BATCH_INVARIANT=1" in source
+        assert "--max-num-seqs " + ("4" if name == "baseline" else "8") in source
+        if name == "optimized":
+            assert "--isolate-compile-cache" in source

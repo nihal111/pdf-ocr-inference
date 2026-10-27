@@ -75,7 +75,7 @@ def collect(pipeline_cfg: dict | None = None, environment: dict | None = None) -
     except ImportError:
         cuda = None
     rev = _sh("git", "rev-parse", "--short", "HEAD") or "unknown"
-    if _sh("git", "status", "--porcelain", "--", "document_pipeline", "engine", "lab"):
+    if _sh("git", "status", "--porcelain", "--", "document_pipeline", "engine", "lab", "pipelines"):
         rev += "-dirty"
     versions = {}
     for package in ("torch", "torchvision", "transformers", "sentence-transformers",
@@ -116,7 +116,7 @@ def collect(pipeline_cfg: dict | None = None, environment: dict | None = None) -
     from pathlib import Path
     source_hashes = {
         str(path.relative_to(ROOT)): hashlib.sha256(path.read_bytes()).hexdigest()
-        for directory in ("document_pipeline", "engine", "lab")
+        for directory in ("document_pipeline", "engine", "lab", "pipelines")
         for path in sorted((Path(ROOT) / directory).rglob("*.py"))
     }
     if gpus:
