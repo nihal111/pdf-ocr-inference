@@ -25,6 +25,36 @@ PAGE_W, PAGE_H, MARGIN = 595.28, 841.89, 42
 WIDTH, BOTTOM = PAGE_W - MARGIN * 2, PAGE_H - 44
 INK, MUTED, GREEN = "#1d2939", "#687487", "#147d70"
 LINE, PALE, BLUE = "#dce3e8", "#eef7f2", "#edf2fa"
+SITE_URL = "https://nihal111.github.io/pdf-ocr-inference/"
+# A brief version of docs/pages/theoretical-limits.md; the full page stays on the website.
+LIMITS_HTML = """
+<h2>Theoretical limits</h2>
+<p>The optimized pipeline takes <strong>26.53 s</strong> to process all five PDFs one after
+another (20 pages, 136 chunk embeddings, warm models on four L4 GPUs). A best-case model gives
+<strong>4.4–5.4 s</strong> for the same serial workload, assuming perfect four-draft
+speculative acceptance, peak GPU bandwidth and negligible CPU and transfer overhead. It is an
+optimistic bound, not an achievable target.</p>
+<table>
+<tr><th>Stage, all five PDFs serially</th><th>Measured</th><th>Optimistic minimum</th><th>Stage estimate</th></tr>
+<tr><td>Rendering + OCR</td><td>25.76 s</td><td>4.29 s</td><td>5.34 s</td></tr>
+<tr><td>Embedding</td><td>0.63 s</td><td>0.08 s</td><td>0.08 s</td></tr>
+<tr><td>Preparation, chunking and other overhead</td><td>0.13 s</td><td>0, assumed</td><td>0, assumed</td></tr>
+<tr><td><strong>Total</strong></td><td><strong>26.53 s</strong></td><td><strong>4.37 s</strong></td><td><strong>5.43 s</strong></td></tr>
+</table>
+<ul>
+<li><strong>Decoding is bandwidth-bound and sequential.</strong> Each decoder pass reads about
+721 MB of BF16 weights, which allows about 416 tokens/s per sequence. Four GPUs can decode
+different regions in parallel, but not one region's dependent tokens; the longest Census table
+needs 3,252 tokens.</li>
+<li><strong>Speculation sets the bound.</strong> With perfect acceptance of four drafts, each
+pass advances five tokens. At two tokens per pass the bound rises to 7.7–9.3 s, and to
+14–16 s with ordinary decoding.</li>
+<li><strong>OCR is where the gap is.</strong> The workload is 24,890 generated tokens across
+465 regions. Census (12.36 s measured vs 2.13 s ideal) and W-9 (7.68 s vs 1.68 s) account
+for most of the remaining distance.</li>
+</ul>
+<p><a href="#/doc/pages/theoretical-limits">Full calculation, assumptions and per-PDF breakdown</a></p>
+"""
 
 
 def load_library(name, signatures):
@@ -139,7 +169,7 @@ class PDF:
         layout = PC.pango_cairo_create_layout(self.ctx)
         PC.pango_cairo_context_set_resolution(PANGO.pango_layout_get_context(layout), 72)
         description = PANGO.pango_font_description_from_string(
-            f"DejaVu Sans {'Bold ' if bold else ''}{size}".encode())
+            f"Noto Sans,DejaVu Sans {'Bold ' if bold else ''}{size}".encode())
         PANGO.pango_layout_set_font_description(layout, description)
         PANGO.pango_font_description_free(description)
         PANGO.pango_layout_set_width(layout, max(1, int(width * 1024)))
@@ -477,7 +507,9 @@ def build(root, output, base_url):
     pdf.text("PERFORMANCE REPORT",MARGIN,pdf.y,WIDTH,8,GREEN,bold=True)
     pdf.y+=20
     pdf.y+=pdf.text("PDF OCR pipeline optimization",MARGIN,pdf.y,WIDTH,23,bold=True)+9
-    pdf.y+=pdf.text("Summary",MARGIN,pdf.y,WIDTH,10,MUTED)+18
+    pdf.y+=pdf.text("Summary",MARGIN,pdf.y,WIDTH,10,MUTED)+8
+    pdf.y+=pdf.link(f"Check out {SITE_URL} for a more interactive view",
+                    SITE_URL,MARGIN,pdf.y,WIDTH,9)+18
 
     def block(node):
         if isinstance(node,NavigableString): return
@@ -502,6 +534,11 @@ def build(root, output, base_url):
                             pdf.paragraph(child,indent=12,bullet=(child is li.find("p",recursive=False)))
                 else: pdf.paragraph(li,indent=12,bullet=True)
     for child in list(soup.children): block(child)
+    limits=BeautifulSoup(LIMITS_HTML,"html.parser")
+    limits_table=limits.find("table")
+    for child in list(limits.children):
+        if child is limits_table: pdf.table(child,[.46,.18,.18,.18])
+        else: block(child)
     pdf.y+=5
     pdf.ensure(24)
     pdf.y+=pdf.link(f"For more details, please open {SUMMARY_URL}",
