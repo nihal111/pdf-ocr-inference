@@ -19,6 +19,10 @@ from document_pipeline.region_admission import (
     validate_region_admission,
 )
 
+# Admission authenticates peers with SO_PEERCRED, which only Linux provides.
+linux_only = pytest.mark.skipif(not hasattr(socket, "SO_PEERCRED"),
+                                reason="region admission requires Linux peer credentials")
+
 
 def assert_socket_closed(path):
     with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as connection:
@@ -26,6 +30,7 @@ def assert_socket_closed(path):
             connection.connect(socket_address(path))
 
 
+@linux_only
 def test_free_gpu_receives_pending_work_and_results_keep_input_order():
     with RegionAdmission(gpus=2, workers=1, slots_per_gpu=1, slots_per_worker_gpu=1) as broker:
         assert broker.owner_uid == os.geteuid()
@@ -61,6 +66,7 @@ def test_free_gpu_receives_pending_work_and_results_keep_input_order():
     assert_socket_closed(broker.path)
 
 
+@linux_only
 def test_worker_limit_does_not_block_other_workers():
     with RegionAdmission(gpus=2, workers=2, slots_per_gpu=2, slots_per_worker_gpu=1) as broker:
         async def exercise():
@@ -85,6 +91,7 @@ def test_worker_limit_does_not_block_other_workers():
         assert broker.snapshot()["active"] == [0, 0]
 
 
+@linux_only
 def test_concurrent_workers_respect_global_and_per_worker_limits():
     with RegionAdmission(gpus=4, workers=4, slots_per_gpu=2, slots_per_worker_gpu=1) as broker:
         async def exercise():
@@ -100,6 +107,7 @@ def test_concurrent_workers_respect_global_and_per_worker_limits():
         assert snapshot["pending"] == 0
 
 
+@linux_only
 def test_request_failure_releases_capacity_without_masking_error():
     with RegionAdmission(gpus=1, workers=1, slots_per_gpu=1, slots_per_worker_gpu=1) as broker:
         async def exercise():
@@ -112,6 +120,7 @@ def test_request_failure_releases_capacity_without_masking_error():
         assert broker.snapshot()["active"] == [0]
 
 
+@linux_only
 def test_disconnect_releases_active_lease():
     with RegionAdmission(gpus=1, workers=1, slots_per_gpu=1, slots_per_worker_gpu=1) as broker:
         async def exercise():
@@ -127,6 +136,7 @@ def test_disconnect_releases_active_lease():
         assert broker.snapshot()["active"] == [0]
 
 
+@linux_only
 def test_shutdown_unblocks_waiters_and_cleans_socket():
     broker = RegionAdmission(gpus=1, workers=1, slots_per_gpu=1, slots_per_worker_gpu=1)
     async def exercise():
@@ -149,6 +159,7 @@ def test_shutdown_unblocks_waiters_and_cleans_socket():
     assert not broker.thread.is_alive()
 
 
+@linux_only
 def test_paddle_collector_gets_original_order_and_actual_gpu(monkeypatch):
     from document_pipeline.paddle_server import ServerRecognition
     monkeypatch.delenv("DOCUMENT_PIPELINE_OCR_DIAGNOSTICS", raising=False)
@@ -201,6 +212,7 @@ def test_paddle_collector_gets_original_order_and_actual_gpu(monkeypatch):
         assert all(client.closed for client in clients)
 
 
+@linux_only
 def test_client_bridge_preserves_backend_error_and_reuses_capacity():
     with RegionAdmission(gpus=1, workers=1, slots_per_gpu=1, slots_per_worker_gpu=1) as broker:
         class Client:
@@ -226,6 +238,7 @@ def test_client_bridge_preserves_backend_error_and_reuses_capacity():
             router.create_chat_completion(["ok"], return_future=True)
 
 
+@linux_only
 def test_cancelling_queued_future_does_not_consume_a_gpu():
     with RegionAdmission(gpus=1, workers=1, slots_per_gpu=1, slots_per_worker_gpu=1) as broker:
         held = Future()
@@ -257,6 +270,7 @@ def test_cancelling_queued_future_does_not_consume_a_gpu():
             router.close()
 
 
+@linux_only
 def test_round_robin_admission_preserves_destinations_at_the_same_capacity():
     with RegionAdmission(gpus=2, workers=1, slots_per_gpu=1, slots_per_worker_gpu=1) as broker:
         class Client:
@@ -281,6 +295,7 @@ def test_round_robin_admission_preserves_destinations_at_the_same_capacity():
             router.close()
 
 
+@linux_only
 def test_bound_destination_does_not_block_requests_for_other_gpu():
     with RegionAdmission(gpus=2, workers=1, slots_per_gpu=1, slots_per_worker_gpu=1) as broker:
         async def exercise():
@@ -297,6 +312,7 @@ def test_bound_destination_does_not_block_requests_for_other_gpu():
         asyncio.run(exercise())
 
 
+@linux_only
 def test_kernel_peer_uid_is_required_before_admitting_work():
     with RegionAdmission(gpus=1, workers=1) as broker:
         broker.owner_uid = os.geteuid() + 1
@@ -308,6 +324,7 @@ def test_kernel_peer_uid_is_required_before_admitting_work():
         assert broker.snapshot()["grants"] == [0]
 
 
+@linux_only
 def test_eval_style_termination_removes_abstract_socket():
     script = """from document_pipeline.region_admission import RegionAdmission
 import signal
