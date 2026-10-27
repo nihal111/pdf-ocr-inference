@@ -38,6 +38,24 @@ source changes. Exporting reads existing measurements only; it does not run
 models or use GPUs. A clean checkout can preview, validate and deploy the
 committed snapshot without the ignored local experiment files.
 
+### Summary PDF
+
+The summary page links to a PDF report. It preserves the main sections and
+pipeline diagram, with a final link to the online summary for detailed
+explanations. Regenerate it after editing the summary:
+
+```bash
+python -m lab.export_site
+python scripts/export_summary_pdf.py
+python -m lab.export_site
+```
+
+The PDF generator needs BeautifulSoup4 and the system Cairo and Pango
+libraries. The existing `.venv-paddle/bin/python` environment has the Python
+dependency. It reads the exported summary; it does not run models. The generated PDF is
+`web/downloads/summary-report.pdf`. Pass `--base-url` to set the companion
+dashboard URL used by evidence links; the default is the published GitHub Pages site.
+
 ### GitHub Pages
 
 In the GitHub repository, select **Settings → Pages → Source → GitHub Actions**.

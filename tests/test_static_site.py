@@ -71,6 +71,33 @@ def test_export_is_standalone_and_excludes_raw_traces(tmp_path, monkeypatch):
     assert check_site(output)["profiles"] == 1
 
 
+def test_summary_pdf_download_is_exported_only_when_present(tmp_path):
+    workspace(tmp_path)
+    results = tmp_path / "docs/results"
+    results.mkdir()
+    (results / "summary.md").write_text("---\ntitle: Summary\n---\nSummary text.\n")
+    source = tmp_path / "web/downloads/summary-report.pdf"
+    source.parent.mkdir(exist_ok=True)
+    payload = b"%PDF-1.4\nsummary report fixture"
+    source.write_bytes(payload)
+
+    export_site(tmp_path)
+    output = tmp_path / "site"
+    doc_path = output / "site-data/docs/results/summary.json"
+    doc = json.loads(doc_path.read_text())
+    assert doc["pdf_url"] == "downloads/summary-report.pdf"
+    assert (output / doc["pdf_url"]).read_bytes() == payload
+    overview = json.loads((output / "site-data/overview.json").read_text())
+    assert overview["asset_urls"]["summary-report.pdf"] == doc["pdf_url"]
+    check_site(output)
+
+    source.unlink()
+    export_site(tmp_path)
+    assert "pdf_url" not in json.loads(doc_path.read_text())
+    assert not (output / "downloads/summary-report.pdf").exists()
+    check_site(output)
+
+
 def test_oversized_required_asset_fails_without_replacing_previous_export(tmp_path):
     workspace(tmp_path)
     export_site(tmp_path)

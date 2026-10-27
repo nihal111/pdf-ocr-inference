@@ -46,4 +46,4 @@ The ideal column uses the stage estimate with **perfect four-draft acceptance**.
 
 Startup and warm-up calls are excluded. The reference uses source revision `12f9cf6`.
 
-[Measured reference](/artifact?path=revalidation/20261027-020444/optimized.json) · [Detailed calculations, assumptions and input hashes](/artifact?path=analysis/model-limits-20261027.json)
+[Measured reference](#/run/a6e67f74fcdf9cbbf963/optimized) · [Detailed calculations, assumptions and input hashes](#/doc/pages/theoretical-limits-calculations)

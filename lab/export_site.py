@@ -179,10 +179,17 @@ def export_site(root: Path = ROOT, output: Path | None = None) -> dict:
                 if token.children:
                     rewrite_tokens(token.children)
 
+        summary_pdf = root / "web/downloads/summary-report.pdf"
+        if summary_pdf.is_file():
+            write("downloads/summary-report.pdf", summary_pdf.read_bytes())
+            urls["summary-report.pdf"] = "downloads/summary-report.pdf"
+
         for doc in catalog.documents():
             tokens = renderer.parse(doc["body"])
             rewrite_tokens(tokens)
             doc["html"] = renderer.renderer.render(tokens, renderer.options, {})
+            if doc["id"] == "results/summary" and summary_pdf.is_file():
+                doc["pdf_url"] = "downloads/summary-report.pdf"
             write_json(f"site-data/docs/{doc['id']}.json", doc)
         overview["asset_urls"] = urls
         overview["exported_at"] = datetime.now(timezone.utc).isoformat(timespec="seconds")

@@ -599,14 +599,332 @@ function pipelineDiagram() {
   ];
   return `<figure class="pipeline-flow" aria-label="Sequential pipeline from PDF pages to embedding vectors"><ol>${steps.map(([name,output,control],i)=>`<li><span class="pipeline-flow-number">0${i+1}</span><strong>${esc(name)}</strong><span class="pipeline-flow-output">${esc(output)}</span><span class="pipeline-flow-control">${esc(control)}</span></li>`).join('')}</ol></figure>`;
 }
+function summaryPipelineDiagram(table) {
+  const figure=document.createElement('figure');
+  figure.className='summary-pipeline';
+  figure.tabIndex=0;
+  figure.setAttribute('aria-label','Document pipeline stages and technologies, from PDF pages to searchable vectors');
+  figure.innerHTML=`<ol>${[...table.querySelectorAll(':scope > tbody > tr')].map((row,i)=>{
+    const [stage,transformation,technology]=[...row.cells].map(cell=>cell.textContent);
+    return `<li><div class="summary-pipeline-stage"><span aria-hidden="true">0${i+1}</span><strong>${esc(stage)}</strong></div><div class="summary-pipeline-detail"><p>${esc(transformation)}</p><div class="summary-pipeline-technology">${esc(technology)}</div></div></li>`;
+  }).join('')}</ol>`;
+  table.replaceWith(figure);
+}
+function speculativeDecodingDiagram(table) {
+  const examples=[...table.querySelectorAll(':scope > tbody > tr')].map(row=>[...row.cells].map(cell=>cell.textContent.trim()));
+  const prefix=examples[0][1],draft=examples[0][2].split(' · ');
+  const figure=document.createElement('figure');
+  figure.className='decoding-comparison';
+  figure.setAttribute('aria-label','Normal versus speculative decoding, with matching and incorrect guesses');
+  const arrow=(horizontal=false)=>`<svg class="decoding-arrow ${horizontal?'horizontal':''}" viewBox="0 0 24 28" aria-hidden="true"><path d="M12 2v21m-6-6 6 6 6-6" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+  const join=tokens=>tokens.join(' ').replace(/ , /g,',');
+  const tokens=(pieces,statuses=[])=>`<div class="decoding-tokens">${pieces.map((piece,i)=>`<span class="decoding-token ${statuses[i]||''}">${esc(piece)}${statuses[i]==='accepted'?'<small aria-label="accepted">✓</small>':statuses[i]==='rejected'?'<small aria-label="rejected">✕</small>':''}</span>`).join('')}</div>`;
+  function render(different=false) {
+    const actual=examples[different?2:1][2].split(' · ');
+    const mismatch=draft.findIndex((piece,i)=>piece!==actual[i]);
+    const output=mismatch<0?draft:[...draft.slice(0,mismatch),actual[mismatch]];
+    const statuses=draft.map((_,i)=>mismatch<0||i<mismatch?'accepted':i===mismatch?'rejected':'discarded');
+    figure.innerHTML=`
+      <header class="decoding-heading"><strong>One token at a time, or several guesses checked together</strong><span>Illustrative example</span></header>
+      <div class="decoding-switch" role="group" aria-label="Choose the value in the current image">
+        <button type="button" data-decoding-case="match" aria-pressed="${!different}">Image says 80,000</button>
+        <button type="button" data-decoding-case="different" aria-pressed="${different}">Image says 90,000</button>
+      </div>
+      <div class="decoding-context">
+        <div class="decoding-input"><small>Current image crop</small><div class="decoding-image">${esc(prefix)}<br><strong>${esc(join(actual))}</strong></div></div>
+        <div class="decoding-input"><small>Text already generated</small><p>“${esc(prefix)}”</p><span>The image context and this text are available to both paths.</span></div>
+      </div>
+      <div class="decoding-lanes" aria-live="polite">
+        <section class="decoding-lane">
+          <header><h3>Normal decoding</h3><span class="decoding-pass-count">${actual.length} sequential model passes</span></header>
+          <div class="decoding-input-label">Image context + text so far</div>${arrow()}
+          <div class="decoding-normal-steps">${actual.map((piece,i)=>`
+            <div class="decoding-pass"><div class="decoding-model"><strong>OCR model</strong><small>Pass ${i+1}</small></div>${arrow(true)}${tokens([piece])}</div>
+            ${i<actual.length-1?`<div class="decoding-feedback">${arrow()}<span>Append token to text; call again</span></div>`:''}`).join('')}</div>
+          ${arrow()}<div class="decoding-output"><small>Generated text</small><p>${esc(prefix)} <strong>${esc(join(actual))}</strong></p></div>
+        </section>
+        <section class="decoding-lane speculative">
+          <header><h3>Speculative decoding</h3><span class="decoding-pass-count">1 model pass to check the guesses</span></header>
+          <div class="decoding-history"><small>Earlier text in this region</small><p><mark>${esc(prefix)}</mark> ${esc(join(draft))}</p></div>
+          ${arrow()}
+          <div class="decoding-proposer"><strong>Find the repeated phrase</strong><small>Copy what followed it as guesses</small>${tokens(draft)}</div>
+          ${arrow()}<div class="decoding-input-label">Guesses + image context + text so far</div>
+          <div class="decoding-model verifier"><strong>OCR model</strong><small>Predict all four token positions in one pass</small><p>Each prediction uses the image context, text so far, and only the guesses before that position. Those guesses supply the inputs needed to evaluate all four positions in parallel.</p></div>
+          ${arrow()}<div class="decoding-input-label">Compare predictions with guesses</div>
+          <div class="decoding-verdict">${tokens(draft,statuses)}<span>${mismatch<0?'All four guesses match the model.':`Keep “${esc(draft.slice(0,mismatch).join(' '))}”; replace “${esc(draft[mismatch])}” with “${esc(actual[mismatch])}”. Discard the rest: later predictions depended on the rejected guess.`}</span></div>
+          <div class="decoding-output"><small>${mismatch<0?'Verified text':'Verified text so far'}</small><p>${esc(prefix)} <strong>${esc(join(output))}</strong>${mismatch<0?'':'…'}</p>${mismatch<0?'':'<span>Continue generating from the corrected text.</span>'}</div>
+        </section>
+      </div>
+      <figcaption>Token boundaries are illustrative. The diagram shows the four draft tokens; an all-matching pass can also generate the next token. Fewer model passes do not imply a fixed speedup.</figcaption>`;
+    figure.querySelectorAll('[data-decoding-case]').forEach(button=>button.addEventListener('click',()=>{
+      render(button.dataset.decodingCase==='different');
+      figure.querySelector('[aria-pressed="true"]').focus({preventScroll:true});
+    }));
+  }
+  render();
+  table.replaceWith(figure);
+  const introduction=figure.previousElementSibling,conclusion=figure.nextElementSibling;
+  const title=introduction?.querySelector('strong');
+  if(title?.textContent==='How speculative decoding works:'&&conclusion?.tagName==='P'){
+    const disclosure=document.createElement('details');
+    disclosure.className='decoding-disclosure';
+    const summary=document.createElement('summary');
+    summary.textContent='How speculative decoding works';
+    const body=document.createElement('div');
+    introduction.before(disclosure);
+    title.remove();
+    body.append(introduction,figure,conclusion);
+    disclosure.append(summary,body);
+  }
+}
+const summaryChangeExplainers={
+  vllm_batch_4:{
+    kind:'region-batch',study:'009-five-pdf-evaluation',
+    explanation:'A region is a cropped paragraph, table or other part of a page. The baseline sends one region at a time to each GPU. Increasing this to four lets the OCR model advance several independent transcriptions together, making better use of each GPU.',
+    note:'This step increases recognition batching on each page’s assigned GPU. Sharing a page’s regions across GPUs is the next, separate change.'
+  },
+  vllm_batch_4_all_gpus:{
+    kind:'ocr-distribution',study:'009-five-pdf-evaluation',
+    explanation:'Previously, a page’s recognition regions stayed on the GPU assigned to that page. Short documents could leave GPUs idle, and one long page could hold up completion. Sharing regions lets all four recognizers help finish the same page.',
+    note:'Layout detection stays with the page worker. Completed regions are collected in their original reading order before the page is assembled.'
+  },
+  embed_bf16_b16:{
+    kind:'embedding-precision',study:'010-embedding-and-scheduling',
+    explanation:'The embedding model converts text chunks into numerical vectors. BF16 uses 16-bit numbers instead of FP32’s 32-bit numbers, reducing storage and arithmetic costs. We also reduced each embedding batch from 32 chunks to 16; that combination was fastest in the screen.',
+    note:'Lower precision can change vector values. All candidate embeddings passed the required cosine similarity of 0.99; the observed minimum was 0.999640.'
+  },
+  region_window_64:{
+    kind:'submission-window',study:'011-region-scheduling',
+    explanation:'The page parser submitted a group of 16 regions and waited for that group to finish before submitting the next. Raising the window to 64 made more work available while slow regions were still running, so short requests could continue filling available recognition capacity.',
+    note:'This changes the client’s submission window. The server limit stayed at four active requests per GPU in this experiment. The largest benchmark page had 52 regions, so a window of 64 already covered the whole page.'
+  },
+  combined_scheduling:{
+    kind:'page-scheduling',study:'012-combined-scheduling',
+    explanation:'With fixed round-robin assignment, page 5 could wait behind page 1 on worker 0 even after another worker finished its page. Dynamic assignment gives the next page to whichever page worker becomes free first, starting later pages sooner.',
+    note:'The diagram shows an illustrative scheduling moment. Page order is restored before chunking. This change improved p95 and throughput, while pooled p50 became slower.'
+  },
+  server_8_dynamic:{
+    kind:'server-capacity',study:'013-server-concurrency',
+    explanation:'Profiles showed recognition requests waiting while each vLLM server had reached its four-request limit. Allowing eight active requests per GPU let the server admit more of that waiting work into decoding.',
+    note:'The 64-region submission window and client concurrency of four per recognizer per page worker stayed fixed. Eight is a capacity limit; actual running request counts vary.'
+  },
+  server_8_compiled_embeddings:{
+    kind:'embedding-compilation',study:'015-compiled-embeddings',
+    explanation:'Ordinary embedding inference launches many separate GPU operations. Compilation prepares an execution plan and combines compatible operations, reducing repeated dispatch and GPU launches when the same embedding model runs again.',
+    note:'The compiled code is reused across calls; document text and embedding results are still computed each time. Compilation improved warmed-up latency but added startup time. vLLM already used torch.compile for the OCR decoder in both baseline and optimized runs. This change enabled it for the separate embedding model; the OCR vision encoder remained uncompiled.'
+  },
+  server_8_ngram_gpu_4:{
+    kind:'speculation',study:'016-ngram-speculation',
+    explanation:'The OCR model normally generates one token at a time. Here, repeated text within the current region supplies up to four proposed tokens. The same OCR model checks them together, keeps the matching prefix and corrects the first mismatch.',
+    note:'Tail latency and throughput gains held across confirmation runs. The smaller p50 gain varied. The interactive example below shows both successful guesses and a correction.'
+  },
+  available_gpu_8:{
+    kind:'region-admission',study:'019-shared-region-admission',
+    explanation:'Round-robin routing chose a region’s GPU before that GPU was ready, so the region could queue behind long requests while another GPU had room. A shared admission queue now chooses a destination when capacity opens.',
+    note:'This assigns individual OCR regions; dynamic page scheduling assigns whole pages. Server capacity stays at eight requests per GPU. The measured p50 and throughput improved slightly, with a slower p95.'
+  },
+  decoder_tiles_fixed32:{
+    kind:'decoder-tiles',study:'022-fixed-decoder-tiles',
+    explanation:'GPU matrix calculations process rectangular blocks called tiles. Short decoding steps contain relatively few token rows, but the compiled decoder used 128-row tiles. Fixing the tile size at 32 rows better matched those small inputs and kept that choice through compilation.',
+    note:'The sketch illustrates 40 token rows, requiring two 32-row tiles. Column width and reduction order stayed fixed. The measured full-PDF gain includes the effect on larger initial image-and-text processing as well as decoding.'
+  },
+  embedding_four_gpus:{
+    kind:'embedding-distribution',study:'024-compiled-embedding-placement',
+    explanation:'After OCR, embedding ran entirely on GPU 0. Placing an identical embedding model on each of the four GPUs let us divide the chunks between them using input token counts, then gather the vectors back in their original order.',
+    note:'Batch size 16, BF16 precision and compilation stayed fixed. This reduced warmed-up embedding time but increased memory use and compilation startup across the replicas.'
+  },
+  render_in_page_workers:{
+    kind:'worker-rendering',study:'025-render-placement',
+    explanation:'The parent process used to render each PDF page into a full image and send that image to an OCR page worker. Now it sends the PDF path and page number; the worker renders the page locally and proceeds directly to layout detection and recognition.',
+    note:'This removes parent-to-worker transfers of full page images and allows page rendering to overlap across workers. Rendering remains at 150 DPI with identical pixels. The measured throughput gain was small.'
+  }
+};
+function changeDiagram(kind) {
+  const arrow=()=>'<svg class="change-arrow" viewBox="0 0 24 28" aria-hidden="true"><path d="M12 2v21m-6-6 6 6 6-6" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  const chips=(labels,tone='')=>`<div class="change-chips">${labels.map(label=>`<span class="change-chip ${tone}">${esc(label)}</span>`).join('')}</div>`;
+  const box=(title,subtitle='',inside='',tone='')=>`<div class="change-node ${tone}"><strong>${esc(title)}</strong>${subtitle?`<small>${esc(subtitle)}</small>`:''}${inside}</div>`;
+  const flow=nodes=>`<div class="change-flow">${nodes.join(arrow())}</div>`;
+  const gpus=(contents,model='OCR model')=>`<div class="change-gpus">${contents.map((content,i)=>`<div class="change-gpu ${content?'active':'idle'}"><strong>GPU ${i}</strong><small>${esc(content?model:'No assigned work')}</small>${content?chips(content):'<span class="change-idle">Idle in this stage</span>'}</div>`).join('')}</div>`;
+  const blocks=(count,active,label)=>`<div class="change-blocks" role="img" aria-label="${esc(label)}">${Array.from({length:count},(_,i)=>`<span class="${i<active?'active':''}"></span>`).join('')}</div>`;
+  const lanes=(beforeTitle,before,afterTitle,after,caption)=>`<figure class="change-sketch" aria-label="${esc(beforeTitle+' compared with '+afterTitle)}"><div class="change-comparison"><section class="change-lane"><header><small>Before</small><h4>${esc(beforeTitle)}</h4></header>${before}</section><section class="change-lane after"><header><small>After</small><h4>${esc(afterTitle)}</h4></header>${after}</section></div><figcaption>${esc(caption)}</figcaption></figure>`;
+  switch(kind){
+    case 'region-batch':
+      return lanes('One region at a time',flow([
+        box('Regions from one page','Separate image crops',chips(['A','B','C','D'])),
+        box('OCR model · one GPU','Advance one transcription',chips(['A'],'active'),'model'),
+        box('Then read the next region','B, C and D wait for their turn')
+      ]),'Four regions together',flow([
+        box('The same page regions','Same image crops',chips(['A','B','C','D'])),
+        box('OCR model · one GPU','Advance four transcriptions together',chips(['A','B','C','D'],'active'),'model'),
+        box('Collect region text','Restore original reading order')
+      ]),'Each letter represents an independent region. The model and output checks stay the same.');
+    case 'ocr-distribution':
+      return lanes('Regions stay on the page’s GPU',flow([
+        box('A page needs OCR','Four example regions',chips(['A','B','C','D'])),
+        gpus([['A','B','C','D'],null,null,null]),
+        box('Wait for this GPU','Other GPUs cannot help with this page')
+      ]),'Regions can use all four GPUs',flow([
+        box('Share the page’s regions','Layout stays with its page worker',chips(['A','B','C','D'])),
+        gpus([['A'],['B'],['C'],['D']]),
+        box('Assemble the page','Collect A, B, C, D in reading order')
+      ]),'A one-page illustration of the routing change; the same four recognizer replicas are used.');
+    case 'embedding-precision':
+      return lanes('FP32 · batch of 32 chunks',flow([
+        box('32 text chunks per batch','Each square represents one chunk',blocks(32,32,'32 chunks')),
+        box('Qwen3 embedding model','32-bit numerical representation',`<div class="change-precision"><span style="width:100%">32 bits</span></div>`,'model'),
+        box('Embedding vectors','Reference precision')
+      ]),'BF16 · batch of 16 chunks',flow([
+        box('16 text chunks per batch','The same chunks in smaller batches',blocks(16,16,'16 chunks')),
+        box('Qwen3 embedding model','16-bit numerical representation',`<div class="change-precision"><span style="width:50%">16 bits</span></div>`,'model'),
+        box('Embedding vectors','Cosine similarity checked against references')
+      ]),'The screen changed precision and chunk batch size together; vectors may differ numerically within the fixed cosine threshold.');
+    case 'submission-window':
+      return lanes('Submit at most 16, then wait',flow([
+        box('Client submission window','First group released',chips(['16 regions ready'],'active')),
+        box('Recognition servers','Up to 4 active requests per GPU','','model'),
+        box('Wait for the group to finish','Then release the next group of regions')
+      ]),'Submit up to 64 at once',flow([
+        box('Client submission window','A larger group is available',chips(['Up to 64 regions ready'],'active')),
+        box('Recognition servers','Still up to 4 active requests per GPU','','model'),
+        box('Fill slots as requests finish','More pending work is already available')
+      ]),'The window controls submitted work; server capacity controls how much can run at once.');
+    case 'page-scheduling':{
+      const workers=dynamic=>`<div class="change-workers">${[
+        ['Worker 0','Page 1 · still busy',dynamic?'':'Page 5 waits here'],
+        ['Worker 1','Page 2 · finished',dynamic?'Start page 5':'Free'],
+        ['Worker 2','Page 3 · busy',''],
+        ['Worker 3','Page 4 · busy','']
+      ].map(([worker,current,next],i)=>`<div class="change-worker ${next.includes('page 5')?'selected':''}"><strong>${worker}</strong><span>${current}</span>${next?`<em class="${dynamic&&i===1?'ready':'waiting'}">${next}</em>`:''}</div>`).join('')}</div>`;
+      return lanes('Pages assigned in advance',flow([
+        box('Page 5 is next','Fixed assignment sends it to worker 0'),
+        workers(false),
+        box('Page 5 waits behind page 1','A free worker cannot take it')
+      ]),'Next page goes to a free worker',flow([
+        box('Page 5 is next','Keep it available for any free worker'),
+        workers(true),
+        box('Restore page order','Assemble pages 1, 2, 3, 4, 5 after processing')
+      ]),'This example assigns complete pages. Region routing happens separately inside the OCR stage.');
+    }
+    case 'server-capacity':
+      return lanes('Four active requests per GPU',flow([
+        box('Requests reach one server','Example with eight requests ready'),
+        `<div class="change-capacity-state">${box('4 active on the GPU','Admission limit: 4',chips(['R1','R2','R3','R4'],'active'),'model')}${box('4 waiting in the queue','No free GPU slot yet',chips(['R5','R6','R7','R8'],'waiting'))}</div>`,
+        box('When an active request finishes','Admit the next waiting request')
+      ]),'Eight active requests per GPU',flow([
+        box('The same eight requests','More server capacity'),
+        `<div class="change-capacity-state">${box('8 active on the GPU','Admission limit: 8',chips(['R1','R2','R3','R4','R5','R6','R7','R8'],'active'),'model')}${box('0 waiting in the queue','All eight requests admitted')}</div>`,
+        box('More regions can advance together','Subject to the server’s token and memory budgets')
+      ]),'Green requests are active; amber requests are waiting. Each side shows the same eight requests at one illustrative moment.');
+    case 'embedding-compilation':
+      return lanes('Dispatch operations separately',flow([
+        box('Text chunks','Each call needs embedding inference'),
+        box('Ordinary execution','Launch successive GPU operations',chips(['Operation','Operation','Operation','Operation'])),
+        box('GPU work','Many separate launches','','model'),
+        box('Embedding vectors','Return in chunk order')
+      ]),'Reuse a compiled execution plan',flow([
+        box('Text chunks','Every call still computes fresh vectors'),
+        box('Compiled execution','Combine compatible operations',chips(['Combined operations','Other operations'],'active')),
+        box('GPU work','Fewer launches after compilation','','model'),
+        box('Embedding vectors','Return in the same chunk order')
+      ]),'Operation boxes are schematic. Compilation can produce many kernels; it does not turn the whole model into one operation.');
+    case 'region-admission':{
+      const assigned=available=>flow([
+        box(available?'Shared queue':'Fixed destination','A new region needs a recognition slot',chips(['Region A'])),
+        `<div class="change-gpus admission"><div class="change-gpu"><strong>GPU 0</strong><small>All 8 slots occupied</small>${blocks(8,8,'GPU 0 full')}${available?'':chips(['A waits'],'waiting')}</div><div class="change-gpu ${available?'active':''}"><strong>GPU 1</strong><small>A slot is available</small>${blocks(8,available?7:6,'GPU 1 has capacity')}${available?chips(['A starts here'],'active'):''}</div></div>`,
+        box(available?'Choose the GPU when capacity opens':'Wait for the preselected GPU',available?'Keep work moving without a fixed destination':'Even while another GPU has room')
+      ]);
+      return lanes('Assign a GPU before it is ready',assigned(false),'Assign when a GPU has capacity',assigned(true),'Two of the four GPUs are shown. Capacity is eight requests per GPU in both cases; the change is where waiting regions go.');
+    }
+    case 'decoder-tiles':{
+      const tile=(count,active,label)=>`<div class="change-tile"><strong>${label}</strong>${Array.from({length:count},(_,i)=>`<span class="${i<active?'active':''}"></span>`).join('')}</div>`;
+      return lanes('One 128-row tile',flow([
+        box('Example decode input','40 token rows'),
+        `<div class="change-tile-group">${tile(16,5,'128 rows')}</div>`,
+        box('40 active positions','88 tile positions are masked')
+      ]),'Two 32-row tiles',flow([
+        box('The same decode input','40 token rows'),
+        `<div class="change-tile-group">${tile(4,4,'32 rows')}${tile(4,1,'32 rows')}</div>`,
+        box('40 active positions','24 tile positions are masked')
+      ]),'Each stripe represents eight rows. Green is active; gray is masked. The sketch explains tile coverage, not a measured count of arithmetic operations.');
+    }
+    case 'embedding-distribution':
+      return lanes('Embedding only on GPU 0',flow([
+        box('Ordered text chunks','Example assignments',chips(['A','B','C','D'])),
+        gpus([['A','B','C','D'],null,null,null],'Embedding model'),
+        box('Vectors for all chunks','GPU 0 does all embedding work')
+      ]),'An embedding model on each GPU',flow([
+        box('Distribute chunks by token count','Balance current input lengths'),
+        gpus([['A'],['B'],['C'],['D']],'Embedding model'),
+        box('Gather and reorder vectors','Return A, B, C, D in original chunk order')
+      ]),'Every GPU holds the same embedding model. Real assignment balances token counts rather than giving each GPU an equal number of chunks.');
+    case 'worker-rendering':
+      return lanes('Render in the parent process',flow([
+        box('Parent process','Read PDF and render a page at 150 DPI'),
+        box('Full page image','Transfer rendered pixels to a page worker','','transfer'),
+        box('OCR page worker','Detect layout and recognize regions','','model'),
+        box('Page text','Return for ordered assembly')
+      ]),'Render inside the page worker',flow([
+        box('Parent process','Send PDF path and page number'),
+        box('OCR page worker','Render locally at 150 DPI',`${chips(['Render'])}${arrow()}${chips(['Layout + OCR'],'active')}`,'model'),
+        box('Page text','Return for the same ordered assembly')
+      ]),'One page worker is shown; all four can render their own pages. Full page images no longer travel from the parent to the page workers.');
+    default:throw new Error(`Missing change diagram: ${kind}`);
+  }
+}
+function expandableChangesTable(table,speculationExample) {
+  table.classList.add('changes-table');
+  [...table.tBodies[0].rows].forEach(row=>{
+    const source=row.cells[0].querySelector('a');
+    const href=source?.getAttribute('href'),variant=href?.split('/').at(-1);
+    const entry=summaryChangeExplainers[variant];
+    if(!entry)return;
+    const label=source.textContent,id=`summary-change-${variant}`;
+    const button=document.createElement('button');
+    button.type='button';button.className='change-toggle';
+    button.setAttribute('aria-expanded','false');button.setAttribute('aria-controls',id);
+    button.innerHTML=`<svg viewBox="0 0 16 16" aria-hidden="true"><path d="m6 3 5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg><span>${esc(label)}</span>`;
+    row.cells[0].replaceChildren(button);
+    const expansion=document.createElement('tr');expansion.className='change-expansion';expansion.hidden=true;
+    const cell=document.createElement('td');cell.colSpan=row.cells.length;
+    const panel=document.createElement('div');panel.id=id;panel.className='change-explanation';
+    panel.setAttribute('role','region');panel.setAttribute('aria-label',label);
+    cell.append(panel);expansion.append(cell);row.after(expansion);
+    let built=false;
+    button.addEventListener('click',()=>{
+      const open=expansion.hidden;
+      if(open&&!built){
+        panel.innerHTML=`<p>${esc(entry.explanation)}</p>${entry.kind==='speculation'?'<div class="change-speculation-slot"></div>':changeDiagram(entry.kind)}<p class="change-observation">${esc(entry.note)}</p><nav class="change-sources" aria-label="Evidence for this change"><a href="${esc(href)}">Measured run ↗</a><a href="#/doc/experiments/${esc(entry.study)}">Experiment explanation ↗</a></nav>`;
+        if(entry.kind==='speculation'){
+          const example=speculationExample.cloneNode(true);
+          panel.querySelector('.change-speculation-slot').append(example);
+          speculativeDecodingDiagram(example);
+        }
+        built=true;
+      }
+      expansion.hidden=!open;button.setAttribute('aria-expanded',String(open));
+      row.classList.toggle('change-open',open);
+    });
+  });
+}
 async function documentView(id,token) {
   const d=await loadJSON(`site-data/docs/${encodePath(id)}.json`); if(token!==generation)return;
   const links=[]; const run=state.runs.find(r=>r.path===d.run),profile=state.profiles.find(p=>p.path===d.profile);
   if(run)links.push(`<a class="button small" href="#/run/${run.id}">Open experiment run ↗</a>`);
   if(profile)links.push(`<a class="button small" href="#/profile/${profile.id}">Open profile ↗</a>`);
-  content.innerHTML=heading(d.kind==='experiment'?'Experiment journal':d.kind==='result'?'Results':'Notes',d.title,d.description)+
+  if(d.pdf_url)links.push(`<a class="button" href="${esc(d.pdf_url)}" target="_blank" rel="noopener noreferrer">PDF ↗</a>`);
+  content.innerHTML=heading(d.kind==='experiment'?'Experiment journal':d.kind==='result'?'Results':'Notes',d.title,d.description,d.kind==='experiment'?'':links.join(''))+
     (d.kind==='experiment'?`<div class="doc-meta">${badge(d.status||'planned')}<span>${esc(d.date)}</span>${links.join('')}</div>`:'')+
     `<div class="doc-layout ${d.id==='pages/pipeline'?'pipeline-doc-layout':''}"><article class="prose">${d.id==='pages/pipeline'?pipelineDiagram():''}${d.html}</article><aside class="toc" aria-label="On this page"><p>ON THIS PAGE</p><div id="toc-items"></div></aside></div>`;
+  if(d.id==='results/summary'){
+    content.querySelector('.lead')?.remove();
+    const pipelineHeading=[...content.querySelectorAll('.prose h2')].find(h=>h.textContent==='Document pipeline');
+    const table=pipelineHeading?.nextElementSibling;
+    if(table?.tagName==='TABLE')summaryPipelineDiagram(table);
+    const speculativeTable=[...content.querySelectorAll('.prose table')].find(t=>t.querySelector('th')?.textContent==='Decoding example');
+    if(speculativeTable)speculativeDecodingDiagram(speculativeTable);
+    const changesTable=[...content.querySelectorAll('.prose table')].find(t=>t.querySelector('th')?.textContent==='Change');
+    if(changesTable)expandableChangesTable(changesTable,speculativeTable);
+  }
   content.querySelectorAll('.prose table').forEach((table,index)=>{
     if(table.querySelector('thead th')?.textContent.trim()==='PDF')table.classList.add('pdf-table');
     const wrapper=document.createElement('div');

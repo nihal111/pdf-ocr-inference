@@ -1,15 +1,30 @@
 ---
 title: Summary
-description: Baseline quality problems, profiling findings, useful changes and diminishing returns.
 order: 0
 ---
 
-We first had to make OCR complete and repeatable. The largest performance gains
-then came from sharing recognition work across GPUs and reducing decoder cost.
+**The problem:** Turn PDFs into complete, ordered text and searchable embeddings
+faster, while preserving baseline OCR text and chunk structure and keeping
+embedding cosine similarity at or above 0.99.
+
+**Benchmark:** Five frozen public PDFs, totaling 20 selected pages: [*Earthquake Preparedness Checklist — English*](#/dataset/public-v3/earthquake-checklist-en/1) (2), [*The Estimation of Maximum Load Capacity of Seaplanes and Flying Boats*](#/dataset/public-v3/naca-seaplanes/1) (3), IRS [*Form W-9*](#/dataset/public-v3/irs-w9/1) (5), [*Income in the United States: 2023*](#/dataset/public-v3/census-income/1) (5), and [*Attention Is All You Need*](#/dataset/public-v3/attention-paper/1) (5).
+
+**System:** Four NVIDIA L4 GPUs (22.5 GiB reported memory and a 72 W limit each); AMD EPYC 7R13, 96 logical CPUs, 363 GiB RAM.
+
+**Evaluation:** Sequential PDF calls with one warm-up and five measured repeats per PDF (25 measured calls), checked against frozen baseline references.
+
+## Document pipeline
+
+| Stage | Transformation | Technology |
+| --- | --- | --- |
+| Render | PDF pages → images at 150 DPI | pypdfium2 |
+| OCR | Page images → text, tables and formulas in reading order | PP-DocLayoutV3 on PaddlePaddle for layout; PaddleOCR-VL-1.6 on vLLM for recognition |
+| Chunk | Ordered Markdown → text chunks with heading context and a 512-token target | Markdown chunker |
+| Embed | Text chunks → vectors for search by meaning | Qwen3-Embedding-0.6B through sentence-transformers on PyTorch |
 
 ## Results and scope
 
-| Eval metric | vLLM batch-1 baseline | Retained configuration | Speedup |
+| Eval metric | vLLM batch-1 baseline | Best optimized configuration | Speedup |
 | --- | ---: | ---: | ---: |
 | Full-PDF p50 | 15.10 s | **2.34 s** | **6.44×** |
 | Full-PDF p95 | 36.11 s | **12.41 s** | **2.91×** |
@@ -19,62 +34,88 @@ Both variants were rerun on 2026-10-27 from clean revision `12f9cf6` and
 passed all 30 calls each against the existing references; no recapture was needed.
 Time-to-first-result was **41.40 s baseline / 131.34 s optimized**. This includes
 client startup and the first warm-up, but excludes recognizer-server startup.
-[Fresh paired evaluation](#/run/a6e67f74fcdf9cbbf963).
-
-**Five frozen PDFs / 20 pages; four L4 GPUs; one warm-up plus five measured calls
-per PDF.** Eval pools 25 measured calls. OCR and ordered chunks must match frozen
-references; embedding cosine must be at least 0.99.
+[Fresh paired evaluation](#/run/a6e67f74fcdf9cbbf963) ·
 [Complete results and configurations](#/doc/experiments/028-optimization-conclusion).
 
 ## Quality problems before optimization
 
-**Qwen3-VL-2B-Instruct produced reproducible but incomplete output.** At 2,048 tokens, seaplane
-pages were truncated. Matching passed because the references were also truncated.
+**Qwen3-VL-2B-Instruct produced reproducible but incomplete output.** With a 2,048-token
+output limit, page transcriptions from the three-page report
+[*The Estimation of Maximum Load Capacity of Seaplanes and Flying Boats*](#/dataset/public-v3/naca-seaplanes/1)
+were truncated. Matching passed because the references were also truncated.
 An 8,192-token retry confirmed repeated paragraphs; larger limits and tested
 penalties did not fix the setup. We switched to PaddleOCR-VL-1.6.
 
-**Paddle also repeated a W-9 table.** Penalties of 1.0–1.2 exhausted 8,192 tokens;
-1.3 stopped but omitted most of the form. Raising the table-image limit from
-1.0 to 2.8 million pixels resolved the tested crop; all 182 regions in the
-five-page W-9 reached the end-of-sequence marker (EOS). White padding worked in isolation but
-was not retained.
+**PaddleOCR-VL-1.6 repeated a table in IRS Form W-9.** On the
+[*Form W-9* benchmark](#/dataset/public-v3/irs-w9/1), repetition penalties of
+1.0–1.2 exhausted 8,192 tokens; 1.3 stopped but omitted most of the form.
+Raising the table-image limit from 1.0 to 2.8 million pixels resolved the tested
+crop; all 182 regions across the five selected pages reached the end-of-sequence
+marker (EOS). This setting is shared by the working baseline and all optimizations.
 [Debugging evidence and external reports](#/doc/pages/debugging).
 
-**Batching required an engine change.** Native PaddlePaddle silently capped
-recognition batches at one. vLLM enabled batching, but matching images, prompts
-and precision did not reproduce PaddlePaddle exactly. We accepted engine-related
-differences, enabled batch invariance for repeatability, and froze a separate
-vLLM batch-1 baseline.
-[Engine investigation](#/doc/experiments/006-vllm-region-batching).
+**Repeatable vLLM output required batch invariance.** Enabling it made repeated
+calls reproduce the same OCR text. The working baseline uses PaddleOCR-VL-1.6 on
+vLLM with one recognition region per GPU at a time; every optimization is checked
+against its frozen references.
+[Baseline validation](#/doc/experiments/007-vllm-batch4-baseline).
 
 EOS means generation finished, not that it was accurate. References still contain
-errors in small table digits and merged cells. Speedups preserve that reviewed
-baseline, not character-perfect transcription.
+errors in small table digits and merged cells. For example, on
+[page 3 of *The Estimation of Maximum Load Capacity of Seaplanes and Flying Boats*](#/output/d8a8a05ea1b9bc9e9268/naca-seaplanes/3/rendered),
+Table V's first maximum-load value is **28,750** in the PDF, but the frozen OCR
+reference records **23,750**. Speedups preserve that reviewed baseline, not
+character-perfect transcription.
 
 ## What GPU and system profiles showed
 
-- **Idle GPUs and uneven pages:** native Paddle's NACA call spent 95.3% of wall
-  time in OCR. Active GPUs averaged only 11.0–28.8% busy; the fourth had no page.
-  A bounded trace found 901 kernels per decode forward, dominated by matrix–vector work.
-  [Native profile findings](#/doc/experiments/004-paddleocr-baseline).
-- **A different tail bottleneck:** Census's 3,252-token table region kept one GPU
-  about 98% busy while the others averaged 5–10%. Region batching could not divide
-  that sequence's serial decoding.
-  [Census study](#/doc/experiments/016-ngram-speculation).
-- **Saturation remains unproven:** retained NACA GPU activity was 68.7–82.3%, with
-  only seven samples per GPU. Busy time is not achieved compute or bandwidth.
-  A separate confirmation saw 8.4% aggregate CPU busy; that cannot rule out a
-  single-thread bottleneck.
-  [Profile](#/profile/7195172c30ec973339d4) · [CPU observation](#/doc/experiments/016-ngram-speculation).
+- **OCR was the first optimization target:** In the initial five-PDF evaluation,
+  OCR consumed **89.9% of measured pipeline time** in the vLLM batch-1 baseline,
+  excluding warm-ups. Each GPU read one region at a time, and regions were tied
+  to the GPU handling their page. Increasing recognition batches to four reduced
+  pooled full-PDF p50 from **15.08 to 9.55 seconds**; sharing regions across all
+  four GPUs reduced it further to **5.39 seconds**, with embedding unchanged.
+  [OCR batching and distribution results](#/doc/experiments/009-five-pdf-evaluation).
+- **Long table decoding controlled tail latency:** Before speculative decoding,
+  a table region in the fifth selected page of
+  [*Income in the United States: 2023*](#/dataset/public-v3/census-income/5)
+  generated 3,252 tokens. One GPU stayed about 98% busy while the others averaged
+  5–10%. Region batching could not divide that sequence's serial decoding,
+  motivating the four-token speculative decoding experiment.
+  [Speculative decoding study](#/doc/experiments/016-ngram-speculation).
 
-The machine had four L4s with 22.5 GiB reported memory and a 72 W limit each,
-an AMD EPYC 7R13 CPU, 96 logical CPUs and 363 GiB RAM.
+  **How speculative decoding works:** Normally, the OCR model generates one
+  token (a small piece of text) per step. If the phrase “Median household income”
+  already appeared in the current table's transcription, our version can reuse
+  what followed it as a guess. The OCR model checks up to four guessed tokens
+  together against the image.
+
+  | Decoding example | Text so far | Next token pieces |
+  | --- | --- | --- |
+  | Earlier text in this region | Median household income | was · 80 · , · 000 |
+  | Current image matches | Median household income | was · 80 · , · 000 |
+  | Current image differs | Median household income | was · 90 · , · 000 |
+
+  Correct guesses let one model pass advance several tokens. At the first
+  mismatch, the model supplies the correct token and discards the remaining
+  guesses. Every evaluated output still had to match the same frozen OCR reference.
+
+- **Embedding became significant after the initial OCR gains:** With four-region
+  batches shared across GPUs,
+  [*The Estimation of Maximum Load Capacity of Seaplanes and Flying Boats*](#/dataset/public-v3/naca-seaplanes/1)
+  spent 1.89 seconds in embedding, or 35.5% of mean call time. This prompted the
+  subsequent tests of lower embedding precision and smaller batches.
+  [Embedding profile](#/profile/25b86f6693479a2fe6d5).
+- **Best optimized configuration:** When processing
+  [*The Estimation of Maximum Load Capacity of Seaplanes and Flying Boats*](#/dataset/public-v3/naca-seaplanes/1),
+  GPU activity was 68.7–82.3%, with only seven samples per GPU.
+  Busy time is not achieved compute or bandwidth, so saturation remains unproven.
+  [GPU profile](#/profile/7195172c30ec973339d4).
 
 ## Changes that paid off
 
 Each row compares a retained change with its recorded control, in experiment
-order. **Positive percentages mean faster**, using eval's `(speedup − 1) × 100`
-for each metric. These incremental gains are not additive.
+order. Expand a change for its explanation and diagram.
 
 | Change | p50 gain | p95 gain | Pages/min gain |
 | --- | ---: | ---: | ---: |
@@ -97,11 +138,6 @@ initially traded a slower p50 for better p95 and throughput; raising admission t
 eight then improved all three metrics.
 
 ## Hurdles and diminishing returns
-
-[Single-GPU runs were too slow](#/doc/experiments/000-setup-notes), so accepted
-comparisons kept four GPUs fixed. Separate runtime environments avoided
-CUDA-library conflicts; eager module loading resolved a startup stall.
-Profiler repairs kept instrumented calls separate from benchmark samples.
 
 [Token-dependent tile selection](#/doc/experiments/021-decoder-matrix-tiles) initially
 changed only the vocabulary head: compilation froze the decoder's larger tiles.
